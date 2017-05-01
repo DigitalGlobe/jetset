@@ -1,7 +1,7 @@
 import React from 'react';
 import Api from '../index';
 
-const sourcesSchema = require( '../schemas/sources' );
+const sourcesSchema = require( './schemas/sources' );
 
 export const sources = Component => props =>
   <Api url="http://localhost:3000/hub/api" sources={ sourcesSchema }>

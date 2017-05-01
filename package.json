@@ -1,16 +1,21 @@
 {
-  "name": "@timbr/rest",
+  "name": "jetset",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DigitalGlobe/jetset"
+  },
   "scripts": {
     "start": "lerna run seed-sources & webpack-dev-server"
   },
   "dependencies": {
-    "@timbr/fetch": "*",
+    "fetch": "DigitalGlobe/fetch",
     "immutable": "^3.8.1",
     "immutablediff": "^0.4.4"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
     "babel-loader": "6.x",
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",

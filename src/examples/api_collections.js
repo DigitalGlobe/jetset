@@ -1,7 +1,7 @@
 import React from 'react';
 import Api from '../index';
 
-const sourcesSchema = require( '../schemas/sources.json' );
+const sourcesSchema = require( './schemas/sources.json' );
 
 function Sources({ sources }) {
   return (
