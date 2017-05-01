@@ -1,4 +1,5 @@
 # Jetset
+> Multi-faceted library of tools built around an immutable state tree
 
 ## Install
 
@@ -6,10 +7,34 @@
 $ npm i --save DigitalGlobe/jetset
 ```
 
-## Use
+## Api
+> Jetset the fetching, state management, and rendering of your api data!
 
-```
-import Api from 'jetset';
+```javascript
+import Api from 'jetset/api';
+
+function MyComponent({ myresource }) {
+  return (
+    <div>
+      { myresource().map( item => (
+        <div>
+          <span>{ item.get( 'name' ) }</span>
+          <button onClick={ item.$update({ title: 'renamed' }) }>Rename</button>
+          <button onClick={ item.$delete }>Delete</button>
+        </div>
+      ))}
+      <button onClick={ myresource.$create({ title: 'foo' }) }>Create new item</button>
+    </div>
+  );
+}
+
+function MyApi( props ) {
+  return (
+    <Api url="https://somehost.com/api" myresource={ jsonschema }>
+      <MyComponent />
+    </Api>
+  );
+}
 ```
 
 ## Reference
