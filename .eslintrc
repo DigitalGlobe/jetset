@@ -1,0 +1,117 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings"
+  ],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "jasmine": true
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 6
+  },
+  "globals": {
+    "fetch": true,
+    "FormData": true,
+    "define": true,
+    "jest": true,
+    "process": true,
+    "global": true,
+    "analytics": "true"
+  },
+  "plugins": [
+    "flowtype",
+    "import",
+    "react"
+  ],
+  "rules": {
+    "arrow-body-style": [2, "as-needed"],
+    "arrow-spacing": 2,
+    "brace-style": [2, "1tbs"],
+    "camelcase": [2, { "properties": "never" }],
+    "comma-style": 2,
+    "curly": 0,
+    "dot-location": [2, "property"],
+    "dot-notation": 2,
+    "eqeqeq": 2,
+    "indent": [2, 2, {"SwitchCase": 1}],
+    "jsx-quotes": [0, "prefer-double"],
+    "key-spacing": 0,
+    "keyword-spacing": ["error", {"before": true, "after": true}],
+    "new-cap": 0,
+    "no-alert": 2,
+    "no-caller": 2,
+    "no-dupe-keys": 0,
+    "no-eval": 2,
+    "no-extend-native": 2,
+    "no-implied-eval": 2,
+    "no-floating-decimal": 2,
+    "no-lone-blocks": 2,
+    "no-multi-spaces": 0,
+    "no-native-reassign": 2,
+    "no-new-func": 2,
+    "no-param-reassign": 1,
+    "no-spaced-func": 2,
+    "no-trailing-spaces": 0,
+    "no-underscore-dangle": 0,
+    "no-unneeded-ternary": 2,
+    "no-unused-expressions": 2,
+    "no-useless-concat": 2,
+    "quotes": 0,
+    "prefer-const": 2,
+    "prefer-spread": 2,
+    "react/jsx-key": 2,
+    "react/jsx-no-duplicate-props": 2,
+    "react/jsx-no-undef": 2,
+    "react/jsx-pascal-case": 1,
+    "react/jsx-uses-react": 2,
+    "react/jsx-uses-vars": 2,
+    "react/no-multi-comp": 1,
+    "react/no-unknown-property": 2,
+    "react/prop-types": 1,
+    "react/react-in-jsx-scope": 2,
+    "semi": [2, "always"],
+    "semi-spacing": 0,
+    "space-before-blocks": 2,
+    "space-infix-ops": 2,
+    "space-unary-ops": 2,
+    "strict": 0,
+    "flowtype/require-parameter-type": 0,
+    "flowtype/require-return-type": [
+        0,
+        "always",
+        {
+            "annotateUndefined": "never"
+        }
+    ],
+    "flowtype/space-after-type-colon": [
+        0,
+        "always"
+    ],
+    "flowtype/space-before-type-colon": [
+        0,
+        "never"
+    ],
+    "flowtype/type-id-match": [
+        0,
+        "^([A-Z][a-z0-9]+)+Type$"
+    ],
+    "flowtype/define-flow-type": 1,
+    "flowtype/use-flow-type": 1,
+    "import/no-named-as-default-member": 0,
+  },
+  "settings": {
+    "jsx": true,
+    "es6": true,
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
+    }
+  }
+}

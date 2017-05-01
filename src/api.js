@@ -1,4 +1,11 @@
-/* state tree
+import React from 'react';
+import { List, Map, fromJS } from 'immutable';
+import initFetch from 'fetch';
+
+import { isSchema, getIdField } from './lib/schema';
+import store from './store';
+
+/* basic state tree design for api.js
 * {
 *   $api: {
 *     [url]: {
@@ -21,13 +28,6 @@
 *   }
 * }
 */
-/* eslint-disable no-console */
-import React from 'react';
-import { List, Map, fromJS } from 'immutable';
-import initFetch from 'fetch';
-
-import { isSchema, getIdField } from './lib/schema';
-import store from './store';
 
 // TODO: use some more specific method from store's undo implementation
 const isUndo = () => store.getState( '_reset' );
@@ -49,12 +49,17 @@ function createActions( props ) {
       const getState      = key => store.getState([ '$api', props.url, resourceType ].concat( key || [] ));
       const setState      = ( val, key ) => store.setState([ '$api', props.url, resourceType ].concat( key || [] ), val );
       const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', props.url, resourceType ].concat( key || [] ), val );
+      const deleteState   = path => setState( null, path );
 
       const getCollection = path => {
         const collection = getState([ 'requests', path, 'data' ]);
         if ( collection ) {
           const models = getModels();
-          return collection.map( id => models.get( id ) );
+          return collection.reduce(( memo, id ) => {
+            const model = models.get( id );
+            if ( model ) return memo.push( model );
+            return memo;
+          }, List());
         } else {
           return null;
         }
@@ -70,14 +75,19 @@ function createActions( props ) {
         setState( nextState );
       };
 
+      const clearCollection = ( path = '/' ) => deleteState([ 'requests', path, 'data' ]);
+
       const getModels  = () => getState( 'models' ) || Map();
       const setModels  = data => setState( data, 'models' );
       const getModel   = id => getState([ 'models', id ]);
-      const setModel   = data => setState( fromJS( data ), [ 'models', data[ idField ] ] );
+      const setModel   = ( id, data ) => setState( fromJS( data ), [ 'models', id ] );
       const getPending = path => getState([ 'requests', path, 'pending' ]);
       const setPending = ( path, data ) => setStateQuiet( data, [ 'requests', path, 'pending' ]);
       const getError   = path => getState([ 'requests', path, 'error' ]);
-      const setError   = ( path, error ) => setState( error, [ 'requests', path, 'error' ]);
+      const setError   = ( path, error, options = {} ) => {
+        const method = options.quiet ? setStateQuiet : setState;
+        method( error, [ 'requests', path, 'error' ] );
+      };
 
       const setSearchResults = path => data => setCollection( data, path );
       const getSearchResults = path => getCollection( path );
@@ -131,6 +141,7 @@ function createActions( props ) {
             .then(
               data => {
                 setPending( path, false );
+                setError( path, null, { quiet: true } );
                 return data;
               },
               err => {
@@ -155,7 +166,7 @@ function createActions( props ) {
       const fetchOne = id => {
         const path = `/${id}`;
         if ( shouldFetch( path ) ) {
-          api.get( path ).then( data => setModel({ ...data, _fetched: true }));
+          api.get( path ).then( data => setModel( data[ idField ], { ...data, _fetched: true }));
         }
       };
 
@@ -180,10 +191,14 @@ function createActions( props ) {
 
       /**/
 
+      const $clear = id => () => setModel( id, null );
+      const $reset = id => () => fetchOne( id );
+
       const $delete = id => () => {
         const undoDelete = deleteModel( id );
         if ( undoDelete.length ) {
           return deleteOne( id ).catch( err => {
+            /* eslint-disable no-console */
             console.error( 'Failed to delete', id, err );
             undoDelete.forEach( undo => undo() );
             return Promise.reject( err );
@@ -197,6 +212,7 @@ function createActions( props ) {
         const undoUpdate = updateModel( id, vals );
         if ( undoUpdate.length ) {
           return updateOne( id, vals ).catch( err => {
+            /* eslint-disable no-console */
             console.error( 'Failed to update', id, 'with vals', vals, err );
             undoUpdate.forEach( undo => undo() );
             return Promise.reject( err );
@@ -214,8 +230,11 @@ function createActions( props ) {
       };
 
       const addRestMethods = model => {
-        model.$delete = $delete( model.get( idField ) );
-        model.$update = $update( model.get( idField ) );
+        const id = model.get( idField );
+        model.$delete = $delete( id );
+        model.$update = $update( id );
+        model.$clear  = $clear( id );
+        model.$reset  = $reset( id );
         return model;
       };
 
@@ -241,9 +260,9 @@ function createActions( props ) {
         }
       };
 
-      main._schema       = schema;
-      main._resourceType = resourceType;
-      main.getState      = getState;
+      // remove the cache for the resource collection
+      main.$clear = () => clearCollection();
+      main.$reset = fetchAll;
 
       // TODO: make optimistic?
       main.$create = createOne;
@@ -305,6 +324,10 @@ function createActions( props ) {
         }
       }), {});
 
+      main._schema       = schema;
+      main._resourceType = resourceType;
+      main.getState      = getState;
+
       memo[ key ] = main;
     }
     return memo;
@@ -323,6 +346,7 @@ export default class Api extends React.Component {
       if ( !nextState ) {
         this.forceUpdate();
       } else if ( this.resourceTypes.some( key => nextState.get( key ) !== this.cache.get( key ) ) ) {
+        /* eslint-disable no-console */
         console.log(`re-rendering based on state changes:`, nextState.toJS());
         this.cache = nextState;
         this.forceUpdate();

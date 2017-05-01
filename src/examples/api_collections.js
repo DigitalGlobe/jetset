@@ -17,6 +17,7 @@ function Sources({ sources }) {
             </div>
           )}
           <button onClick={() => sources.$create({ title: 'foo' })}>New foo</button>
+          <button onClick={() => sources.$clear()}>Clear cache</button>
         </span>
       }
     </div>
