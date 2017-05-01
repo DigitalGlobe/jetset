@@ -19,7 +19,7 @@ function MyComponent({ myresource }) {
       { myresource().map( item => (
         <div>
           <span>{ item.get( 'name' ) }</span>
-          <button onClick={ item.$update({ title: 'renamed' }) }>Rename</button>
+          <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
           <button onClick={ item.$delete }>Delete</button>
         </div>
       ))}
