@@ -1,3 +1,18 @@
+# Jetset
+
+## Install
+
+```
+$ npm i --save DigitalGlobe/jetset
+```
+
+## Use
+
+```
+import Api from 'jetset';
+```
+
+## Reference
 ```
 props.sources()                         //-> GET /sources 
 props.sources.$create({...})            //-> POST /sources
