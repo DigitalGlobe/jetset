@@ -28,7 +28,7 @@ function MyComponent({ myresource }) {
   );
 }
 
-function MyApi( props ) {
+function MyApi() {
   return (
     <Api url="https://somehost.com/api" myresource={ jsonschema }>
       <MyComponent />
