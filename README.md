@@ -18,8 +18,8 @@ function MyComponent({ myresource }) {
     <div>
       { myresource().map( item => (
         <div>
-          <span>{ item.get( 'name' ) }</span>
-          <button onClick={ item.$update({ title: 'renamed' }) }>Rename</button>
+          <span>{ item.get( 'title' ) }</span>
+          <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
           <button onClick={ item.$delete }>Delete</button>
         </div>
       ))}
@@ -28,7 +28,7 @@ function MyComponent({ myresource }) {
   );
 }
 
-function MyApi( props ) {
+function MyApi() {
   return (
     <Api url="https://somehost.com/api" myresource={ jsonschema }>
       <MyComponent />
