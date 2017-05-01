@@ -12,7 +12,7 @@ const rules = [{
 
 const devBuild = {
   entry: { example: path.join( __dirname, 'src', 'examples', 'index.js' ) },
-  modules: { rules },
+  module: { rules },
   output: {
     path: __dirname + '/public',
     filename: '[name].js'
