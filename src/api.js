@@ -121,7 +121,7 @@ function createActions( props ) {
         return undo;
       };
 
-      const shouldFetch = path => !isUndo() && !getPending( path );
+      const shouldFetch = path => !isUndo() && !getPending( path ) && !getError( path );
 
       const api = ['get', 'post', 'put', 'delete' ].reduce(( memo, method ) => ({
         ...memo,
@@ -206,10 +206,10 @@ function createActions( props ) {
         }
       };
 
-      const getPlaceholder = ( dataType = List ) => {
+      const getPlaceholder = ( path = null, dataType = List ) => {
         const placeholder = dataType();
         placeholder.$isPending = true;
-        placeholder.$error = null;
+        placeholder.$error = path ? getError( path ) : null;
         return placeholder;
       };
 
@@ -220,10 +220,11 @@ function createActions( props ) {
       };
 
       const main = () => {
-        const collection = getCollection( '/' );
+        const path = '/';
+        const collection = getCollection( path );
         if ( !collection ) {
           fetchAll();
-          return getPlaceholder();
+          return getPlaceholder( path );
         } else {
           return collection.map( addRestMethods );
         }
@@ -232,8 +233,9 @@ function createActions( props ) {
       main.$get = id => {
         const model = getModel( id );
         if ( !model || !model.get( '_fetched' ) ) {
+          const path = `/${id}`;
           fetchOne( id );
-          return getPlaceholder( Map );
+          return getPlaceholder( path, Map );
         } else {
           return addRestMethods( model );
         }
@@ -295,7 +297,7 @@ function createActions( props ) {
                   return data;
                 });
               }
-              return getPlaceholder();
+              return getPlaceholder( path );
             }
           } else {
             return api[ method ]( path, ...args );
