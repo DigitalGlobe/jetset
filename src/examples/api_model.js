@@ -17,7 +17,7 @@ const SourceDetail = sources( props => {
       </div>
     );
   } else {
-    return <div>Waiting for sources...</div>
+    return <div>Waiting for sources...</div>;
   }
 });
 

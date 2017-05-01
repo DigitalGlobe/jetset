@@ -7,44 +7,113 @@
 $ npm i --save DigitalGlobe/jetset
 ```
 
-## Api
+## Use
+
+
+See below for different tools/libs available. Note that all state is stored in
+an [Immutable](https://github.com/facebook/immutable-js/) state tree, so you'll
+want to become familiar with its data structures.
+
+### Api
 > Jetset the fetching, state management, and rendering of your api data!
 
-```javascript
-import Api from 'jetset/api';
+1. Setup
 
-function MyComponent({ myresource }) {
-  return (
-    <div>
-      { myresource().map( item => (
+    Create a [json schema](http://json-schema.org/) to match your REST resource.
+    Here is an example of a bare-minimum schema to set up everything for /sources:
+
+    ```json
+     {
+       "$schema": "http://json-schema.org/draft-04/schema#",
+       "title": "sources",
+       "properties": {
+         "_id": { "type": "string" }
+       }
+     }
+    ```
+
+    More complex functionality, for example related data features, will require
+    more complex schemas (coming soon).
+
+1. Quick start (using sources example from above)
+
+    ```javascript
+    import Api from 'jetset/api';
+
+    function MyComponent({ sources }) {
+      return (
         <div>
-          <span>{ item.get( 'title' ) }</span>
-          <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
-          <button onClick={ item.$delete }>Delete</button>
+          { sources().map( item => (
+            <div>
+              <span>{ item.get( 'title' ) }</span>
+              <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
+              <button onClick={ item.$delete }>Delete</button>
+            </div>
+          ))}
+          <button onClick={ sources.$create({ title: 'foo' }) }>Create new item</button>
         </div>
-      ))}
-      <button onClick={ myresource.$create({ title: 'foo' }) }>Create new item</button>
-    </div>
-  );
-}
+      );
+    }
 
-function MyApi() {
-  return (
-    <Api url="https://somehost.com/api" myresource={ jsonschema }>
-      <MyComponent />
-    </Api>
-  );
-}
-```
+    function MyApi() {
+      return (
+        <Api url="https://somehost.com/api" sources={ sourcesSchema }>
+          <MyComponent />
+        </Api>
+      );
+    }
+    ```
 
-## Reference
+#### Reference
+
+```javascript
+const { sources } = props; // e.g. from <Api url="..." sources={ sourcesSchema } />
+
+// GET /sources => List (will use cache)
+sources()
+
+// POST /sources => Promise<Array>
+sources.$create({...})
+
+// GET /sources?key=val... => Promise<Array>
+sources.$search({ key: val, ...})
+sources.$search.results({ key: val,... }) // List (will use cache)
+
+// GET /sources/id => Map (will use cache)
+sources.$get( id )
+
+// PUT /sources/id => Promise<Object>
+sources.$get( id ).$update({...})
+sources().find( model => model.get( '_id' ) === id ).$update({...})
+
+// DELETE /sources/id => Promise<Object>
+sources.$get( id ).$delete( id )
+sources().find( model => model.get( '_id' ) === id ).$delete()
+
+// GET /sources/some/other/route => Promise<Array|Object>
+sources.api.get( '/some/other/route' )
+
+// GET /sources/some/other/route => List|Map (will use cache)
+sources.api.$get( '/some/other/route' )
+
+// POST /sources/some/other/route => Promise<Array|Object>
+sources.api.post( '/some/other/route' )
+
+// check if underlying request is pending
+sources().$isPending
+sources.$get( id ).$isPending
+
+// check if request got an error
+sources().$error
+sources.$get( id ).$error
+
+// clear cache
+sources.$clear();
+sources.$get( id ).$clear()
+sources.$search.results({...}).$clear()
+
+// reset with data from server
+sources.$reset();
+sources.$get( id ).$reset()
+sources.$search.results({...}).$reset()
 ```
-props.sources()                         //-> GET /sources 
-props.sources.$create({...})            //-> POST /sources
-props.sources.$search({...})            //-> GET /sources?...
-props.sources.$get( id )                //-> GET /sources/id
-props.sources.$get( id ).$update({...}) //-> PUT /sources/id
-props.sources.$delete( id )             //-> DELETE /sources/id
-```
-Note that all GET requests will only be executed once no matter how many times
-you call them... 
