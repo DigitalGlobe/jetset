@@ -1,5 +1,5 @@
 import React from 'react';
-import store from '../lib/store';
+import store from '../store';
 
 export default class TimeTravelExample extends React.Component {
   constructor( props ) {

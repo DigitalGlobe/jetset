@@ -7,7 +7,7 @@
     "url": "https://github.com/DigitalGlobe/jetset"
   },
   "scripts": {
-    "start": "lerna run seed-sources & webpack-dev-server"
+    "start": "webpack-dev-server"
   },
   "dependencies": {
     "fetch": "DigitalGlobe/fetch",
@@ -19,6 +19,7 @@
     "babel-loader": "6.x",
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
+    "react-treeview": "^0.4.6",
     "webpack-dev-server": "2.x"
   },
   "peerDependencies": {

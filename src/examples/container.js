@@ -1,5 +1,5 @@
 import React from 'react';
-import container, { Children } from '../lib/container';
+import container, { Children } from '../container';
 
 @container
 class Panels extends React.Component {

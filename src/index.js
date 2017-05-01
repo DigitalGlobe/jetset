@@ -24,10 +24,10 @@
 /* eslint-disable no-console */
 import React from 'react';
 import { List, Map, fromJS } from 'immutable';
-import initFetch from '@timbr/fetch';
+import initFetch from 'fetch';
 
 import { isSchema, getIdField } from './lib/schema';
-import store from './lib/store';
+import store from './store';
 
 // TODO: use some more specific method from store's undo implementation
 const isUndo = () => store.getState( '_reset' );

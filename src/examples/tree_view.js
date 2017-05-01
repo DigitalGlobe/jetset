@@ -2,7 +2,7 @@ import React from 'react';
 import { Map, List } from 'immutable';
 import TreeView from 'react-treeview';
 
-import store from '../lib/store';
+import store from '../store';
 
 function flatten( map, props, expansions, layer = 1 ) {
   return map.map(( val, key ) => { 
