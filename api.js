@@ -207,7 +207,7 @@ function createActions(props) {
       };
 
       var shouldFetch = function shouldFetch(path) {
-        return !isUndo() && !getPending(path);
+        return !isUndo() && !getPending(path) && !getError(path);
       };
 
       var api = ['get', 'post', 'put', 'delete'].reduce(function (memo, method) {
@@ -311,11 +311,12 @@ function createActions(props) {
       };
 
       var getPlaceholder = function getPlaceholder() {
-        var dataType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _immutable.List;
+        var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        var dataType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _immutable.List;
 
         var placeholder = dataType();
         placeholder.$isPending = true;
-        placeholder.$error = null;
+        placeholder.$error = path ? getError(path) : null;
         return placeholder;
       };
 
@@ -326,10 +327,11 @@ function createActions(props) {
       };
 
       var main = function main() {
-        var collection = getCollection('/');
+        var path = '/';
+        var collection = getCollection(path);
         if (!collection) {
           fetchAll();
-          return getPlaceholder();
+          return getPlaceholder(path);
         } else {
           return collection.map(addRestMethods);
         }
@@ -338,8 +340,9 @@ function createActions(props) {
       main.$get = function (id) {
         var model = getModel(id);
         if (!model || !model.get('_fetched')) {
+          var path = '/' + id;
           fetchOne(id);
-          return getPlaceholder(_immutable.Map);
+          return getPlaceholder(path, _immutable.Map);
         } else {
           return addRestMethods(model);
         }
@@ -402,7 +405,7 @@ function createActions(props) {
                   return data;
                 });
               }
-              return getPlaceholder();
+              return getPlaceholder(path);
             }
           } else {
             return api[method].apply(api, [path].concat(args));
