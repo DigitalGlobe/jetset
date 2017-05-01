@@ -9,31 +9,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /* state tree
-                                                                                                                                                                                                                                                                  * {
-                                                                                                                                                                                                                                                                  *   $api: {
-                                                                                                                                                                                                                                                                  *     [url]: {
-                                                                                                                                                                                                                                                                  *       [resource]: {
-                                                                                                                                                                                                                                                                  *         models: {
-                                                                                                                                                                                                                                                                  *           [id]: { 
-                                                                                                                                                                                                                                                                  *             [key]: any,
-                                                                                                                                                                                                                                                                  *             _fetched?: boolean
-                                                                                                                                                                                                                                                                  *           }
-                                                                                                                                                                                                                                                                  *         },
-                                                                                                                                                                                                                                                                  *         requests: {
-                                                                                                                                                                                                                                                                  *           [url]: {
-                                                                                                                                                                                                                                                                  *             pending?: boolean,
-                                                                                                                                                                                                                                                                  *             error?: Object,
-                                                                                                                                                                                                                                                                  *             data?: List | Map
-                                                                                                                                                                                                                                                                  *           }
-                                                                                                                                                                                                                                                                  *         }
-                                                                                                                                                                                                                                                                  *       }
-                                                                                                                                                                                                                                                                  *     }
-                                                                                                                                                                                                                                                                  *   }
-                                                                                                                                                                                                                                                                  * }
-                                                                                                                                                                                                                                                                  */
-/* eslint-disable no-console */
-
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _react = require('react');
 
@@ -65,6 +41,30 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+/* basic state tree design for api.js
+* {
+*   $api: {
+*     [url]: {
+*       [resource]: {
+*         models: {
+*           [id]: { 
+*             [key]: any,
+*             _fetched?: boolean
+*           }
+*         },
+*         requests: {
+*           [url]: {
+*             pending?: boolean,
+*             error?: Object,
+*             data?: List | Map
+*           }
+*         }
+*       }
+*     }
+*   }
+* }
+*/
+
 // TODO: use some more specific method from store's undo implementation
 var isUndo = function isUndo() {
   return _store2.default.getState('_reset');
@@ -93,14 +93,19 @@ function createActions(props) {
       var setStateQuiet = function setStateQuiet(val, key) {
         return _store2.default.setStateQuiet(['$api', props.url, resourceType].concat(key || []), val);
       };
+      var deleteState = function deleteState(path) {
+        return setState(null, path);
+      };
 
       var getCollection = function getCollection(path) {
         var collection = getState(['requests', path, 'data']);
         if (collection) {
           var models = getModels();
-          return collection.map(function (id) {
-            return models.get(id);
-          });
+          return collection.reduce(function (memo, id) {
+            var model = models.get(id);
+            if (model) return memo.push(model);
+            return memo;
+          }, (0, _immutable.List)());
         } else {
           return null;
         }
@@ -121,6 +126,11 @@ function createActions(props) {
         setState(nextState);
       };
 
+      var clearCollection = function clearCollection() {
+        var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '/';
+        return deleteState(['requests', path, 'data']);
+      };
+
       var getModels = function getModels() {
         return getState('models') || (0, _immutable.Map)();
       };
@@ -130,8 +140,8 @@ function createActions(props) {
       var getModel = function getModel(id) {
         return getState(['models', id]);
       };
-      var setModel = function setModel(data) {
-        return setState((0, _immutable.fromJS)(data), ['models', data[idField]]);
+      var setModel = function setModel(id, data) {
+        return setState((0, _immutable.fromJS)(data), ['models', id]);
       };
       var getPending = function getPending(path) {
         return getState(['requests', path, 'pending']);
@@ -143,7 +153,10 @@ function createActions(props) {
         return getState(['requests', path, 'error']);
       };
       var setError = function setError(path, error) {
-        return setState(error, ['requests', path, 'error']);
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+        var method = options.quiet ? setStateQuiet : setState;
+        method(error, ['requests', path, 'error']);
       };
 
       var setSearchResults = function setSearchResults(path) {
@@ -219,6 +232,7 @@ function createActions(props) {
           setPending(path, true);
           return fetch[method].apply(fetch, ['' + url + (path === '/' ? '' : path)].concat(args)).then(function (data) {
             setPending(path, false);
+            setError(path, null, { quiet: true });
             return data;
           }, function (err) {
             setPending(path, false);
@@ -244,7 +258,7 @@ function createActions(props) {
         var path = '/' + id;
         if (shouldFetch(path)) {
           api.get(path).then(function (data) {
-            return setModel(_extends({}, data, { _fetched: true }));
+            return setModel(data[idField], _extends({}, data, { _fetched: true }));
           });
         }
       };
@@ -276,11 +290,23 @@ function createActions(props) {
 
       /**/
 
+      var $clear = function $clear(id) {
+        return function () {
+          return setModel(id, null);
+        };
+      };
+      var $reset = function $reset(id) {
+        return function () {
+          return fetchOne(id);
+        };
+      };
+
       var $delete = function $delete(id) {
         return function () {
           var undoDelete = deleteModel(id);
           if (undoDelete.length) {
             return deleteOne(id).catch(function (err) {
+              /* eslint-disable no-console */
               console.error('Failed to delete', id, err);
               undoDelete.forEach(function (undo) {
                 return undo();
@@ -298,6 +324,7 @@ function createActions(props) {
           var undoUpdate = updateModel(id, vals);
           if (undoUpdate.length) {
             return updateOne(id, vals).catch(function (err) {
+              /* eslint-disable no-console */
               console.error('Failed to update', id, 'with vals', vals, err);
               undoUpdate.forEach(function (undo) {
                 return undo();
@@ -321,8 +348,11 @@ function createActions(props) {
       };
 
       var addRestMethods = function addRestMethods(model) {
-        model.$delete = $delete(model.get(idField));
-        model.$update = $update(model.get(idField));
+        var id = model.get(idField);
+        model.$delete = $delete(id);
+        model.$update = $update(id);
+        model.$clear = $clear(id);
+        model.$reset = $reset(id);
         return model;
       };
 
@@ -348,9 +378,11 @@ function createActions(props) {
         }
       };
 
-      main._schema = schema;
-      main._resourceType = resourceType;
-      main.getState = getState;
+      // remove the cache for the resource collection
+      main.$clear = function () {
+        return clearCollection();
+      };
+      main.$reset = fetchAll;
 
       // TODO: make optimistic?
       main.$create = createOne;
@@ -413,6 +445,10 @@ function createActions(props) {
         }));
       }, {});
 
+      main._schema = schema;
+      main._resourceType = resourceType;
+      main.getState = getState;
+
       memo[key] = main;
     }
     return memo;
@@ -439,6 +475,7 @@ var Api = function (_React$Component) {
       } else if (_this.resourceTypes.some(function (key) {
         return nextState.get(key) !== _this.cache.get(key);
       })) {
+        /* eslint-disable no-console */
         console.log('re-rendering based on state changes:', nextState.toJS());
         _this.cache = nextState;
         _this.forceUpdate();
