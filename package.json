@@ -1,0 +1,23 @@
+{
+  "name": "@timbr/rest",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "lerna run seed-sources & webpack-dev-server"
+  },
+  "dependencies": {
+    "@timbr/fetch": "*",
+    "immutable": "^3.8.1",
+    "immutablediff": "^0.4.4"
+  },
+  "devDependencies": {
+    "babel-loader": "6.x",
+    "react-router": "^4.1.1",
+    "react-router-dom": "^4.1.1",
+    "webpack-dev-server": "2.x"
+  },
+  "peerDependencies": {
+    "react": "15.x",
+    "react-dom": "15.x"
+  }
+}
