@@ -45,8 +45,8 @@ function containerize(Component) {
 
       _this.componentWillMount = function () {
         _this.subscription = _store2.default.subscribeTo(masterKey, function (state) {
-          /* eslint-disable no-console */
           if (state) {
+            /* eslint-disable no-console */
             console.log('re-rendering', masterKey, 'based on state change:', state.toJS());
             _this.setState({ container: state });
           }
@@ -58,11 +58,11 @@ function containerize(Component) {
       };
 
       _this.getStoreState = function (key) {
-        return _store2.default.getState([masterKey, key]);
+        return _store2.default.getState(['containers', masterKey, key]);
       };
 
       _this.setStoreState = function (key, val) {
-        return _store2.default.setState([masterKey, key], val);
+        return _store2.default.setState(['containers', masterKey, key], val);
       };
 
       _this.state = { container: null };

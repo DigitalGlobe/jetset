@@ -29,7 +29,7 @@ exports.default = function (pathToSubscribeTo) {
 
         _this.onChange = function (state) {
           /* eslint-disable no-console */
-          console.log(Component.name || '', 'is set to re-render due to subscribed change', state && state.toJS ? state.toJS() : state);
+          (0, _log2.default)('\uD83D\uDCC5 <' + (Component.name || 'StatelessFunction') + '> is re-rendering due to subscribed change', state && state.toJS ? state.toJS() : state);
           _this.setState({ store: state });
         };
 
@@ -66,6 +66,10 @@ var _react2 = _interopRequireDefault(_react);
 var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
+
+var _log = require('./lib/log');
+
+var _log2 = _interopRequireDefault(_log);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 

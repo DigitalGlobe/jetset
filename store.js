@@ -16,6 +16,10 @@ var _immutablediff = require('immutablediff');
 
 var _immutablediff2 = _interopRequireDefault(_immutablediff);
 
+var _log = require('./lib/log');
+
+var _log2 = _interopRequireDefault(_log);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -67,11 +71,18 @@ function canUndo(_ref) {
   var _ref$apply = _ref.apply,
       _apply = _ref$apply === undefined ? function () {} : _ref$apply;
 
+  var log = function log() {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return _log2.default.apply(undefined, ['\u23F1 timetravel: '].concat(args));
+  };
+
   var undo = (0, _immutable.List)();
   var idx = -1;
 
   var methods = {
-    /* eslint-disable no-console */
     apply: function apply(idxNext, ignore) {
       var current = undo.get(idx);
       var next = undo.get(idxNext);
@@ -79,12 +90,12 @@ function canUndo(_ref) {
       if (!ignore || !changes.every(function (item) {
         return item.path.indexOf('/' + ignore) === 0;
       })) {
-        console.log('\u23F1 timetravel: diff:', changes);
+        log('diff:', changes);
         idx = idxNext;
         _apply(next);
         return true;
       } else {
-        console.log('\u23F1 timetravel: skipping this state because changes were only on \'' + ignore + '\' branch');
+        log('skipping this state because changes were only on \'' + ignore + '\' branch');
         return false;
       }
     },
@@ -94,13 +105,13 @@ function canUndo(_ref) {
       var idxNext = idx - 1;
       if (idxNext >= -undo.size) {
         var display = idx * -1;
-        console.log('\u23F1 timetravel: stepping back to ' + display + ' state(s) ago');
+        log('stepping back to ' + display + ' state(s) ago');
         if (!methods.apply(idxNext)) {
           methods.prev({ ignore: ignore });
         }
       } else {
         _apply((0, _immutable.Map)({}));
-        console.log('\u23F1 timetravel: there are no earlier states than this one');
+        log('there are no earlier states than this one');
       }
     },
     next: function next(_ref3) {
@@ -108,12 +119,12 @@ function canUndo(_ref) {
 
       if (idx < -1) {
         var idxNext = idx + 1;
-        console.log('\u23F1 timetravel: stepping forward to ' + (idx === -2 ? 'current state' : (idx + 2) * -1 + ' state(s) ago'));
+        log('stepping forward to ' + (idx === -2 ? 'current state' : (idx + 2) * -1 + ' state(s) ago'));
         if (!methods.apply(idxNext)) {
           methods.next({ ignore: ignore });
         }
       } else {
-        console.log('\u23F1 timetravel: you are at the current state');
+        log('you are at the current state');
       }
     },
     reset: function reset() {
@@ -121,7 +132,7 @@ function canUndo(_ref) {
         idx = -1;
         _apply(undo.get(idx), { reset: true });
       }
-      console.log('\u23F1 timetravel: you are at the current state');
+      log('you are at the current state');
     },
     save: function save(state) {
       undo = undo.push(state);
@@ -151,18 +162,17 @@ var undo = canUndo({ apply: function apply(state) {
     return invoke(resetState(state), !options.reset);
   } });
 
+var setStateEmoji = '\uD83C\uDFDB';
+
 var store = _extends({}, subscriptionMethods, stateMethods, {
   setState: function setState() {
-    var _console;
-
-    /* eslint-disable no-console */
     undo.reset();
 
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
+    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
     }
 
-    (_console = console).log.apply(_console, ['setting state:'].concat(args));
+    _log2.default.apply(undefined, [setStateEmoji + ' setting state: '].concat(args));
     _setState.apply(undefined, args);
     var state = stateMethods.getState();
     undo.save(state);
@@ -170,14 +180,11 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
     invoke(state);
   },
   setStateQuiet: function setStateQuiet() {
-    var _console2;
-
-    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      args[_key3] = arguments[_key3];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
-    /* eslint-disable no-console */
-    (_console2 = console).log.apply(_console2, ['setting state quiet (no re-rendering):'].concat(args));
+    _log2.default.apply(undefined, ['%c' + setStateEmoji + ' setting state quiet (no re-rendering):', 'color: #999'].concat(args));
     _setState.apply(undefined, args);
   },
 
@@ -187,11 +194,13 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
     var onChange = function onChange(state) {
       var nextState = state.getIn([].concat(path));
       if (nextState !== cache) {
+        (0, _log2.default)('\uD83D\uDCC5 `' + path + '` changed. invoking subscriptions...');
         callback(nextState);
         cache = nextState;
       }
     };
     subscribe(onChange);
+    (0, _log2.default)('\uD83D\uDCC5 created subscription for `' + path + '`');
     return onChange;
   },
 
