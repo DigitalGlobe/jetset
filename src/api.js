@@ -1,6 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { List, Map, fromJS } from 'immutable';
-import diff from 'immutablediff';
 import initFetch from 'fetch';
 
 import { isSchema, getIdField } from './lib/schema';
@@ -363,6 +363,10 @@ function createActions( props ) {
 
 export default class Api extends React.Component {
 
+  propTypes: { 
+    url: PropTypes.string.isRequired
+  };
+
   subscriptions = []
 
   constructor( props ) {
@@ -373,10 +377,8 @@ export default class Api extends React.Component {
   componentWillMount() {
     this.subscriptions = Object.keys( this.api ).map( key => {
       const resource = this.api[ key ]._resourceType;
-      let cache = null;
       store.subscribeTo([ '$api', this.props.url, resource ], state => {
-        logger(`\uD83C\uDF0E re-rendering based on state changes:`, diff( cache, state ).toJS() );
-        cache = state;
+        logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${this.props.url + ' ‣ ' + resource}`, 'color: #5B4532' );
         this.forceUpdate();
       });
     });

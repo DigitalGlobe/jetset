@@ -26,7 +26,7 @@ export default function( pathToSubscribeTo ) {
 
       onChange = state => {
         /* eslint-disable no-console */
-        logger( `\uD83D\uDCC5 <${Component.name || 'StatelessFunction'}> is re-rendering due to subscribed change`, state && state.toJS ? state.toJS() :  state );
+        logger( `\uD83C\uDF00 <${Component.name || 'StatelessFunction'}> is re-rendering based on changes on branch: ${pathToSubscribeTo}` );
         this.setState({ store: state });
       }
 

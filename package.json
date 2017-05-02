@@ -14,7 +14,7 @@
   "dependencies": {
     "fetch": "DigitalGlobe/fetch",
     "immutable": "^3.8.1",
-    "immutablediff": "^0.4.4"
+    "immutablediff": "DigitalGlobe/immutable-js-diff"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -28,6 +28,7 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-react": "^6.10.3",
+    "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-router": "^4.1.1",
@@ -37,6 +38,7 @@
     "webpack-dev-server": "2.x"
   },
   "peerDependencies": {
+    "prop-types": "^15.5.8",
     "react": "15.x",
     "react-dom": "15.x"
   }

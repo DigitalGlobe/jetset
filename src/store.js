@@ -1,6 +1,6 @@
 import { Map, List } from 'immutable';
 import diff from 'immutablediff';
-import logger from './lib/log';
+import logger, { formatBranchArgs } from './lib/log';
 
 export function managesState() {
 
@@ -96,7 +96,7 @@ export function canUndo({ apply = () => {} }) {
       }
     },
     reset() {
-      if ( idx !== -1 ) {
+      if ( methods.isDirty() ) {
         idx = -1;
         apply( undo.get( idx ), { reset: true } );
       }
@@ -104,6 +104,9 @@ export function canUndo({ apply = () => {} }) {
     },
     save( state ) {
       undo = undo.push( state );
+    },
+    isDirty() {
+      return idx !== -1;
     }
   };
 
@@ -122,17 +125,20 @@ const store = {
   ...subscriptionMethods,
   ...stateMethods,
   setState( ...args ) {
-    undo.reset();
-    logger( `${setStateEmoji} setting state: `, ...args );
+    if ( undo.isDirty() ) undo.reset();
+    const statePrev = stateMethods.getState();
     setState( ...args );
-    const state = stateMethods.getState();
-    undo.save( state );
+    const stateCurrent = stateMethods.getState();
+    undo.save( stateCurrent );
+    logger( `${setStateEmoji} changing state: `, diff( statePrev, stateCurrent ).toJS() );
     // TODO: bump into next event loop to avoid possible collisions?
-    invoke( state );
+    invoke( stateCurrent );
   },
   setStateQuiet( ...args ) {
-    logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, ...args );
+    const statePrev = stateMethods.getState();
     setState( ...args );
+    const stateCurrent = stateMethods.getState();
+    logger( `%c${setStateEmoji} changing state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateCurrent ).toJS() );
   },
   subscribe,
   subscribeTo( path, callback ) {
@@ -140,13 +146,12 @@ const store = {
     const onChange = state => {
       const nextState = state.getIn( [].concat( path ) );
       if ( nextState !== cache ) {
-        logger( `\uD83C\uDF32 branch changed: %c${[].concat( path ).join( ' ‣ ' )}`, 'color: #6B5746' );
         callback( nextState );
         cache = nextState;
       }
     };
     subscribe( onChange );
-    logger( `\uD83D\uDCC5 created subscription for path: \`${path}\`` );
+    logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
     return onChange;
   },
   nextState: undo.next,

@@ -61,3 +61,7 @@ export function getStack() {
     ? stack.split('\n').slice(4).map( item => item.trim() ).join( '\n' )
     : '';
 }
+
+export function formatBranchArgs( path ) {
+  return [].concat( path ).join( ' ‣ ' );
+}
