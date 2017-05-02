@@ -99,20 +99,20 @@ sources.api.$get( '/some/other/route' )
 // POST /sources/some/other/route => Promise<Array|Object>
 sources.api.post( '/some/other/route' )
 
-// check if underlying request is pending
+// check if underlying request is pending => boolean|void
 sources().$isPending
 sources.$get( id ).$isPending
 
-// check if request got an error
+// check if request got an error => Error|void
 sources().$error
 sources.$get( id ).$error
 
-// clear cache
+// clear cache => void
 sources.$clear();
 sources.$get( id ).$clear()
 sources.$search.results({...}).$clear()
 
-// reset with data from server
+// reset with data from server => void
 sources.$reset();
 sources.$get( id ).$reset()
 sources.$search.results({...}).$reset()
