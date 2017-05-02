@@ -166,6 +166,7 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
     _setState.apply(undefined, args);
     var state = stateMethods.getState();
     undo.save(state);
+    // TODO: bump into next event loop to avoid possible collisions?
     invoke(state);
   },
   setStateQuiet: function setStateQuiet() {

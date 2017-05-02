@@ -301,39 +301,56 @@ function createActions(props) {
         };
       };
 
+      var optimisticDelete = function optimisticDelete(id) {
+        var undoDelete = deleteModel(id);
+        if (undoDelete.length) {
+          return deleteOne(id).catch(function (err) {
+            /* eslint-disable no-console */
+            console.error('Failed to delete', id, err);
+            undoDelete.forEach(function (undo) {
+              return undo();
+            });
+            return Promise.reject(err);
+          });
+        } else {
+          return Promise.reject(new Error(404));
+        }
+      };
+
       var $delete = function $delete(id) {
         return function () {
-          var undoDelete = deleteModel(id);
-          if (undoDelete.length) {
-            return deleteOne(id).catch(function (err) {
-              /* eslint-disable no-console */
-              console.error('Failed to delete', id, err);
-              undoDelete.forEach(function (undo) {
-                return undo();
-              });
-              return Promise.reject(err);
-            });
-          } else {
-            return Promise.reject(new Error(404));
-          }
+          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          return options.optimistic === false ? deleteOne(id).then(function () {
+            return deleteModel(id);
+          }) : optimisticDelete(id);
         };
+      };
+
+      var optimisticUpdate = function optimisticUpdate(id, vals) {
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+        var placeholder = typeof options.optimistic === 'function' ? options.optimistic(_extends({ id: id }, vals)) : vals;
+        var undoUpdate = updateModel(id, placeholder);
+        if (undoUpdate.length) {
+          return updateOne(id, vals).catch(function (err) {
+            /* eslint-disable no-console */
+            console.error('Failed to update', id, 'with vals', vals, err);
+            undoUpdate.forEach(function (undo) {
+              return undo();
+            });
+            return Promise.reject(err);
+          });
+        } else {
+          return Promise.reject(new Error(404));
+        }
       };
 
       var $update = function $update(id) {
         return function (vals) {
-          var undoUpdate = updateModel(id, vals);
-          if (undoUpdate.length) {
-            return updateOne(id, vals).catch(function (err) {
-              /* eslint-disable no-console */
-              console.error('Failed to update', id, 'with vals', vals, err);
-              undoUpdate.forEach(function (undo) {
-                return undo();
-              });
-              return Promise.reject(err);
-            });
-          } else {
-            return Promise.reject(new Error(404));
-          }
+          var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+          return options.optimistic === false ? updateOne(id, vals).then(function (data) {
+            return updateModel(id, data);
+          }) : optimisticUpdate(id, vals, options);
         };
       };
 
@@ -384,8 +401,25 @@ function createActions(props) {
       };
       main.$reset = fetchAll;
 
-      // TODO: make optimistic?
-      main.$create = createOne;
+      var optimisticCreate = function optimisticCreate(data) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        if (typeof options.optimistic === 'function') {
+          var nextState = getState().withMutations(function (map) {
+            return options.optimistic(map, data);
+          });
+          if (nextState) setState(nextState);
+          return createOne(data);
+        } else {
+          console.warn('Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.');
+          return createOne(data);
+        }
+      };
+
+      main.$create = function (data) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        return !options.optimistic ? createOne(data) : optimisticCreate(data, options);
+      };
 
       // call signature: search({ queryOrWhatever: 'foo', otherParam: 0, anotherParam: 30 })
       // - sort so that we can cache consistently
