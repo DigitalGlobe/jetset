@@ -14,7 +14,7 @@ $ npm i --save DigitalGlobe/jetset
 
 See below for different tools/libs available. Note that all state is stored in
 an [Immutable](https://github.com/facebook/immutable-js/) state tree, so you'll
-want to become familiar with its data structures.
+want to become familiar with its [api and data structures](http://facebook.github.io/immutable-js/docs/#/), especially [Map](http://facebook.github.io/immutable-js/docs/#/Map) and [List](http://facebook.github.io/immutable-js/docs/#/List), which we are using in the state tree instead of objects and arrays.
 
 ### Api
 > Jetset the fetching, state management, and rendering of your api data!
