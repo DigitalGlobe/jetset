@@ -124,6 +124,7 @@ const store = {
     setState( ...args );
     const state = stateMethods.getState();
     undo.save( state );
+    // TODO: bump into next event loop to avoid possible collisions?
     invoke( state );
   },
   setStateQuiet( ...args ) {

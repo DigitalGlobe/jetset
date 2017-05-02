@@ -1,6 +1,8 @@
 # Jetset
 > Multi-faceted library of tools built around an immutable state tree
 
+NOTE: This is very much a work in progress. Everything subject to change!
+
 ## Install
 
 ```
@@ -117,6 +119,28 @@ sources.$reset();
 sources.$get( id ).$reset()
 sources.$search.results({...}).$reset()
 ```
+#### Optimism and pessimism
+
+By default, deletes and updates are optimistic. To turn this off, pass
+`{ optimistic: false }` in as an option. For example:
+
+```javascript
+sources.$get( id ).$delete({ optimistic: false })
+sources.$get( id ).$update({ title: 'foo' }, { optimistic: false })
+```
+
+There is experimental support for optimistic creates. In this case, pass
+a function in as the value of `optimistic`. This function will receive as
+arguments the current state and the data payload you are about to post. For
+example:
+
+```javascript
+sources.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
+  state.setIn([ 'models', 'fooId' ], Map({ ...data, _id: 'fooId' }));
+}})
+```
+
+
 ## Examples
 
 Note: Examples currently assume timbr-omni is running with the api-lib-poc branch checked out.

@@ -194,7 +194,7 @@ function createActions( props ) {
       const $clear = id => () => setModel( id, null );
       const $reset = id => () => fetchOne( id );
 
-      const $delete = id => () => {
+      const optimisticDelete = id => {
         const undoDelete = deleteModel( id );
         if ( undoDelete.length ) {
           return deleteOne( id ).catch( err => {
@@ -208,8 +208,16 @@ function createActions( props ) {
         }
       };
 
-      const $update = id => vals => {
-        const undoUpdate = updateModel( id, vals );
+      const $delete = id => ( options = {} ) =>
+        options.optimistic === false
+          ? deleteOne( id ).then(() => deleteModel( id ) )
+          : optimisticDelete( id );
+
+      const optimisticUpdate = ( id, vals, options = {} ) => {
+        const placeholder = typeof options.optimistic === 'function'
+          ? options.optimistic({ id, ...vals })
+          : vals;
+        const undoUpdate = updateModel( id, placeholder );
         if ( undoUpdate.length ) {
           return updateOne( id, vals ).catch( err => {
             /* eslint-disable no-console */
@@ -221,6 +229,11 @@ function createActions( props ) {
           return Promise.reject( new Error( 404 ) );
         }
       };
+
+      const $update = id => ( vals, options = {} ) =>
+        options.optimistic === false
+          ? updateOne( id, vals ).then( data => updateModel( id, data ) )
+          : optimisticUpdate( id, vals, options );
 
       const getPlaceholder = ( path = null, dataType = List ) => {
         const placeholder = dataType();
@@ -264,8 +277,22 @@ function createActions( props ) {
       main.$clear = () => clearCollection();
       main.$reset = fetchAll;
 
-      // TODO: make optimistic?
-      main.$create = createOne;
+
+      const optimisticCreate = ( data, options = {} ) => {
+        if ( typeof options.optimistic === 'function' ) {
+          const nextState = getState().withMutations( map => options.optimistic( map, data ) );
+          if ( nextState ) setState( nextState );
+          return createOne( data );
+        } else {
+          console.warn( `Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.`);
+          return createOne( data );
+        }
+      };
+
+      main.$create = ( data, options = {} ) =>
+        !options.optimistic
+          ? createOne( data )
+          : optimisticCreate( data, options );
 
       // call signature: search({ queryOrWhatever: 'foo', otherParam: 0, anotherParam: 30 })
       // - sort so that we can cache consistently
