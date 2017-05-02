@@ -1,6 +1,7 @@
 import React from 'react';
 
 import store from './store';
+import logger from './lib/log';
 
 export default function( pathToSubscribeTo ) {
 
@@ -25,7 +26,7 @@ export default function( pathToSubscribeTo ) {
 
       onChange = state => {
         /* eslint-disable no-console */
-        console.log( Component.name || '', 'is set to re-render due to subscribed change', state && state.toJS ? state.toJS() :  state );
+        logger( `\uD83D\uDCC5 <${Component.name || 'StatelessFunction'}> is re-rendering due to subscribed change`, state && state.toJS ? state.toJS() :  state );
         this.setState({ store: state });
       }
 

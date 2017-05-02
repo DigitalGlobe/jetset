@@ -17,8 +17,8 @@ export default function containerize( Component ) {
 
     componentWillMount = () => {
       this.subscription = store.subscribeTo( masterKey, state => {
-        /* eslint-disable no-console */
         if ( state ) {
+          /* eslint-disable no-console */
           console.log('re-rendering', masterKey, 'based on state change:', state.toJS() );
           this.setState({ container: state });
         }
@@ -27,8 +27,8 @@ export default function containerize( Component ) {
 
     componentWillUnmount = () => store.unsubscribe( this.subscription )
 
-    getStoreState = key => store.getState([ masterKey, key ])
-    setStoreState = ( key, val ) => store.setState([ masterKey, key ], val )
+    getStoreState = key => store.getState([ 'containers', masterKey, key ])
+    setStoreState = ( key, val ) => store.setState([ 'containers', masterKey, key ], val )
 
     render() {
       return (
