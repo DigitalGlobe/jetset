@@ -117,3 +117,16 @@ sources.$reset();
 sources.$get( id ).$reset()
 sources.$search.results({...}).$reset()
 ```
+## Examples
+
+Note: Examples currently assume timbr-omni is running with the api-lib-poc branch checked out.
+
+1. Clone this repo
+
+1. `npm i`
+
+1. `npm start`
+
+1. Go to http://localhost:8080 (or whatever port you can see assigned in the console)
+
+Source code is available in src/examples.
