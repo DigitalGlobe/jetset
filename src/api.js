@@ -1,9 +1,11 @@
 import React from 'react';
 import { List, Map, fromJS } from 'immutable';
+import diff from 'immutablediff';
 import initFetch from 'fetch';
 
 import { isSchema, getIdField } from './lib/schema';
 import store from './store';
+import logger, { logError, logWarn } from './lib/log';
 
 /* basic state tree design for api.js
 * {
@@ -198,8 +200,7 @@ function createActions( props ) {
         const undoDelete = deleteModel( id );
         if ( undoDelete.length ) {
           return deleteOne( id ).catch( err => {
-            /* eslint-disable no-console */
-            console.error( 'Failed to delete', id, err );
+            logError( `Failed to delete ${id}`, err );
             undoDelete.forEach( undo => undo() );
             return Promise.reject( err );
           });
@@ -220,8 +221,7 @@ function createActions( props ) {
         const undoUpdate = updateModel( id, placeholder );
         if ( undoUpdate.length ) {
           return updateOne( id, vals ).catch( err => {
-            /* eslint-disable no-console */
-            console.error( 'Failed to update', id, 'with vals', vals, err );
+            logError( `Failed to update ${id} with vals`, vals, err );
             undoUpdate.forEach( undo => undo() );
             return Promise.reject( err );
           });
@@ -284,7 +284,7 @@ function createActions( props ) {
           if ( nextState ) setState( nextState );
           return createOne( data );
         } else {
-          console.warn( `Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.`);
+          logWarn( `Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.`);
           return createOne( data );
         }
       };
@@ -363,22 +363,27 @@ function createActions( props ) {
 
 export default class Api extends React.Component {
 
+  subscriptions = []
+
   constructor( props ) {
     super( props );
     this.api = createActions( props );
-    this.resourceTypes = Object.keys( this.api ).map( key => this.api[ key ]._resourceType );
-    this.cache = Map();
-    store.subscribe( state => {
-      const nextState = state.get( props.url );
-      if ( !nextState ) {
+  }
+
+  componentWillMount() {
+    this.subscriptions = Object.keys( this.api ).map( key => {
+      const resource = this.api[ key ]._resourceType;
+      let cache = null;
+      store.subscribeTo([ '$api', this.props.url, resource ], state => {
+        logger(`\uD83C\uDF0E re-rendering based on state changes:`, diff( cache, state ).toJS() );
+        cache = state;
         this.forceUpdate();
-      } else if ( this.resourceTypes.some( key => nextState.get( key ) !== this.cache.get( key ) ) ) {
-        /* eslint-disable no-console */
-        console.log(`re-rendering based on state changes:`, nextState.toJS());
-        this.cache = nextState;
-        this.forceUpdate();
-      }
+      });
     });
+  }
+
+  componentWillUnmount() {
+    this.subscriptions.forEach( subscription => store.unsubscribe( subscription ) );
   }
 
   render() {

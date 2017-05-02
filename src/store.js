@@ -1,6 +1,6 @@
 import { Map, List } from 'immutable';
 import diff from 'immutablediff';
-import logger, { logWithStack } from './lib/log';
+import logger from './lib/log';
 
 export function managesState() {
 
@@ -140,13 +140,13 @@ const store = {
     const onChange = state => {
       const nextState = state.getIn( [].concat( path ) );
       if ( nextState !== cache ) {
-        logger( `\uD83D\uDCC5 \`${path}\` changed. invoking subscriptions...` );
+        logger( `\uD83C\uDF32 branch changed: %c${[].concat( path ).join( ' ‣ ' )}`, 'color: #6B5746' );
         callback( nextState );
         cache = nextState;
       }
     };
     subscribe( onChange );
-    logger( `\uD83D\uDCC5 created subscription for \`${path}\`` );
+    logger( `\uD83D\uDCC5 created subscription for path: \`${path}\`` );
     return onChange;
   },
   nextState: undo.next,

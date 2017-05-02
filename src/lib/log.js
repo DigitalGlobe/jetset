@@ -6,14 +6,15 @@ function shouldLog() {
 }
 
 function formatArgs( args ) {
-  return args.reduce(( memo, item ) => {
-    if ( typeof item === 'string' && !~item.indexOf( 'color:' ) ) { 
-      memo[0] += item;
-    } else {
-      memo.push( item );
-    }
-    return memo;
-  }, ['']);
+  return args;
+  //return args.reduce(( memo, item ) => {
+    //if ( typeof item === 'string' && !~item.indexOf( 'color:' ) ) { 
+      //memo[0] += item;
+    //} else {
+      //memo.push( item );
+    //}
+    //return memo;
+  //}, ['']);
 }
 
 export default function log( ...args ) {
@@ -45,6 +46,12 @@ export function logGroup( ...args ) {
 export function logGroupEnd( ...args ) {
   if ( shouldLog() ) {
     console.groupEnd( ...args );
+  }
+}
+
+export function logWarn( ...args ) {
+  if ( shouldLog() ) {
+    console.warn( ...args );
   }
 }
 
