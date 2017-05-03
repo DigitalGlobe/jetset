@@ -29,7 +29,7 @@ exports.default = function (pathToSubscribeTo) {
 
         _this.onChange = function (state) {
           /* eslint-disable no-console */
-          (0, _log2.default)('\uD83D\uDCC5 <' + (Component.name || 'StatelessFunction') + '> is re-rendering due to subscribed change', state && state.toJS ? state.toJS() : state);
+          (0, _log2.default)('\uD83C\uDF00 <' + (Component.name || 'StatelessFunction') + '> is re-rendering based on changes on branch: ' + pathToSubscribeTo);
           _this.setState({ store: state });
         };
 

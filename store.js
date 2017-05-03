@@ -34,6 +34,7 @@ function managesState() {
     },
     setState: function setState(path, val) {
       _state = Array.isArray(path) ? _state.setIn(path, val) : _state.set(path, val);
+      return _state;
     },
     resetState: function resetState(val) {
       var isUndo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -62,6 +63,7 @@ function offersSubscription() {
       subscriptions.add(callback);
     },
     unsubscribe: function unsubscribe(callback) {
+      //logger( `\uD83D\uDCC5 unsubscribing`, { callback } );
       subscriptions.delete(callback);
     }
   };
@@ -110,6 +112,7 @@ function canUndo(_ref) {
           methods.prev({ ignore: ignore });
         }
       } else {
+        idx = -(undo.size + 1);
         _apply((0, _immutable.Map)({}));
         log('there are no earlier states than this one');
       }
@@ -128,7 +131,7 @@ function canUndo(_ref) {
       }
     },
     reset: function reset() {
-      if (idx !== -1) {
+      if (methods.isDirty()) {
         idx = -1;
         _apply(undo.get(idx), { reset: true });
       }
@@ -136,6 +139,9 @@ function canUndo(_ref) {
     },
     save: function save(state) {
       undo = undo.push(state);
+    },
+    isDirty: function isDirty() {
+      return idx !== -1;
     }
   };
 
@@ -166,26 +172,18 @@ var setStateEmoji = '\uD83C\uDFDB';
 
 var store = _extends({}, subscriptionMethods, stateMethods, {
   setState: function setState() {
-    undo.reset();
-
-    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      args[_key3] = arguments[_key3];
-    }
-
-    _log2.default.apply(undefined, [setStateEmoji + ' setting state: '].concat(args));
-    _setState.apply(undefined, args);
-    var state = stateMethods.getState();
-    undo.save(state);
+    if (undo.isDirty()) undo.reset();
+    var statePrev = stateMethods.getState();
+    var stateNext = _setState.apply(undefined, arguments);
+    undo.save(stateNext);
+    (0, _log2.default)(setStateEmoji + ' setting state: ', (0, _immutablediff2.default)(statePrev, stateNext).toJS());
     // TODO: bump into next event loop to avoid possible collisions?
-    invoke(state);
+    invoke(stateNext);
   },
   setStateQuiet: function setStateQuiet() {
-    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      args[_key4] = arguments[_key4];
-    }
-
-    _log2.default.apply(undefined, ['%c' + setStateEmoji + ' setting state quiet (no re-rendering):', 'color: #999'].concat(args));
-    _setState.apply(undefined, args);
+    var statePrev = stateMethods.getState();
+    var stateNext = _setState.apply(undefined, arguments);
+    (0, _log2.default)('%c' + setStateEmoji + ' setting state quiet (no re-rendering):', 'color: #999', (0, _immutablediff2.default)(statePrev, stateNext).toJS());
   },
 
   subscribe: subscribe,
@@ -194,13 +192,12 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
     var onChange = function onChange(state) {
       var nextState = state.getIn([].concat(path));
       if (nextState !== cache) {
-        (0, _log2.default)('\uD83D\uDCC5 `' + path + '` changed. invoking subscriptions...');
         callback(nextState);
         cache = nextState;
       }
     };
     subscribe(onChange);
-    (0, _log2.default)('\uD83D\uDCC5 created subscription for `' + path + '`');
+    //logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
     return onChange;
   },
 

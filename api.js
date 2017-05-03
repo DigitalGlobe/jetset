@@ -15,6 +15,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _immutable = require('immutable');
 
 var _fetch = require('fetch');
@@ -26,6 +30,10 @@ var _schema = require('./lib/schema');
 var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
+
+var _log = require('./lib/log');
+
+var _log2 = _interopRequireDefault(_log);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -78,11 +86,14 @@ function createActions(props) {
 
     if ((0, _schema.isSchema)(props[key])) {
 
-      var schema = props[key];
+      var schema = props[key].schema || props[key];
+      var getData = props[key].getData || function (data) {
+        return data;
+      };
       var idField = (0, _schema.getIdField)(schema);
       var resourceType = schema.title;
       var resourcePath = '/' + resourceType;
-      var url = '' + props.url + resourcePath;
+      var _url = '' + props.url + resourcePath;
 
       var getState = function getState(key) {
         return _store2.default.getState(['$api', props.url, resourceType].concat(key || []));
@@ -230,7 +241,8 @@ function createActions(props) {
           }
 
           setPending(path, true);
-          return fetch[method].apply(fetch, ['' + url + (path === '/' ? '' : path)].concat(args)).then(function (data) {
+          return fetch[method].apply(fetch, ['' + _url + (path === '/' ? '' : path)].concat(args)).then(function (response) {
+            var data = getData(response);
             setPending(path, false);
             setError(path, null, { quiet: true });
             return data;
@@ -305,8 +317,7 @@ function createActions(props) {
         var undoDelete = deleteModel(id);
         if (undoDelete.length) {
           return deleteOne(id).catch(function (err) {
-            /* eslint-disable no-console */
-            console.error('Failed to delete', id, err);
+            (0, _log.logError)('Failed to delete ' + id, err);
             undoDelete.forEach(function (undo) {
               return undo();
             });
@@ -333,8 +344,7 @@ function createActions(props) {
         var undoUpdate = updateModel(id, placeholder);
         if (undoUpdate.length) {
           return updateOne(id, vals).catch(function (err) {
-            /* eslint-disable no-console */
-            console.error('Failed to update', id, 'with vals', vals, err);
+            (0, _log.logError)('Failed to update ' + id + ' with vals', vals, err);
             undoUpdate.forEach(function (undo) {
               return undo();
             });
@@ -411,7 +421,7 @@ function createActions(props) {
           if (nextState) setState(nextState);
           return createOne(data);
         } else {
-          console.warn('Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.');
+          (0, _log.logWarn)('Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.');
           return createOne(data);
         }
       };
@@ -497,28 +507,34 @@ var Api = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (Api.__proto__ || Object.getPrototypeOf(Api)).call(this, props));
 
+    _this.subscriptions = [];
+
     _this.api = createActions(props);
-    _this.resourceTypes = Object.keys(_this.api).map(function (key) {
-      return _this.api[key]._resourceType;
-    });
-    _this.cache = (0, _immutable.Map)();
-    _store2.default.subscribe(function (state) {
-      var nextState = state.get(props.url);
-      if (!nextState) {
-        _this.forceUpdate();
-      } else if (_this.resourceTypes.some(function (key) {
-        return nextState.get(key) !== _this.cache.get(key);
-      })) {
-        /* eslint-disable no-console */
-        console.log('re-rendering based on state changes:', nextState.toJS());
-        _this.cache = nextState;
-        _this.forceUpdate();
-      }
-    });
+    _this.state = { cache: null };
     return _this;
   }
 
   _createClass(Api, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      var _this2 = this;
+
+      this.subscriptions = Object.keys(this.api).map(function (key) {
+        var resource = _this2.api[key]._resourceType;
+        return _store2.default.subscribeTo(['$api', _this2.props.url, resource], function (state) {
+          (0, _log2.default)('\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c' + (_this2.props.url + ' ‣ ' + resource), 'color: #5B4532');
+          _this2.setState({ cache: state });
+        });
+      });
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      this.subscriptions.forEach(function (subscription) {
+        return _store2.default.unsubscribe(subscription);
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _props = this.props,

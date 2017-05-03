@@ -19,6 +19,10 @@ var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
 
+var _log = require('./lib/log');
+
+var _log2 = _interopRequireDefault(_log);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -44,10 +48,10 @@ function containerize(Component) {
       _this.subscription = null;
 
       _this.componentWillMount = function () {
-        _this.subscription = _store2.default.subscribeTo(masterKey, function (state) {
+        _this.subscription = _store2.default.subscribeTo(['containers', masterKey], function (state) {
           if (state) {
             /* eslint-disable no-console */
-            console.log('re-rendering', masterKey, 'based on state change:', state.toJS());
+            (0, _log2.default)('\uD83C\uDF00 re-rendering container <' + masterKey + '>');
             _this.setState({ container: state });
           }
         });
