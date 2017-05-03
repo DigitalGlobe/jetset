@@ -42,7 +42,8 @@ function createActions( props ) {
 
     if ( isSchema( props[ key ] ) ) {
 
-      const schema       = props[ key ];
+      const schema       = props[ key ].schema || props[ key ];
+      const getData      = props[ key ].getData || ( data => data );
       const idField      = getIdField( schema );
       const resourceType = schema.title;
       const resourcePath = `/${resourceType}`;
@@ -141,7 +142,8 @@ function createActions( props ) {
           setPending( path, true );
           return fetch[ method ]( `${url}${path === '/' ? '' : path}`, ...args )
             .then(
-              data => {
+              response => {
+                const data = getData( response );
                 setPending( path, false );
                 setError( path, null, { quiet: true } );
                 return data;

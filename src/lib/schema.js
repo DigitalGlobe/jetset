@@ -26,5 +26,5 @@ export function getIdField( schema ) {
 }
 
 export function isSchema( maybeSchema ) {
-  return maybeSchema && typeof maybeSchema === 'object' && !!maybeSchema.$schema;
+  return maybeSchema && typeof maybeSchema === 'object' && ( !!maybeSchema.$schema || !!maybeSchema.schema );
 }

@@ -140,6 +140,21 @@ sources.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
 }})
 ```
 
+#### Different API formats
+
+We are working to accommodate different Api formats. If your response format is
+different, or you want to massage data before caching it, you can pass in a `getData` 
+function to the `Api` component.
+
+For example:
+
+```javascript
+<Api 
+  url="http://my.api.com" 
+  sources={{ schema: sourcesSchema, getData: response => response.data }}
+>
+```
+
 
 ## Examples
 

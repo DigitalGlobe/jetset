@@ -26,7 +26,7 @@ function Sources({ sources }) {
 
 export default function ApiCollectionsExample() {
   return (
-    <Api url="http://localhost:3000/hub/api" sources={ sourcesSchema }>
+    <Api url="http://localhost:3000/hub/api" sources={sourcesSchema }>
       <Sources />
     </Api>
   );
