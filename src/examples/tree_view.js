@@ -18,7 +18,7 @@ export default class StateTreeView extends React.Component {
 
   constructor( props ) {
     super( props );
-    this.state = { tree: null };
+    this.state = { tree: store.getState() };
   }
 
   componentWillMount() {

@@ -14,7 +14,8 @@
   "dependencies": {
     "fetch": "DigitalGlobe/fetch",
     "immutable": "^3.8.1",
-    "immutablediff": "DigitalGlobe/immutable-js-diff"
+    "immutablediff": "DigitalGlobe/immutable-js-diff",
+    "react-portal": "^3.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
