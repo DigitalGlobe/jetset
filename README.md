@@ -157,6 +157,31 @@ For example:
 >
 ```
 
+#### Devtools
+
+There are some very preliminary dev tools available by doing this:
+
+```javascript
+import TreeViewer from 'jetset/tree_viewer';
+
+function MyComponent() { // can literally be anywhere, but somewhere at root is probably best
+  return (
+    <div>
+      <TreeViewer />
+      <Anything />
+    </div>
+  );
+}
+```
+
+Then in Chrome console you can do:
+
+```
+jetset.toggleDevTools()
+```
+
+Better stuff coming soon!
+
 
 ## Examples
 
