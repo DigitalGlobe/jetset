@@ -22,7 +22,10 @@ const devBuild = {
     filename: '[name].js'
   },
   devServer: {
-    contentBase: __dirname + '/public'
+    contentBase: __dirname + '/public',
+    historyApiFallback: {
+      index: 'index.html'
+    }
   }
 };
 

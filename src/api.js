@@ -372,14 +372,15 @@ export default class Api extends React.Component {
   constructor( props ) {
     super( props );
     this.api = createActions( props );
+    this.state = { cache: null };
   }
 
   componentWillMount() {
     this.subscriptions = Object.keys( this.api ).map( key => {
       const resource = this.api[ key ]._resourceType;
-      store.subscribeTo([ '$api', this.props.url, resource ], state => {
+      return store.subscribeTo([ '$api', this.props.url, resource ], state => {
         logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${this.props.url + ' ‣ ' + resource}`, 'color: #5B4532' );
-        this.forceUpdate();
+        this.setState({ cache: state });
       });
     });
   }

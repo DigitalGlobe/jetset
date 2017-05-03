@@ -44,6 +44,7 @@ export function offersSubscription() {
     },
 
     unsubscribe( callback ) {
+      //logger( `\uD83D\uDCC5 unsubscribing`, { callback } );
       subscriptions.delete( callback );
     }
   };
@@ -151,7 +152,7 @@ const store = {
       }
     };
     subscribe( onChange );
-    logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
+    //logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
     return onChange;
   },
   nextState: undo.next,

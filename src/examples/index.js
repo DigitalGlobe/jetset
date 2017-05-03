@@ -1,15 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React                   from 'react';
+import ReactDOM                from 'react-dom';
+import { Route, Switch }       from 'react-router';
+import { BrowserRouter, NavLink } from 'react-router-dom';
 
-import ApiCollectionsExample from './api_collections';
-import ApiDecoratorExample   from './api_decorator';
-import ApiModelExample       from './api_model';
-import ApiSearchExample      from './api_search';
-import ApiRawExample         from './api_raw';
-import ContainerExample      from './container';
-import SubscriptionExample   from './subscribe';
-import TimeTravelExample     from './time_travel';
-import StateTreeView         from './tree_view';
+import TimeTravelExample from './time_travel';
+import StateTreeView     from './tree_view';
+import ApiRouter         from './api';
+import NonApiRouter      from './non_api';
+
+const styles = {
+  style: { marginRight: '8px' },
+  activeStyle: { color: 'green' }
+};
+
 
 ReactDOM.render((
   <div>
@@ -22,48 +25,21 @@ ReactDOM.render((
       <TimeTravelExample />
     </div>
     <hr/>
-    <div>
-      <h1>Sources 1</h1>
-      <ApiCollectionsExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Sources 2</h1>
-      <ApiCollectionsExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Sources Decorator</h1>
-      <ApiDecoratorExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Source Detail</h1>
-      <ApiModelExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Search Example</h1>
-      <ApiSearchExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Raw Api Example, for non-standard REST routes</h1>
-      <ApiRawExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Use the state tree for whatever</h1>
-      <SubscriptionExample />
-    </div>
-    <hr/>
-    <div>
-      <h1>Container example without api</h1>
-      <ContainerExample />
-    </div>
+    <BrowserRouter>
+      <div>
+        <span style={ styles.style }>Api examples:</span>
+        <NavLink { ...styles } to="/api/collections">collections + decorator</NavLink>
+        <NavLink { ...styles } to="/api/model">model</NavLink>
+        <NavLink { ...styles } to="/api/search">search</NavLink>
+        <NavLink { ...styles } to="/api/raw">raw api methods</NavLink>
+        <span style={ styles.style }>Non-Api:</span>
+        <NavLink { ...styles } to="/non-api">examples</NavLink>
+        <hr/>
+        <Switch>
+          <Route path="/api" component={ ApiRouter } />
+          <Route path="/non-api" component={ NonApiRouter } />
+        </Switch>
+      </div>
+    </BrowserRouter>
   </div>
 ), document.getElementById( 'root' ));
-
-// TODO: sources({ id: 1 }).user()
-// TODO: ws://
-// TODO: support for search
