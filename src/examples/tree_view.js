@@ -4,7 +4,7 @@ import TreeView from 'react-treeview';
 
 import store from '../store';
 
-function flatten( map, props, expansions, layer = 1 ) {
+export function flatten( map, props, expansions, layer = 1 ) {
   return map.map(( val, key ) => { 
     const id = `${layer}-${key}`;
     const onClick = () => props.onClick( id );

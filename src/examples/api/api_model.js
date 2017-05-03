@@ -6,13 +6,13 @@ const SourceDetail = sources( props => {
   if ( source ) {
     const detail = props.sources.$get( source.get( '_id' ) );
     return (
-      <div>
+      <div style={{ width: '48%' }}>
         {
           detail.$error ?
             `Error: ${ JSON.stringify( detail.$error ) }` :
           detail.$isPending ?
             `Loading...` :
-          JSON.stringify( detail.toJS() )
+          <code style={{ width: '300px' }}>{ JSON.stringify( detail.toJS() ).replace( /,/g, ', ') }</code>
         }
       </div>
     );

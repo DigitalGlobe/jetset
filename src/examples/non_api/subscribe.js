@@ -1,5 +1,5 @@
 import React from 'react';
-import subscribe from '../subscribe';
+import subscribe from '../../subscribe';
 
 // TODO: we'll need state naming convention + clear way to subscribe to nested
 // state

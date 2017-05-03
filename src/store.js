@@ -22,6 +22,7 @@ export function managesState() {
           _state.setIn( path, val ) :
         _state.set( path, val )
       );
+      return _state;
     },
     resetState( val, isUndo = true ) {
       _state = val.set( '_reset', isUndo );
@@ -81,6 +82,7 @@ export function canUndo({ apply = () => {} }) {
           methods.prev({ ignore });
         }
       } else {
+        idx = -(undo.size + 1);
         apply( Map({}) );
         log(`there are no earlier states than this one`);
       }
@@ -128,18 +130,16 @@ const store = {
   setState( ...args ) {
     if ( undo.isDirty() ) undo.reset();
     const statePrev = stateMethods.getState();
-    setState( ...args );
-    const stateCurrent = stateMethods.getState();
-    undo.save( stateCurrent );
-    logger( `${setStateEmoji} setting state: `, diff( statePrev, stateCurrent ).toJS() );
+    const stateNext = setState( ...args );
+    undo.save( stateNext );
+    logger( `${setStateEmoji} setting state: `, diff( statePrev, stateNext ).toJS() );
     // TODO: bump into next event loop to avoid possible collisions?
-    invoke( stateCurrent );
+    invoke( stateNext );
   },
   setStateQuiet( ...args ) {
     const statePrev = stateMethods.getState();
-    setState( ...args );
-    const stateCurrent = stateMethods.getState();
-    logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateCurrent ).toJS() );
+    const stateNext = setState( ...args );
+    logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateNext ).toJS() );
   },
   subscribe,
   subscribeTo( path, callback ) {
