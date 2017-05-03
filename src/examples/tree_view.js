@@ -10,7 +10,7 @@ export function flatten( map, props, expansions, layer = 1 ) {
     const onClick = () => props.onClick( id );
     return Map.isMap( val ) || List.isList( val )
       ? React.createElement( TreeView, { key: id, onClick, nodeLabel: <span onClick={ onClick } className="node">{key}</span>, collapsed: !expansions.get( id ) }, flatten( val, props, expansions, layer + 1 ) )
-      : <div key={id} className="info">{ key }: {String( null )}</div>;
+      : <div key={id} className="info">{ key }: {String( val )}</div>;
   });
 }
 
