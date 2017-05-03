@@ -34,7 +34,7 @@
     "react-gist": "^1.1.0",
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
-    "react-treeview": "^0.4.6",
+    "react-treeview": "glortho/react-treeview",
     "webpack": "^2.4.1",
     "webpack-dev-server": "2.x"
   },

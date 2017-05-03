@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class Gist extends React.Component {
 
   static propTypes = {
-    gist: React.PropTypes.string.isRequired, // e.g. "username/id"
-    file: React.PropTypes.string // to embed a single specific file from the gist
+    gist: PropTypes.string.isRequired, // e.g. "username/id"
+    file: PropTypes.string // to embed a single specific file from the gist
   }
 
   static gistCallbackId = 0
