@@ -41,6 +41,8 @@ want to become familiar with its [api and data structures](http://facebook.githu
 
     ```javascript
     import Api from 'jetset/api';
+    
+    const sourcesSchema = require( './schemas/sources.json' );
 
     function MyComponent({ sources }) {
       return (
