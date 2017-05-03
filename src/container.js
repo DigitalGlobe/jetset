@@ -1,6 +1,7 @@
 import React from 'react';
 
 import store from './store';
+import logger from './lib/log';
 
 export default function containerize( Component ) {
 
@@ -19,7 +20,7 @@ export default function containerize( Component ) {
       this.subscription = store.subscribeTo([ 'containers', masterKey ], state => {
         if ( state ) {
           /* eslint-disable no-console */
-          console.log('re-rendering', masterKey, 'based on state change:', state.toJS() );
+          logger( `\uD83C\uDF00 re-rendering container <${masterKey}>` );
           this.setState({ container: state });
         }
       });

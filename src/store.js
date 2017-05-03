@@ -1,6 +1,6 @@
 import { Map, List } from 'immutable';
 import diff from 'immutablediff';
-import logger, { formatBranchArgs } from './lib/log';
+import logger from './lib/log';
 
 export function managesState() {
 
@@ -131,7 +131,7 @@ const store = {
     setState( ...args );
     const stateCurrent = stateMethods.getState();
     undo.save( stateCurrent );
-    logger( `${setStateEmoji} changing state: `, diff( statePrev, stateCurrent ).toJS() );
+    logger( `${setStateEmoji} setting state: `, diff( statePrev, stateCurrent ).toJS() );
     // TODO: bump into next event loop to avoid possible collisions?
     invoke( stateCurrent );
   },
@@ -139,7 +139,7 @@ const store = {
     const statePrev = stateMethods.getState();
     setState( ...args );
     const stateCurrent = stateMethods.getState();
-    logger( `%c${setStateEmoji} changing state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateCurrent ).toJS() );
+    logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateCurrent ).toJS() );
   },
   subscribe,
   subscribeTo( path, callback ) {
