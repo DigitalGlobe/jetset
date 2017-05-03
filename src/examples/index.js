@@ -17,10 +17,12 @@ const styles = {
 ReactDOM.render((
   <div>
     <table>
-      <tr>
-        <td><StateTreeView /></td>
-        <td style={{ verticalAlign: 'top'}}><TimeTravelExample /></td>
-      </tr>
+      <tbody>
+        <tr>
+          <td><StateTreeView /></td>
+          <td style={{ verticalAlign: 'top'}}><TimeTravelExample /></td>
+        </tr>
+      </tbody>
     </table>
     <hr/>
     <BrowserRouter>
