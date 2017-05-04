@@ -29,7 +29,7 @@ export default function( pathToSubscribeTo, initialState ) {
       onChange = state => {
         /* eslint-disable no-console */
         logger( `\uD83C\uDF00 <${Component.name || 'StatelessFunction'}> is re-rendering based on changes on branch: ${rootPath}` );
-        this.setState({ store: state.toJS() });
+        this.setState({ store: state && state.toJS ? state.toJS() : state });
       }
 
       publish = ( maybeKey, maybeVal ) => {
