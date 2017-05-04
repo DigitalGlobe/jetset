@@ -9,7 +9,8 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "babel --ignore example -d . src"
+    "build": "babel --ignore example -d . src",
+    "test": "jest"
   },
   "dependencies": {
     "fetch": "DigitalGlobe/fetch",
@@ -29,6 +30,7 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-react": "^6.10.3",
+    "jest": "^19.0.2",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
