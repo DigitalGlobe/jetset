@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "babel --ignore example -d . src",
+    "build": "babel --ignore example,__tests__ -d . src",
     "test": "jest"
   },
   "dependencies": {
