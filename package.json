@@ -9,7 +9,8 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "babel --ignore example -d . src"
+    "build": "babel --ignore example -d . src",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "fetch": "DigitalGlobe/fetch",
