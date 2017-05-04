@@ -1,4 +1,4 @@
-import { Map, List } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
 import diff from 'immutablediff';
 import logger from './lib/log';
 
@@ -142,7 +142,7 @@ const store = {
     logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateNext ).toJS() );
   },
   subscribe,
-  subscribeTo( path, callback ) {
+  subscribeTo( path, callback, initialState ) {
     let cache = null;
     const onChange = state => {
       const nextState = state.getIn( [].concat( path ) );
@@ -152,6 +152,7 @@ const store = {
       }
     };
     subscribe( onChange );
+    if ( initialState ) setState( path, fromJS( initialState ) );
     //logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
     return onChange;
   },
