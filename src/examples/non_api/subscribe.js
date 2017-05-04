@@ -8,7 +8,7 @@ class SubscriptionExample extends React.Component {
   render() {
     return (
       <div>
-        <span>Example state: { this.props.example.get() || 'n/a' }</span>
+        <span>Example state: { this.props.example.get().foo || 'n/a' }</span>
         <button onClick={() => this.props.example.set( 'foo' )}>Set to foo</button>
         <button onClick={() => this.props.example.set( 'bar' )}>Set to bar</button>
       </div>
