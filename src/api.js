@@ -34,9 +34,10 @@ import logger, { logError, logWarn } from './lib/log';
 // TODO: use some more specific method from store's undo implementation
 const isUndo = () => store.getState( '_reset' );
 
-const fetch = initFetch();
-
 function createActions( props ) {
+
+  const fetchOptions = props.credentials ? { credentials: props.credentials } : {};
+  const fetch = initFetch( fetchOptions );
 
   return Object.keys( props ).reduce(( memo, key ) => {
 
@@ -366,7 +367,9 @@ function createActions( props ) {
 export default class Api extends React.Component {
 
   static propTypes = {
-    url: PropTypes.string.isRequired
+    url: PropTypes.string.isRequired,
+    // see https://github.com/github/fetch#sending-cookies for reference
+    credentials: PropTypes.oneOf( [ 'same-origin', 'include' ] )
   }
 
   subscriptions = []
