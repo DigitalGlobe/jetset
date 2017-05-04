@@ -3,35 +3,37 @@ import React from 'react';
 import store from './store';
 import logger from './lib/log';
 
-export default function( pathToSubscribeTo ) {
+export default function( pathToSubscribeTo, initialState ) {
 
-  return Component =>
+  return Component => {
 
-    class Subscriber extends React.Component {
+    const rootPath = [ 'subscriptions' ].concat( pathToSubscribeTo );
+
+    return class Subscriber extends React.Component {
 
       subscription = null
 
       constructor( props ) {
         super( props );
         this.state = {
-          store: null
+          store: initialState || null
         };
       }
 
       componentWillMount = () => (
-        this.subscription = store.subscribeTo( pathToSubscribeTo, this.onChange )
+        this.subscription = store.subscribeTo( rootPath, this.onChange, initialState )
       )
 
       componentWillUnmount = () => store.unsubscribe( this.subscription )
 
       onChange = state => {
         /* eslint-disable no-console */
-        logger( `\uD83C\uDF00 <${Component.name || 'StatelessFunction'}> is re-rendering based on changes on branch: ${pathToSubscribeTo}` );
+        logger( `\uD83C\uDF00 <${Component.name || 'StatelessFunction'}> is re-rendering based on changes on branch: ${rootPath}` );
         this.setState({ store: state });
       }
 
       publish = ( maybeKey, maybeVal ) => {
-        const path = [ pathToSubscribeTo ].concat( maybeVal ? maybeKey : [] );
+        const path = rootPath.concat( maybeVal ? maybeKey : [] );
         const state = maybeVal || maybeKey;
         store.setState( path, state );
       }
@@ -46,5 +48,6 @@ export default function( pathToSubscribeTo ) {
         />
       )
     };
+  };
 }
 

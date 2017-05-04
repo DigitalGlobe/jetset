@@ -187,7 +187,7 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
   },
 
   subscribe: subscribe,
-  subscribeTo: function subscribeTo(path, callback) {
+  subscribeTo: function subscribeTo(path, callback, initialState) {
     var cache = null;
     var onChange = function onChange(state) {
       var nextState = state.getIn([].concat(path));
@@ -197,6 +197,7 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
       }
     };
     subscribe(onChange);
+    if (initialState) _setState(path, (0, _immutable.fromJS)(initialState));
     //logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
     return onChange;
   },

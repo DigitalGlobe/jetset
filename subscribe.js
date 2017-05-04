@@ -6,9 +6,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports.default = function (pathToSubscribeTo) {
+exports.default = function (pathToSubscribeTo, initialState) {
 
   return function (Component) {
+
+    var rootPath = ['subscriptions'].concat(pathToSubscribeTo);
+
     return function (_React$Component) {
       _inherits(Subscriber, _React$Component);
 
@@ -20,7 +23,7 @@ exports.default = function (pathToSubscribeTo) {
         _this.subscription = null;
 
         _this.componentWillMount = function () {
-          return _this.subscription = _store2.default.subscribeTo(pathToSubscribeTo, _this.onChange);
+          return _this.subscription = _store2.default.subscribeTo(rootPath, _this.onChange, initialState);
         };
 
         _this.componentWillUnmount = function () {
@@ -29,12 +32,12 @@ exports.default = function (pathToSubscribeTo) {
 
         _this.onChange = function (state) {
           /* eslint-disable no-console */
-          (0, _log2.default)('\uD83C\uDF00 <' + (Component.name || 'StatelessFunction') + '> is re-rendering based on changes on branch: ' + pathToSubscribeTo);
+          (0, _log2.default)('\uD83C\uDF00 <' + (Component.name || 'StatelessFunction') + '> is re-rendering based on changes on branch: ' + rootPath);
           _this.setState({ store: state });
         };
 
         _this.publish = function (maybeKey, maybeVal) {
-          var path = [pathToSubscribeTo].concat(maybeVal ? maybeKey : []);
+          var path = rootPath.concat(maybeVal ? maybeKey : []);
           var state = maybeVal || maybeKey;
           _store2.default.setState(path, state);
         };
@@ -49,7 +52,7 @@ exports.default = function (pathToSubscribeTo) {
         };
 
         _this.state = {
-          store: null
+          store: initialState || null
         };
         return _this;
       }
