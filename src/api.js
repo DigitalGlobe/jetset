@@ -365,9 +365,9 @@ function createActions( props ) {
 
 export default class Api extends React.Component {
 
-  propTypes: { 
+  static propTypes = {
     url: PropTypes.string.isRequired
-  };
+  }
 
   subscriptions = []
 
