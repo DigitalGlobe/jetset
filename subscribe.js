@@ -33,7 +33,7 @@ exports.default = function (pathToSubscribeTo, initialState) {
         _this.onChange = function (state) {
           /* eslint-disable no-console */
           (0, _log2.default)('\uD83C\uDF00 <' + (Component.name || 'StatelessFunction') + '> is re-rendering based on changes on branch: ' + rootPath);
-          _this.setState({ store: state });
+          _this.setState({ store: state.toJS() });
         };
 
         _this.publish = function (maybeKey, maybeVal) {

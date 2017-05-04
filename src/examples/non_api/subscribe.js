@@ -3,7 +3,7 @@ import subscribe from '../../subscribe';
 
 // TODO: we'll need state naming convention + clear way to subscribe to nested
 // state
-@subscribe( 'example' )
+@subscribe( 'example', { foo: 'bar' } )
 class SubscriptionExample extends React.Component {
   render() {
     return (
