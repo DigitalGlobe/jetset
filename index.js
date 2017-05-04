@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.subscribe = exports.container = exports.store = exports.default = undefined;
+exports.TreeViewer = exports.subscribe = exports.container = exports.store = exports.default = undefined;
 
 var _store = require('./store');
 
@@ -29,6 +29,15 @@ Object.defineProperty(exports, 'subscribe', {
   enumerable: true,
   get: function get() {
     return _interopRequireDefault(_subscribe).default;
+  }
+});
+
+var _tree_viewer = require('./tree_viewer');
+
+Object.defineProperty(exports, 'TreeViewer', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_tree_viewer).default;
   }
 });
 
