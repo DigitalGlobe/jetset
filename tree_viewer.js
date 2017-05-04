@@ -41,7 +41,8 @@ function Positioner() {
     opacity: 0.9,
     borderBottom: '1px solid #ccc',
     boxShadow: '2px 2px 2px #ccc',
-    width: '100%'
+    width: '100%',
+    zIndex: '10000000000000000000'
   };
   return _react2.default.createElement(
     'div',
@@ -71,6 +72,15 @@ function Positioner() {
   );
 }
 
+function createLink(url) {
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = url;
+  document.head.appendChild(link);
+  return link;
+}
+
 var TreeViewer = function (_React$Component) {
   _inherits(TreeViewer, _React$Component);
 
@@ -80,6 +90,7 @@ var TreeViewer = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (TreeViewer.__proto__ || Object.getPrototypeOf(TreeViewer)).call(this, props));
 
     _this.state = { show: false };
+    _this.css = null;
     return _this;
   }
 
@@ -88,11 +99,19 @@ var TreeViewer = function (_React$Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
+      this.cssRoot = createLink('https://cdn.rawgit.com/glortho/react-treeview/master/react-treeview.css');
+      this.css = createLink('https://cdn.rawgit.com/glortho/react-treeview/master/demos/opinionated.css');
       window.jetset = {
         toggleDevTools: function toggleDevTools() {
           return _this2.setState({ show: !_this2.state.show });
         }
       };
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      document.head.removeChild(this.cssRoot);
+      document.head.removeChild(this.css);
     }
   }, {
     key: 'render',
