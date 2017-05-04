@@ -50,7 +50,7 @@ function createActions( props ) {
       const resourcePath = `/${resourceType}`;
       const url          = `${props.url}${resourcePath}`;
 
-      const getState      = key => store.getState([ '$api', props.url, resourceType ].concat( key || [] ));
+      const getState      = key => store.getState([ '$api', props.url, resourceType ].concat( key || [] ).map( item => String( item ) ) );
       const setState      = ( val, key ) => store.setState([ '$api', props.url, resourceType ].concat( key || [] ), val );
       const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', props.url, resourceType ].concat( key || [] ), val );
       const deleteState   = path => setState( null, path );
