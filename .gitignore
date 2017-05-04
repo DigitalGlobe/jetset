@@ -1,5 +1,4 @@
 node_modules
 *.js
 lib
-!config.js
 !webpack.config.js
