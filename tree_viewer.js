@@ -15,11 +15,11 @@ var _reactPortal = require('react-portal');
 
 var _reactPortal2 = _interopRequireDefault(_reactPortal);
 
-var _tree_view = require('./examples/tree_view');
+var _tree_view = require('./lib/tree_view');
 
 var _tree_view2 = _interopRequireDefault(_tree_view);
 
-var _time_travel = require('./examples/time_travel');
+var _time_travel = require('./lib/time_travel');
 
 var _time_travel2 = _interopRequireDefault(_time_travel);
 

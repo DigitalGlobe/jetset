@@ -1,7 +1,7 @@
 import React from 'react';
 import Portal from 'react-portal';
-import TreeView from './examples/tree_view';
-import TimeTravel from './examples/time_travel';
+import TreeView from './lib/tree_view';
+import TimeTravel from './lib/time_travel';
 
 function Positioner() {
   const style = {

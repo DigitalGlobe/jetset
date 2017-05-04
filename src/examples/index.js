@@ -3,8 +3,8 @@ import ReactDOM                from 'react-dom';
 import { Route, Switch }       from 'react-router';
 import { BrowserRouter, NavLink } from 'react-router-dom';
 
-import TimeTravelExample from './time_travel';
-import StateTreeView     from './tree_view';
+import TimeTravelExample from '../lib/time_travel';
+import StateTreeView     from '../lib/tree_view';
 import ApiRouter         from './api';
 import NonApiRouter      from './non_api';
 
