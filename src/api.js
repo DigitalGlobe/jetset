@@ -73,7 +73,7 @@ function createActions( props ) {
         const state = getState();
         const nextState = state.withMutations( map => {
           const dict = data.reduce(( memo, item ) => ({ ...memo, [item[idField]]: item }), {});
-          map.set( 'models', getModels().merge( dict ) );
+          map.set( 'models', getModels().mergeDeep( dict ) );
           map.setIn([ 'requests', path, 'data' ], List( Object.keys( dict ) ) );
         });
         setState( nextState );
