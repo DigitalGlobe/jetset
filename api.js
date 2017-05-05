@@ -229,7 +229,7 @@ function createActions(props) {
         var undo = [];
         var model = getModel(id);
         if (model) {
-          setModels(getModels().set(id, model.merge(vals)));
+          setModel(id, model.mergeDeep(vals));
           undo.push(function () {
             return setModels(getModels().set(id, model));
           });

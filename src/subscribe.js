@@ -1,13 +1,13 @@
 import React from 'react';
 
 import store from './store';
-import logger from './lib/log';
+import logger, { formatBranchArgs } from './lib/log';
 
-export default function( pathToSubscribeTo, initialState ) {
+function subscribe({ local, paths }) {
 
   return Component => {
 
-    const rootPath = [ 'subscriptions' ].concat( pathToSubscribeTo );
+    const rootPath = [ 'subscriptions' ].concat( local ? [ 'local', Component.name ] : 'global' );
 
     return class Subscriber extends React.Component {
 
@@ -15,39 +15,59 @@ export default function( pathToSubscribeTo, initialState ) {
 
       constructor( props ) {
         super( props );
-        this.state = {
-          store: initialState || null
-        };
+        this.state = {};
       }
 
-      componentWillMount = () => (
-        this.subscription = store.subscribeTo( rootPath, this.onChange, initialState )
-      )
+      componentWillMount = () => {
+        this.subscriptions = paths.map( path => 
+          store.subscribeTo( rootPath.concat( path ), this.onChange.bind( path ) )
+        );
+      }
 
-      componentWillUnmount = () => store.unsubscribe( this.subscription )
+      componentWillUnmount = () => this.subscriptions.forEach( store.unsubscribe )
 
-      onChange = state => {
+      onChange = ( path, state ) => {
         /* eslint-disable no-console */
-        logger( `\uD83C\uDF00 <${Component.name || 'StatelessFunction'}> is re-rendering based on changes on branch: ${rootPath}` );
-        this.setState({ store: state && state.toJS ? state.toJS() : state });
+        const branch = formatBranchArgs( rootPath.concat( path ) );
+        logger( `\uD83C\uDF00 <${Component.name || 'StatelessFunction'}> is re-rendering based on changes on branch: ${branch}` );
+        this.setState({ [path]: state && state.toJS ? state.toJS() : state });
       }
 
-      publish = ( maybeKey, maybeVal ) => {
-        const path = rootPath.concat( maybeVal ? maybeKey : [] );
-        const state = maybeVal || maybeKey;
-        store.setState( path, state );
+      merge = ( path, val ) => {
+        if ( typeof val !== 'object' ) {
+          return this.replace( path, val );
+        } else {
+          const fullPath = rootPath.concat( path );
+          const state = store.getState( fullPath );
+          return store.setState( fullPath, state.mergeDeep( val ) );
+        }
       }
+
+      replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
+
+      methods = () => paths.reduce(( memo, path ) => ({
+        ...memo,
+        [path]: {
+          get: () => this.state[ path ],
+          set: val => this.merge( path, val ),
+          replace: val => this.replace( path, val )
+        }
+      }), {})
 
       render = () => (
         <Component 
           { ...this.props } 
-          { ...{ [pathToSubscribeTo]: {
-            get: () => this.state.store,
-            set: this.publish
-          }}}
+          { ...this.methods() }
         />
       )
     };
   };
 }
 
+export function local( ...paths ) {
+  return subscribe({ local: true, paths });
+}
+
+export function global( ...paths ) {
+  return subscribe({ local: false, paths });
+}
