@@ -104,7 +104,9 @@ function createActions(props) {
         }));
       };
       var setState = function setState(val, key) {
-        return _store2.default.setState(['$api', props.url, resourceType].concat(key || []), val);
+        return _store2.default.setState(['$api', props.url, resourceType].concat(key || []).map(function (item) {
+          return String(item);
+        }), val);
       };
       var setStateQuiet = function setStateQuiet(val, key) {
         return _store2.default.setStateQuiet(['$api', props.url, resourceType].concat(key || []), val);
