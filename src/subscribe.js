@@ -7,7 +7,7 @@ function subscribe({ local, paths }) {
 
   return Component => {
 
-    const rootPath = [ 'subscriptions' ].concat( local ? [ 'local', Component.name ] : 'global' );
+    const rootPath = local ? [ 'local', Component.name ] : [];
 
     return class Subscriber extends React.Component {
 
