@@ -5,7 +5,7 @@ const plugins = [ new webpack.EnvironmentPlugin( 'NODE_ENV' ) ];
 
 const rules = [{
   test: /\.js$/,
-  include: path.join( __dirname, 'src' ),
+  include: [ path.join( __dirname, 'examples' ), path.join( __dirname, 'src' ) ],
   exclude: /node_modules/,
   use: {
     loader: 'babel-loader',
@@ -14,7 +14,7 @@ const rules = [{
 }];
 
 const devBuild = {
-  entry: { example: path.join( __dirname, 'src', 'examples', 'index.js' ) },
+  entry: { example: path.join( __dirname, 'examples', 'index.js' ) },
   module: { rules },
   plugins,
   output: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import Api from '../../index';
+import Api from '../../src/index';
 
 const sourcesSchema = require( '../schemas/sources.json' );
 
