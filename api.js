@@ -136,7 +136,7 @@ function createActions(props) {
           var dict = data.reduce(function (memo, item) {
             return _extends({}, memo, _defineProperty({}, item[idField], item));
           }, {});
-          map.set('models', getModels().merge(dict));
+          map.set('models', getModels().mergeDeep(dict));
           map.setIn(['requests', path, 'data'], (0, _immutable.List)(Object.keys(dict)));
         });
         setState(nextState);
