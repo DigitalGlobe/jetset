@@ -57,7 +57,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 *     [url]: {
 *       [resource]: {
 *         models: {
-*           [id]: { 
+*           [id]: {
 *             [key]: any,
 *             _fetched?: boolean
 *           }
@@ -229,7 +229,7 @@ function createActions(props) {
         var undo = [];
         var model = getModel(id);
         if (model) {
-          setModels(getModels().set(id, model.merge(vals)));
+          setModel(id, model.mergeDeep(vals));
           undo.push(function () {
             return setModels(getModels().set(id, model));
           });

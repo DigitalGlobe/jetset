@@ -13,7 +13,7 @@ import logger, { logError, logWarn } from './lib/log';
 *     [url]: {
 *       [resource]: {
 *         models: {
-*           [id]: { 
+*           [id]: {
 *             [key]: any,
 *             _fetched?: boolean
 *           }
@@ -96,7 +96,7 @@ function createActions( props ) {
       const setSearchResults = path => data => setCollection( data, path );
       const getSearchResults = path => getCollection( path );
 
-      const removeFromCollections = ( map, id ) => 
+      const removeFromCollections = ( map, id ) =>
         [ ...map.get( 'requests' ).entries() ]
           .reduce(( undo, [path, request] ) => {
             const collection = request.get( 'data' );
@@ -129,7 +129,7 @@ function createActions( props ) {
         const undo = [];
         const model = getModel( id );
         if ( model ) {
-          setModels( getModels().set( id, model.merge( vals ) ) );
+          setModel( id, model.mergeDeep( vals ) );
           undo.push(() => setModels( getModels().set( id, model ) ) );
         }
         return undo;
@@ -401,4 +401,3 @@ export default class Api extends React.Component {
       : children;
   }
 }
-
