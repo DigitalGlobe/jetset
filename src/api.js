@@ -84,7 +84,7 @@ function createActions( props ) {
       const getModels  = () => getState( 'models' ) || Map();
       const setModels  = data => setState( data, 'models' );
       const getModel   = id => getState([ 'models', id ]);
-      const setModel   = ( id, data ) => setState( fromJS( data ), [ 'models', id ] );
+      const setModel   = ( id, data ) => setState( data, [ 'models', id ] );
       const getPending = path => getState([ 'requests', path, 'pending' ]);
       const setPending = ( path, data ) => setStateQuiet( data, [ 'requests', path, 'pending' ]);
       const getError   = path => getState([ 'requests', path, 'error' ]);
@@ -341,7 +341,7 @@ function createActions( props ) {
                   if ( Array.isArray( data ) ) {
                     setCollection( data, path );
                   } else {
-                    setState( fromJS( data ), [ 'requests', path, 'data' ] );
+                    setState( data, [ 'requests', path, 'data' ] );
                   }
                   return data;
                 });
