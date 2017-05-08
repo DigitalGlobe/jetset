@@ -43,9 +43,7 @@ function subscribe({ local, paths }) {
         }
       }
 
-      replace = ( path, val ) => {
-        store.setState( rootPath.concat( path ), val )
-      }
+      replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
 
       methods = () => paths.reduce(( memo, path ) => ({
         ...memo,
