@@ -1,4 +1,5 @@
 import React from 'react';
+import { fromJS } from 'immutable';
 
 import store from './store';
 import logger, { formatBranchArgs } from './lib/log';
@@ -29,7 +30,7 @@ function subscribe({ local, paths }) {
           if ( val ) {
             memo[key] = val;
             // TODo this shouldn't happen here
-            store.setStateQuiet( rootPath.concat( key ), val );
+            store.setStateQuiet( rootPath.concat( key ), fromJS( val ) );
           } else {
             const storeVal = store.getState( rootPath.concat( key ) );
             memo[key] = storeVal && storeVal.toJS ? storeVal.toJS() : storeVal;

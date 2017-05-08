@@ -17,6 +17,8 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _immutable = require('immutable');
+
 var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
@@ -131,7 +133,7 @@ function subscribe(_ref) {
           if (val) {
             memo[key] = val;
             // TODo this shouldn't happen here
-            _store2.default.setStateQuiet(rootPath.concat(key), val);
+            _store2.default.setStateQuiet(rootPath.concat(key), (0, _immutable.fromJS)(val));
           } else {
             var storeVal = _store2.default.getState(rootPath.concat(key));
             memo[key] = storeVal && storeVal.toJS ? storeVal.toJS() : storeVal;
