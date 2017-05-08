@@ -1,5 +1,5 @@
 import React from 'react';
-import { fromJS } from 'immutable';
+import { fromJS, Map as iMap } from 'immutable';
 
 import store from './store';
 import logger from './lib/log';
@@ -17,31 +17,41 @@ export default function containerize( initialState ) {
 
       constructor( props ) {
         super( props );
-        this.state = { container: initialState };
+        const currentState = store.getState( rootPath );
+        if ( currentState ) {
+          this.state = { container: currentState.toJS ? currentState.toJS() : currentState };
+        } else {
+          this.state = { container : initialState };
+          store.setStateQuiet( rootPath, fromJS( initialState ) );
+        }
       }
 
       componentWillMount = () => {
-        this.subscription = store.subscribeTo([ 'containers', masterKey ], state => {
-          if ( state ) {
-            /* eslint-disable no-console */
-            logger( `\uD83C\uDF00 re-rendering container <${masterKey}>` );
-            this.setState({ container: state && state.toJS ? state.toJS() : state });
-          }
+        this.subscription = store.subscribeTo( rootPath, state => {
+          /* eslint-disable no-console */
+          logger( `\uD83C\uDF00 re-rendering container <${masterKey}>` );
+          this.setState({ container: state && state.toJS ? state.toJS() : state });
         });
       }
 
       componentWillUnmount = () => store.unsubscribe( this.subscription )
 
-      getStoreState = key => store.getState([ 'containers', masterKey, key ])
-      setStoreState = ( key, val ) => store.setState([ 'containers', masterKey, key ], fromJS( val ) )
+      getStoreState = () => store.getState( rootPath )
+      setStoreState = val => {
+        const state = this.getStoreState() || iMap();
+        store.setState( rootPath, state.mergeDeep( fromJS( val ) ) );
+      }
+
+      replaceStoreState = val => store.setState( rootPath, fromJS( val ) )
 
       render() {
         return (
           <Component 
             { ...this.props } 
             container={{
-              get: this.getStoreState, 
+              get: () => this.state.container,
               set: this.setStoreState,
+              replace: this.replaceStoreState,
               state: this.state.container
             }} 
           />

@@ -53,12 +53,10 @@ function containerize(initialState) {
         _this.subscription = null;
 
         _this.componentWillMount = function () {
-          _this.subscription = _store2.default.subscribeTo(['containers', masterKey], function (state) {
-            if (state) {
-              /* eslint-disable no-console */
-              (0, _log2.default)('\uD83C\uDF00 re-rendering container <' + masterKey + '>');
-              _this.setState({ container: state && state.toJS ? state.toJS() : state });
-            }
+          _this.subscription = _store2.default.subscribeTo(rootPath, function (state) {
+            /* eslint-disable no-console */
+            (0, _log2.default)('\uD83C\uDF00 re-rendering container <' + masterKey + '>');
+            _this.setState({ container: state && state.toJS ? state.toJS() : state });
           });
         };
 
@@ -66,25 +64,41 @@ function containerize(initialState) {
           return _store2.default.unsubscribe(_this.subscription);
         };
 
-        _this.getStoreState = function (key) {
-          return _store2.default.getState(['containers', masterKey, key]);
+        _this.getStoreState = function () {
+          return _store2.default.getState(rootPath);
         };
 
-        _this.setStoreState = function (key, val) {
-          return _store2.default.setState(['containers', masterKey, key], (0, _immutable.fromJS)(val));
+        _this.setStoreState = function (val) {
+          var state = _this.getStoreState() || (0, _immutable.Map)();
+          _store2.default.setState(rootPath, state.mergeDeep((0, _immutable.fromJS)(val)));
         };
 
-        _this.state = { container: initialState };
+        _this.replaceStoreState = function (val) {
+          return _store2.default.setState(rootPath, (0, _immutable.fromJS)(val));
+        };
+
+        var currentState = _store2.default.getState(rootPath);
+        if (currentState) {
+          _this.state = { container: currentState.toJS ? currentState.toJS() : currentState };
+        } else {
+          _this.state = { container: initialState };
+          _store2.default.setStateQuiet(rootPath, (0, _immutable.fromJS)(initialState));
+        }
         return _this;
       }
 
       _createClass(Container, [{
         key: 'render',
         value: function render() {
+          var _this2 = this;
+
           return _react2.default.createElement(Component, _extends({}, this.props, {
             container: {
-              get: this.getStoreState,
+              get: function get() {
+                return _this2.state.container;
+              },
               set: this.setStoreState,
+              replace: this.replaceStoreState,
               state: this.state.container
             }
           }));
