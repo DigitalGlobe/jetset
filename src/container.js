@@ -22,7 +22,7 @@ export default function containerize( initialState ) {
           this.state = { container: currentState.toJS ? currentState.toJS() : currentState };
         } else {
           this.state = { container : initialState };
-          store.setStateQuiet( rootPath, fromJS( initialState ) );
+          store.setStateQuiet( rootPath, initialState );
         }
       }
 
@@ -42,7 +42,7 @@ export default function containerize( initialState ) {
         store.setState( rootPath, state.mergeDeep( fromJS( val ) ) );
       }
 
-      replaceStoreState = val => store.setState( rootPath, fromJS( val ) )
+      replaceStoreState = val => store.setState( rootPath, val )
 
       render() {
         return (

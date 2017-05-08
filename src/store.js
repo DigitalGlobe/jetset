@@ -17,10 +17,11 @@ export function managesState() {
       );
     },
     setState( path, val ) {
+      const immutableVal = fromJS( val );
       _state = (
         Array.isArray( path ) ?
-          _state.setIn( path, val ) :
-        _state.set( path, val )
+          _state.setIn( path, immutableVal ) :
+        _state.set( path, immutableVal )
       );
       return _state;
     },
@@ -152,7 +153,7 @@ const store = {
       }
     };
     subscribe( onChange );
-    if ( initialState ) setState( path, fromJS( initialState ) );
+    if ( initialState ) setState( path, initialState );
     return onChange;
   },
   nextState: undo.next,

@@ -30,7 +30,7 @@ function subscribe({ local, paths }) {
           if ( val ) {
             memo[key] = val;
             // TODo this shouldn't happen here
-            store.setStateQuiet( rootPath.concat( key ), fromJS( val ) );
+            store.setStateQuiet( rootPath.concat( key ), val );
           } else {
             const storeVal = store.getState( rootPath.concat( key ) );
             memo[key] = storeVal && storeVal.toJS ? storeVal.toJS() : storeVal;
@@ -64,7 +64,7 @@ function subscribe({ local, paths }) {
         }
       }
 
-      replace = ( path, val ) => store.setState( rootPath.concat( path ), fromJS( val ) )
+      replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
 
       methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => {
         const currentState = this.state[path];
