@@ -3,11 +3,21 @@ import React from 'react';
 import store from './store';
 import logger, { formatBranchArgs } from './lib/log';
 
+const isObject = item => !Array.isArray( item ) && typeof item === 'object';
+
 function subscribe({ local, paths }) {
 
   return Component => {
 
-    const rootPath = local ? [ 'local', Component.name ] : [];
+    const rootPath = local ? [ 'local', Component.name + `_${Math.round(Math.random() * Date.now())}`] : [];
+    const nPaths = paths.reduce(( memo, item ) => {
+      if ( isObject( item ) ) {
+        Object.keys( item ).forEach( key => memo.set( key, item[ key ] ) );
+      } else {
+        memo.set( item );
+      }
+      return memo;
+    }, new Map());
 
     return class Subscriber extends React.Component {
 
@@ -15,16 +25,18 @@ function subscribe({ local, paths }) {
 
       constructor( props ) {
         super( props );
-        this.state = {};
+        this.state = [ ...nPaths.entries() ].reduce(( memo, [ key, val ] ) =>
+          Object.assign( memo, { [key]: val } )
+        , {});
       }
 
       componentWillMount = () => {
-        this.subscriptions = paths.map( path => 
-          store.subscribeTo( rootPath.concat( path ), this.onChange.bind( this, path ) )
-        );
+        this.subscriptions = [ ...nPaths.keys() ].map( this.subscribeTo );
       }
 
       componentWillUnmount = () => this.subscriptions.forEach( store.unsubscribe )
+
+      subscribeTo = path => store.subscribeTo( rootPath.concat( path ), this.onChange.bind( this, path ) );
 
       onChange = ( path, state ) => {
         /* eslint-disable no-console */
@@ -45,7 +57,7 @@ function subscribe({ local, paths }) {
 
       replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
 
-      methods = () => paths.reduce(( memo, path ) => ({
+      methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => ({
         ...memo,
         [path]: {
           get: () => this.state[ path ],
@@ -64,10 +76,10 @@ function subscribe({ local, paths }) {
   };
 }
 
-export function local( ...paths ) {
+export function localState( ...paths ) {
   return subscribe({ local: true, paths });
 }
 
-export function global( ...paths ) {
+export function globalState( ...paths ) {
   return subscribe({ local: false, paths });
 }

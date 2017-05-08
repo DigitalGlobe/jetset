@@ -1,9 +1,9 @@
 import React from 'react';
-import { global } from '../../src/subscribe';
+import { globalState } from '../../src/subscribe';
 
 // TODO: we'll need state naming convention + clear way to subscribe to nested
 // state
-@global( 'example', 'example2' )
+@globalState({ example: 'foo', example2: 'bar' })
 class SubscriptionExample extends React.Component {
   render() {
     return (
