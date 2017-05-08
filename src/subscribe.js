@@ -59,7 +59,7 @@ function subscribe({ local, paths }) {
           return this.replace( path, val );
         } else {
           const fullPath = rootPath.concat( path );
-          const state = store.getState( fullPath );
+          const state = store.getState( fullPath ) || Map();
           return store.setState( fullPath, state.mergeDeep( val ) );
         }
       }
