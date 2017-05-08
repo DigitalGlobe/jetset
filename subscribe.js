@@ -96,7 +96,7 @@ function subscribe(_ref) {
             return _this.replace(path, val);
           } else {
             var fullPath = rootPath.concat(path);
-            var state = _store2.default.getState(fullPath) || Map();
+            var state = _store2.default.getState(fullPath) || (0, _immutable.Map)();
             return _store2.default.setState(fullPath, state.mergeDeep(val));
           }
         };

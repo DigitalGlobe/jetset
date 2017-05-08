@@ -15,6 +15,8 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _immutable = require('immutable');
+
 var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
@@ -33,61 +35,65 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function containerize(Component) {
+function containerize(initialState) {
 
-  var masterKey = Component.key || Component.name;
+  return function decorate(Component) {
 
-  return function (_React$Component) {
-    _inherits(Container, _React$Component);
+    var masterKey = Component.key || Component.name;
+    var rootPath = ['containers', masterKey];
 
-    function Container(props) {
-      _classCallCheck(this, Container);
+    return function (_React$Component) {
+      _inherits(Container, _React$Component);
 
-      var _this = _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
+      function Container(props) {
+        _classCallCheck(this, Container);
 
-      _this.subscription = null;
+        var _this = _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
 
-      _this.componentWillMount = function () {
-        _this.subscription = _store2.default.subscribeTo(['containers', masterKey], function (state) {
-          if (state) {
-            /* eslint-disable no-console */
-            (0, _log2.default)('\uD83C\uDF00 re-rendering container <' + masterKey + '>');
-            _this.setState({ container: state });
-          }
-        });
-      };
+        _this.subscription = null;
 
-      _this.componentWillUnmount = function () {
-        return _store2.default.unsubscribe(_this.subscription);
-      };
+        _this.componentWillMount = function () {
+          _this.subscription = _store2.default.subscribeTo(['containers', masterKey], function (state) {
+            if (state) {
+              /* eslint-disable no-console */
+              (0, _log2.default)('\uD83C\uDF00 re-rendering container <' + masterKey + '>');
+              _this.setState({ container: state && state.toJS ? state.toJS() : state });
+            }
+          });
+        };
 
-      _this.getStoreState = function (key) {
-        return _store2.default.getState(['containers', masterKey, key]);
-      };
+        _this.componentWillUnmount = function () {
+          return _store2.default.unsubscribe(_this.subscription);
+        };
 
-      _this.setStoreState = function (key, val) {
-        return _store2.default.setState(['containers', masterKey, key], val);
-      };
+        _this.getStoreState = function (key) {
+          return _store2.default.getState(['containers', masterKey, key]);
+        };
 
-      _this.state = { container: null };
-      return _this;
-    }
+        _this.setStoreState = function (key, val) {
+          return _store2.default.setState(['containers', masterKey, key], (0, _immutable.fromJS)(val));
+        };
 
-    _createClass(Container, [{
-      key: 'render',
-      value: function render() {
-        return _react2.default.createElement(Component, _extends({}, this.props, {
-          container: {
-            get: this.getStoreState,
-            set: this.setStoreState,
-            state: this.state.container
-          }
-        }));
+        _this.state = { container: initialState };
+        return _this;
       }
-    }]);
 
-    return Container;
-  }(_react2.default.Component);
+      _createClass(Container, [{
+        key: 'render',
+        value: function render() {
+          return _react2.default.createElement(Component, _extends({}, this.props, {
+            container: {
+              get: this.getStoreState,
+              set: this.setStoreState,
+              state: this.state.container
+            }
+          }));
+        }
+      }]);
+
+      return Container;
+    }(_react2.default.Component);
+  };
 }
 
 function Children(_ref) {

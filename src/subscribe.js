@@ -1,5 +1,5 @@
 import React from 'react';
-import { fromJS } from 'immutable';
+import { fromJS, Map as iMap } from 'immutable';
 
 import store from './store';
 import logger, { formatBranchArgs } from './lib/log';
@@ -59,7 +59,7 @@ function subscribe({ local, paths }) {
           return this.replace( path, val );
         } else {
           const fullPath = rootPath.concat( path );
-          const state = store.getState( fullPath ) || Map();
+          const state = store.getState( fullPath ) || iMap();
           return store.setState( fullPath, state.mergeDeep( val ) );
         }
       }

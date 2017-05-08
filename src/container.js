@@ -1,48 +1,53 @@
 import React from 'react';
+import { fromJS } from 'immutable';
 
 import store from './store';
 import logger from './lib/log';
 
-export default function containerize( Component ) {
+export default function containerize( initialState ) {
 
-  const masterKey = Component.key || Component.name;
+  return function decorate( Component ) {
 
-  return class Container extends React.Component {
+    const masterKey = Component.key || Component.name;
+    const rootPath = [ 'containers', masterKey ];
 
-    subscription = null
+    return class Container extends React.Component {
 
-    constructor( props ) {
-      super( props );
-      this.state = { container: null };
-    }
+      subscription = null
 
-    componentWillMount = () => {
-      this.subscription = store.subscribeTo([ 'containers', masterKey ], state => {
-        if ( state ) {
-          /* eslint-disable no-console */
-          logger( `\uD83C\uDF00 re-rendering container <${masterKey}>` );
-          this.setState({ container: state });
-        }
-      });
-    }
+      constructor( props ) {
+        super( props );
+        this.state = { container: initialState };
+      }
 
-    componentWillUnmount = () => store.unsubscribe( this.subscription )
+      componentWillMount = () => {
+        this.subscription = store.subscribeTo([ 'containers', masterKey ], state => {
+          if ( state ) {
+            /* eslint-disable no-console */
+            logger( `\uD83C\uDF00 re-rendering container <${masterKey}>` );
+            this.setState({ container: state && state.toJS ? state.toJS() : state });
+          }
+        });
+      }
 
-    getStoreState = key => store.getState([ 'containers', masterKey, key ])
-    setStoreState = ( key, val ) => store.setState([ 'containers', masterKey, key ], val )
+      componentWillUnmount = () => store.unsubscribe( this.subscription )
 
-    render() {
-      return (
-        <Component 
-          { ...this.props } 
-          container={{
-            get: this.getStoreState, 
-            set: this.setStoreState,
-            state: this.state.container
-          }} 
-        />
-      );
-    }
+      getStoreState = key => store.getState([ 'containers', masterKey, key ])
+      setStoreState = ( key, val ) => store.setState([ 'containers', masterKey, key ], fromJS( val ) )
+
+      render() {
+        return (
+          <Component 
+            { ...this.props } 
+            container={{
+              get: this.getStoreState, 
+              set: this.setStoreState,
+              state: this.state.container
+            }} 
+          />
+        );
+      }
+    };
   };
 }
 
