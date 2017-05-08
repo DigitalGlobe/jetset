@@ -19,7 +19,7 @@ export default function NonApiRouter() {
       )} />
       <Route path="/non-api/local-state" render={() => (
         <div>
-          {/*<Gist gist="" />*/}
+          <Gist gist="glortho/1c1f2c0cd667287fa59d99bb44039080" />
           <h1>Use the local state decorator</h1> 
           <div>Instead of using React component state (in order to take advantage of time-travel debugging and other dev tools)</div>
           <LocalStateExample />
