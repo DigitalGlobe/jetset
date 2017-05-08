@@ -40,6 +40,7 @@ ReactDOM.render((
 
         <NavLink { ...styles } to="/non-api/global-state">global state</NavLink>
         <NavLink { ...styles } to="/non-api/local-state">local state</NavLink>
+        <NavLink { ...styles } to="/non-api/combined-state">combined state</NavLink>
         <NavLink { ...styles } to="/non-api/containers">containers</NavLink>
 
         <hr/>
