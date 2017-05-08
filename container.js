@@ -74,7 +74,7 @@ function containerize(initialState) {
         };
 
         _this.replaceStoreState = function (val) {
-          return _store2.default.setState(rootPath, (0, _immutable.fromJS)(val));
+          return _store2.default.setState(rootPath, val);
         };
 
         var currentState = _store2.default.getState(rootPath);
@@ -82,7 +82,7 @@ function containerize(initialState) {
           _this.state = { container: currentState.toJS ? currentState.toJS() : currentState };
         } else {
           _this.state = { container: initialState };
-          _store2.default.setStateQuiet(rootPath, (0, _immutable.fromJS)(initialState));
+          _store2.default.setStateQuiet(rootPath, initialState);
         }
         return _this;
       }

@@ -33,7 +33,8 @@ function managesState() {
       return !args ? _state : Array.isArray(args) ? _state.getIn(args) : _state.get(args);
     },
     setState: function setState(path, val) {
-      _state = Array.isArray(path) ? _state.setIn(path, val) : _state.set(path, val);
+      var immutableVal = (0, _immutable.fromJS)(val);
+      _state = Array.isArray(path) ? _state.setIn(path, immutableVal) : _state.set(path, immutableVal);
       return _state;
     },
     resetState: function resetState(val) {
@@ -197,7 +198,7 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
       }
     };
     subscribe(onChange);
-    if (initialState) _setState(path, (0, _immutable.fromJS)(initialState));
+    if (initialState) _setState(path, initialState);
     return onChange;
   },
 

@@ -102,7 +102,7 @@ function subscribe(_ref) {
         };
 
         _this.replace = function (path, val) {
-          return _store2.default.setState(rootPath.concat(path), (0, _immutable.fromJS)(val));
+          return _store2.default.setState(rootPath.concat(path), val);
         };
 
         _this.methods = function () {
@@ -134,7 +134,7 @@ function subscribe(_ref) {
           if (val) {
             memo[key] = val;
             // TODo this shouldn't happen here
-            _store2.default.setStateQuiet(rootPath.concat(key), (0, _immutable.fromJS)(val));
+            _store2.default.setStateQuiet(rootPath.concat(key), val);
           } else {
             var storeVal = _store2.default.getState(rootPath.concat(key));
             memo[key] = storeVal && storeVal.toJS ? storeVal.toJS() : storeVal;

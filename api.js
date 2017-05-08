@@ -160,7 +160,7 @@ function createActions(props) {
         return getState(['models', id]);
       };
       var setModel = function setModel(id, data) {
-        return setState((0, _immutable.fromJS)(data), ['models', id]);
+        return setState(data, ['models', id]);
       };
       var getPending = function getPending(path) {
         return getState(['requests', path, 'pending']);
