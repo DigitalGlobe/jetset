@@ -4,7 +4,7 @@ import { globalState } from '../../src/subscribe';
 // TODO: we'll need state naming convention + clear way to subscribe to nested
 // state
 @globalState({ example: 'foo', example2: 'bar' }, 'exampleWithNoInitialState')
-class SubscriptionExample extends React.Component {
+class GlobalStateExample extends React.Component {
   render() {
     return (
       <div>
@@ -28,4 +28,4 @@ class SubscriptionExample extends React.Component {
   }
 }
 
-export default SubscriptionExample;
+export default GlobalStateExample;

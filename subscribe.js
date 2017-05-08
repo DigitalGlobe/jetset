@@ -117,7 +117,7 @@ function subscribe(_ref) {
               replace: function replace(val) {
                 return _this.replace(path, val);
               }
-            }, _this.state)));
+            }, _this.state[path])));
           }, {});
         };
 
