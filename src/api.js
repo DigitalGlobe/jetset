@@ -37,7 +37,7 @@ const isUndo = () => store.getState( '_reset' );
 function createActions( props ) {
 
   const fetchOptions = props.credentials ? { credentials: props.credentials } : {};
-  if ( props.auth ) fetchOptions.headers = { Authorization: props.auth };
+  if ( props.auth || props.authorization ) fetchOptions.headers = { Authorization: props.auth || props.authorization };
   const fetch = initFetch( fetchOptions );
 
   return Object.keys( props ).reduce(( memo, key ) => {

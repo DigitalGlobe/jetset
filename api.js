@@ -83,7 +83,7 @@ var isUndo = function isUndo() {
 function createActions(props) {
 
   var fetchOptions = props.credentials ? { credentials: props.credentials } : {};
-  if (props.auth) fetchOptions.headers = { Authorization: props.auth };
+  if (props.auth || props.authorization) fetchOptions.headers = { Authorization: props.auth || props.authorization };
   var fetch = (0, _fetch2.default)(fetchOptions);
 
   return Object.keys(props).reduce(function (memo, key) {
