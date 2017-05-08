@@ -484,7 +484,7 @@ function createActions(props) {
                   if (Array.isArray(data)) {
                     setCollection(data, path);
                   } else {
-                    setState((0, _immutable.fromJS)(data), ['requests', path, 'data']);
+                    setState(data, ['requests', path, 'data']);
                   }
                   return data;
                 });

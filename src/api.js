@@ -342,7 +342,7 @@ function createActions( props ) {
                   if ( Array.isArray( data ) ) {
                     setCollection( data, path );
                   } else {
-                    setState( fromJS( data ), [ 'requests', path, 'data' ] );
+                    setState( data, [ 'requests', path, 'data' ] );
                   }
                   return data;
                 });
