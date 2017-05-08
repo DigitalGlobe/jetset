@@ -26,9 +26,14 @@ function subscribe({ local, paths }) {
       constructor( props ) {
         super( props );
         this.state = [ ...nPaths.entries() ].reduce(( memo, [ key, val ] ) => {
-          memo[key] = val;
-          // TODo this shouldn't happen here
-          store.setStateQuiet( rootPath.concat( key ), val );
+          if ( val ) {
+            memo[key] = val;
+            // TODo this shouldn't happen here
+            store.setStateQuiet( rootPath.concat( key ), val );
+          } else {
+            const storeVal = store.getState( rootPath.concat( key ) );
+            memo[key] = storeVal && storeVal.toJS ? storeVal.toJS() : storeVal;
+          }
           return memo;
         }, {});
       }

@@ -128,9 +128,14 @@ function subscribe(_ref) {
               key = _ref3[0],
               val = _ref3[1];
 
-          memo[key] = val;
-          // TODo this shouldn't happen here
-          _store2.default.setStateQuiet(rootPath.concat(key), val);
+          if (val) {
+            memo[key] = val;
+            // TODo this shouldn't happen here
+            _store2.default.setStateQuiet(rootPath.concat(key), val);
+          } else {
+            var storeVal = _store2.default.getState(rootPath.concat(key));
+            memo[key] = storeVal && storeVal.toJS ? storeVal.toJS() : storeVal;
+          }
           return memo;
         }, {});
         return _this;
