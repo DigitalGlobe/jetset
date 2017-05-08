@@ -64,7 +64,7 @@ function subscribe({ local, paths }) {
         }
       }
 
-      replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
+      replace = ( path, val ) => store.setState( rootPath.concat( path ), fromJS( val ) )
 
       methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => {
         const currentState = this.state[path];

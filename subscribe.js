@@ -102,7 +102,7 @@ function subscribe(_ref) {
         };
 
         _this.replace = function (path, val) {
-          return _store2.default.setState(rootPath.concat(path), val);
+          return _store2.default.setState(rootPath.concat(path), (0, _immutable.fromJS)(val));
         };
 
         _this.methods = function () {
