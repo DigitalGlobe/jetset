@@ -72,7 +72,7 @@ function subscribe({ local, paths }) {
           get: () => this.state[ path ],
           set: val => this.merge( path, val ),
           replace: val => this.replace( path, val ),
-          ...this.state[path]
+          ...( this.state[path] || {} )
         }
       }), {})
 
