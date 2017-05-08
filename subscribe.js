@@ -107,9 +107,10 @@ function subscribe(_ref) {
 
         _this.methods = function () {
           return [].concat(_toConsumableArray(nPaths.keys())).reduce(function (memo, path) {
+            var currentState = _this.state[path];
             return _extends({}, memo, _defineProperty({}, path, {
               get: function get() {
-                return _extends({}, _this.state[path] || {});
+                return currentState;
               },
               set: function set(val) {
                 return _this.merge(path, val);

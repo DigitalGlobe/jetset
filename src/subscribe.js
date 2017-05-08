@@ -66,14 +66,17 @@ function subscribe({ local, paths }) {
 
       replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
 
-      methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => ({
-        ...memo,
-        [path]: {
-          get: () => ({ ...( this.state[ path ] || {} ) }),
-          set: val => this.merge( path, val ),
-          replace: val => this.replace( path, val )
-        }
-      }), {})
+      methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => {
+        const currentState = this.state[path];
+        return {
+          ...memo,
+          [path]: {
+            get: () => currentState,
+            set: val => this.merge( path, val ),
+            replace: val => this.replace( path, val )
+          }
+        };
+      }, {})
 
       render = () => (
         <Component 
