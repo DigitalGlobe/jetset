@@ -107,9 +107,9 @@ function subscribe(_ref) {
 
         _this.methods = function () {
           return [].concat(_toConsumableArray(nPaths.keys())).reduce(function (memo, path) {
-            return _extends({}, memo, _defineProperty({}, path, _extends({
+            return _extends({}, memo, _defineProperty({}, path, {
               get: function get() {
-                return _this.state[path];
+                return _extends({}, _this.state[path] || {});
               },
               set: function set(val) {
                 return _this.merge(path, val);
@@ -117,7 +117,7 @@ function subscribe(_ref) {
               replace: function replace(val) {
                 return _this.replace(path, val);
               }
-            }, _this.state[path] || {})));
+            }));
           }, {});
         };
 

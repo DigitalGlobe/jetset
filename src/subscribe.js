@@ -69,10 +69,9 @@ function subscribe({ local, paths }) {
       methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => ({
         ...memo,
         [path]: {
-          get: () => this.state[ path ],
+          get: () => ({ ...( this.state[ path ] || {} ) }),
           set: val => this.merge( path, val ),
-          replace: val => this.replace( path, val ),
-          ...( this.state[path] || {} )
+          replace: val => this.replace( path, val )
         }
       }), {})
 
