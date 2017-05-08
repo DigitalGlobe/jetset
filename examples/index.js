@@ -38,7 +38,8 @@ ReactDOM.render((
 
         <span style={ styles.style }>Non-Api examples:</span>
 
-        <NavLink { ...styles } to="/non-api/subscribe">subscribe</NavLink>
+        <NavLink { ...styles } to="/non-api/global-state">global state</NavLink>
+        <NavLink { ...styles } to="/non-api/local-state">local state</NavLink>
         <NavLink { ...styles } to="/non-api/containers">containers</NavLink>
 
         <hr/>

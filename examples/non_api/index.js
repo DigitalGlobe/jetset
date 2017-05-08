@@ -21,7 +21,7 @@ export default function NonApiRouter() {
         <div>
           {/*<Gist gist="" />*/}
           <h1>Use the local state decorator</h1> 
-          <div>Instead of using React component state </div>
+          <div>Instead of using React component state (in order to take advantage of time-travel debugging and other dev tools)</div>
           <LocalStateExample />
         </div>
       )} />
