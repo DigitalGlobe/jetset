@@ -83,6 +83,7 @@ var isUndo = function isUndo() {
 function createActions(props) {
 
   var fetchOptions = props.credentials ? { credentials: props.credentials } : {};
+  if (props.auth) fetchOptions.headers = { Authorization: props.auth };
   var fetch = (0, _fetch2.default)(fetchOptions);
 
   return Object.keys(props).reduce(function (memo, key) {
@@ -556,6 +557,7 @@ var Api = (_temp = _class = function (_React$Component) {
 }(_react2.default.Component), _class.propTypes = {
   url: _propTypes2.default.string.isRequired,
   // see https://github.com/github/fetch#sending-cookies for reference
-  credentials: _propTypes2.default.oneOf(['same-origin', 'include'])
+  credentials: _propTypes2.default.oneOf(['same-origin', 'include']),
+  token: _propTypes2.default.string
 }, _temp);
 exports.default = Api;

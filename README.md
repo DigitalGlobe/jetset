@@ -174,6 +174,22 @@ value. For example:
 
 See https://github.com/github/fetch#sending-cookies for more info.
 
+##### Auth
+
+The api component accepts an auth prop that will be used for the Authorization
+header:
+
+```
+<Api 
+  url="http://my.api.com" 
+  sources={ sourcesSchema }
+  auth="Bearer some-token-here"
+>
+```
+
+Note: This will result in a `Authorization: Bearer some-token-here` being added
+to all fetch headers.
+
 
 #### Devtools
 

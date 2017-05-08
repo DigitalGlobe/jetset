@@ -37,6 +37,7 @@ const isUndo = () => store.getState( '_reset' );
 function createActions( props ) {
 
   const fetchOptions = props.credentials ? { credentials: props.credentials } : {};
+  if ( props.auth ) fetchOptions.headers = { Authorization: props.auth };
   const fetch = initFetch( fetchOptions );
 
   return Object.keys( props ).reduce(( memo, key ) => {
@@ -369,7 +370,8 @@ export default class Api extends React.Component {
   static propTypes = {
     url: PropTypes.string.isRequired,
     // see https://github.com/github/fetch#sending-cookies for reference
-    credentials: PropTypes.oneOf( [ 'same-origin', 'include' ] )
+    credentials: PropTypes.oneOf( [ 'same-origin', 'include' ] ),
+    token: PropTypes.string
   }
 
   subscriptions = []
