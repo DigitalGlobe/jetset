@@ -22,7 +22,7 @@ export default class StateTreeView extends React.Component {
   }
 
   componentWillMount() {
-    store.subscribe( this.onChange );
+    store.subscribeAll( this.onChange );
   }
 
   componentWillUnmount() {

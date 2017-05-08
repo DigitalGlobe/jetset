@@ -186,7 +186,7 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
     (0, _log2.default)('%c' + setStateEmoji + ' setting state quiet (no re-rendering):', 'color: #999', (0, _immutablediff2.default)(statePrev, stateNext).toJS());
   },
 
-  subscribe: subscribe,
+  subscribeAll: subscribe,
   subscribeTo: function subscribeTo(path, callback, initialState) {
     var cache = null;
     var onChange = function onChange(state) {
@@ -198,7 +198,6 @@ var store = _extends({}, subscriptionMethods, stateMethods, {
     };
     subscribe(onChange);
     if (initialState) _setState(path, (0, _immutable.fromJS)(initialState));
-    //logger( `\uD83D\uDCC5 created subscription for branch: %c${formatBranchArgs( path )}`, 'color: #5B4532' );
     return onChange;
   },
 
