@@ -128,7 +128,10 @@ function subscribe(_ref) {
               key = _ref3[0],
               val = _ref3[1];
 
-          return Object.assign(memo, _defineProperty({}, key, val));
+          memo[key] = val;
+          // TODo this shouldn't happen here
+          _store2.default.setStateQuiet(rootPath.concat(key), val);
+          return memo;
         }, {});
         return _this;
       }

@@ -25,9 +25,12 @@ function subscribe({ local, paths }) {
 
       constructor( props ) {
         super( props );
-        this.state = [ ...nPaths.entries() ].reduce(( memo, [ key, val ] ) =>
-          Object.assign( memo, { [key]: val } )
-        , {});
+        this.state = [ ...nPaths.entries() ].reduce(( memo, [ key, val ] ) => {
+          memo[key] = val;
+          // TODo this shouldn't happen here
+          store.setStateQuiet( rootPath.concat( key ), val );
+          return memo;
+        }, {});
       }
 
       componentWillMount = () => {
