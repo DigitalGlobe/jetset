@@ -91,7 +91,7 @@ sources.$get( id ).$update({...})
 sources().find( model => model.get( '_id' ) === id ).$update({...})
 
 // DELETE /sources/id => Promise<Object>
-sources.$get( id ).$delete( id )
+sources.$get( id ).$delete()
 sources().find( model => model.get( '_id' ) === id ).$delete()
 
 // GET /sources/some/other/route => Promise<Array|Object>

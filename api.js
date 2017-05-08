@@ -57,7 +57,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 *     [url]: {
 *       [resource]: {
 *         models: {
-*           [id]: { 
+*           [id]: {
 *             [key]: any,
 *             _fetched?: boolean
 *           }
