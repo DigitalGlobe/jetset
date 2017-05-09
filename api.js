@@ -39,13 +39,13 @@ var _log2 = _interopRequireDefault(_log);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -298,8 +298,7 @@ function createActions(props) {
         return api.delete('/' + id);
       };
 
-      var search = function search(queryString) {
-        var path = '?' + queryString;
+      var search = function search(path) {
         if (shouldFetch(path)) {
           return api.get(path).then(setSearchResults(path));
         }
@@ -441,20 +440,28 @@ function createActions(props) {
 
       // call signature: search({ queryOrWhatever: 'foo', otherParam: 0, anotherParam: 30 })
       // - sort so that we can cache consistently
-      main.$search = function (args) {
+      main.$search = function (_ref3) {
+        var _ref3$route = _ref3.route,
+            route = _ref3$route === undefined ? '' : _ref3$route,
+            args = _objectWithoutProperties(_ref3, ['route']);
+
         var queryString = Object.keys(args).sort().reduce(function (memo, key) {
           memo.append(key, args[key]);
           return memo;
         }, new URLSearchParams()).toString();
-        return search(queryString);
+        return search(route + '?' + queryString);
       };
 
-      main.$search.results = function (args) {
+      main.$search.results = function (_ref4) {
+        var _ref4$route = _ref4.route,
+            route = _ref4$route === undefined ? '' : _ref4$route,
+            args = _objectWithoutProperties(_ref4, ['route']);
+
         var queryString = Object.keys(args).sort().reduce(function (memo, key) {
           memo.append(key, args[key]);
           return memo;
         }, new URLSearchParams()).toString();
-        var path = '?' + queryString;
+        var path = route + '?' + queryString;
         var resultsCached = getSearchResults(path);
         if (resultsCached) {
           return addRestMethods(resultsCached);

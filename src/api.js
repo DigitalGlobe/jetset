@@ -185,8 +185,7 @@ function createActions( props ) {
 
       const deleteOne = id => api.delete( `/${id}` );
 
-      const search = queryString => {
-        const path = `?${queryString}`;
+      const search = path => {
         if ( shouldFetch( path ) ) {
           return api.get( path ).then( setSearchResults( path ) );
         }
@@ -300,20 +299,20 @@ function createActions( props ) {
 
       // call signature: search({ queryOrWhatever: 'foo', otherParam: 0, anotherParam: 30 })
       // - sort so that we can cache consistently
-      main.$search = args => {
+      main.$search = ({ route = '', ...args }) => {
         const queryString = Object.keys( args ).sort().reduce(( memo, key ) => {
           memo.append( key, args[ key ] );
           return memo;
         }, new URLSearchParams()).toString();
-        return search( queryString );
+        return search( route + '?' + queryString );
       };
 
-      main.$search.results = args => {
+      main.$search.results = ({ route = '', ...args }) => {
         const queryString = Object.keys( args ).sort().reduce(( memo, key ) => {
           memo.append( key, args[ key ] );
           return memo;
         }, new URLSearchParams()).toString();
-        const path = `?${queryString}`;
+        const path = `${route}?${queryString}`;
         const resultsCached = getSearchResults( path );
         if ( resultsCached ) {
           return addRestMethods( resultsCached );
