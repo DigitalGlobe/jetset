@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { List, Map, fromJS } from 'immutable';
+import { List, Map } from 'immutable';
 import initFetch from 'fetch';
 
 import { isSchema, getIdField } from './lib/schema';
 import store from './store';
 import logger, { logError, logWarn } from './lib/log';
+import getQueryString from './lib/query_string';
 
 /* basic state tree design for api.js
 * {
@@ -162,8 +163,7 @@ function createActions( props ) {
       /**
        * api calls
        */
-      const fetchAll = () => {
-        const path = '/';
+      const fetchAll = ( path = '/' ) => {
         if ( shouldFetch( path ) ) {
           api.get( path ).then( data => setCollection( data, path ) );
         }
@@ -213,7 +213,7 @@ function createActions( props ) {
       };
 
       const $delete = id => ( options = {} ) =>
-        options.optimistic === false
+        options.optimistic === false || !getModel( id )
           ? deleteOne( id ).then(() => deleteModel( id ) )
           : optimisticDelete( id );
 
@@ -234,7 +234,7 @@ function createActions( props ) {
       };
 
       const $update = id => ( vals, options = {} ) =>
-        options.optimistic === false
+        options.optimistic === false || !getModel( id )
           ? updateOne( id, vals ).then( data => updateModel( id, data ) )
           : optimisticUpdate( id, vals, options );
 
@@ -254,11 +254,11 @@ function createActions( props ) {
         return model;
       };
 
-      const main = () => {
-        const path = '/';
+      const main = params => {
+        const path = '/' + ( params ? `?${getQueryString( params )}` : '' );
         const collection = getCollection( path );
         if ( !collection ) {
-          fetchAll();
+          fetchAll( path );
           return getPlaceholder( path );
         } else {
           return collection.map( addRestMethods );
@@ -270,7 +270,9 @@ function createActions( props ) {
         if ( !model || !model.get( '_fetched' ) ) {
           const path = `/${id}`;
           fetchOne( id );
-          return getPlaceholder( path, Map );
+          const placeholder = getPlaceholder( path, Map );
+          placeholder.$delete = $delete( id );
+          placeholder.$update = $update( id );
         } else {
           return addRestMethods( model );
         }
@@ -300,18 +302,12 @@ function createActions( props ) {
       // call signature: search({ queryOrWhatever: 'foo', otherParam: 0, anotherParam: 30 })
       // - sort so that we can cache consistently
       main.$search = ({ route = '', ...args }) => {
-        const queryString = Object.keys( args ).sort().reduce(( memo, key ) => {
-          memo.append( key, args[ key ] );
-          return memo;
-        }, new URLSearchParams()).toString();
+        const queryString = getQueryString( args );
         return search( route + '?' + queryString );
       };
 
       main.$search.results = ({ route = '', ...args }) => {
-        const queryString = Object.keys( args ).sort().reduce(( memo, key ) => {
-          memo.append( key, args[ key ] );
-          return memo;
-        }, new URLSearchParams()).toString();
+        const queryString = getQueryString( args );
         const path = `${route}?${queryString}`;
         const resultsCached = getSearchResults( path );
         if ( resultsCached ) {

@@ -37,6 +37,10 @@ var _log = require('./lib/log');
 
 var _log2 = _interopRequireDefault(_log);
 
+var _query_string = require('./lib/query_string');
+
+var _query_string2 = _interopRequireDefault(_query_string);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -266,7 +270,8 @@ function createActions(props) {
        * api calls
        */
       var fetchAll = function fetchAll() {
-        var path = '/';
+        var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '/';
+
         if (shouldFetch(path)) {
           api.get(path).then(function (data) {
             return setCollection(data, path);
@@ -338,7 +343,7 @@ function createActions(props) {
       var $delete = function $delete(id) {
         return function () {
           var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-          return options.optimistic === false ? deleteOne(id).then(function () {
+          return options.optimistic === false || !getModel(id) ? deleteOne(id).then(function () {
             return deleteModel(id);
           }) : optimisticDelete(id);
         };
@@ -365,7 +370,7 @@ function createActions(props) {
       var $update = function $update(id) {
         return function (vals) {
           var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-          return options.optimistic === false ? updateOne(id, vals).then(function (data) {
+          return options.optimistic === false || !getModel(id) ? updateOne(id, vals).then(function (data) {
             return updateModel(id, data);
           }) : optimisticUpdate(id, vals, options);
         };
@@ -390,11 +395,11 @@ function createActions(props) {
         return model;
       };
 
-      var main = function main() {
-        var path = '/';
+      var main = function main(params) {
+        var path = '/' + (params ? '?' + (0, _query_string2.default)(params) : '');
         var collection = getCollection(path);
         if (!collection) {
-          fetchAll();
+          fetchAll(path);
           return getPlaceholder(path);
         } else {
           return collection.map(addRestMethods);
@@ -406,7 +411,9 @@ function createActions(props) {
         if (!model || !model.get('_fetched')) {
           var path = '/' + id;
           fetchOne(id);
-          return getPlaceholder(path, _immutable.Map);
+          var placeholder = getPlaceholder(path, _immutable.Map);
+          placeholder.$delete = $delete(id);
+          placeholder.$update = $update(id);
         } else {
           return addRestMethods(model);
         }
@@ -445,10 +452,7 @@ function createActions(props) {
             route = _ref3$route === undefined ? '' : _ref3$route,
             args = _objectWithoutProperties(_ref3, ['route']);
 
-        var queryString = Object.keys(args).sort().reduce(function (memo, key) {
-          memo.append(key, args[key]);
-          return memo;
-        }, new URLSearchParams()).toString();
+        var queryString = (0, _query_string2.default)(args);
         return search(route + '?' + queryString);
       };
 
@@ -457,10 +461,7 @@ function createActions(props) {
             route = _ref4$route === undefined ? '' : _ref4$route,
             args = _objectWithoutProperties(_ref4, ['route']);
 
-        var queryString = Object.keys(args).sort().reduce(function (memo, key) {
-          memo.append(key, args[key]);
-          return memo;
-        }, new URLSearchParams()).toString();
+        var queryString = (0, _query_string2.default)(args);
         var path = route + '?' + queryString;
         var resultsCached = getSearchResults(path);
         if (resultsCached) {
