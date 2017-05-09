@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.1
+
+- Proper ignoring/building for npm
+
 ### 0.2.0
 
 - Add option to pass a `route` param to `.$search()` in order to accommodate
