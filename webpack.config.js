@@ -18,11 +18,11 @@ const devBuild = {
   module: { rules },
   plugins,
   output: {
-    path: __dirname + '/public',
+    path: __dirname + '/examples/public',
     filename: '[name].js'
   },
   devServer: {
-    contentBase: __dirname + '/public',
+    contentBase: __dirname + '/examples/public',
     historyApiFallback: {
       index: 'index.html'
     }
