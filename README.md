@@ -6,7 +6,7 @@ NOTE: This is very much a work in progress. Everything subject to change!
 ## Install
 
 ```
-$ npm i --save DigitalGlobe/jetset
+$ npm i --save jetset
 ```
 
 ## Use
