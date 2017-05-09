@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.2.1
+### 0.2.1/2
 
 - Proper ignoring/building for npm
 
