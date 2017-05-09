@@ -7,10 +7,28 @@
     "type": "git",
     "url": "https://github.com/DigitalGlobe/jetset"
   },
+  "keywords": [
+    "react",
+    "react-component",
+    "rest",
+    "api",
+    "rest api",
+    "cache",
+    "routes",
+    "state",
+    "state management",
+    "state tree",
+    "immutable",
+    "immutability",
+    "immutable state",
+    "immutable state tree",
+    "subscribe"
+  ],
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "babel --ignore __tests__ -d . src",
+    "prepublish": "npm run build",
     "test": "jest"
   },
   "dependencies": {
