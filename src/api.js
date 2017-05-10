@@ -282,6 +282,7 @@ function createActions( props ) {
           const placeholder = getPlaceholder( path, Map );
           placeholder.$delete = $delete( id );
           placeholder.$update = $update( id );
+          return placeholder;
         } else {
           return addRestMethods( model );
         }
