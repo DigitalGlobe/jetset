@@ -76,6 +76,9 @@ const { sources } = props; // e.g. from <Api url="..." sources={ sourcesSchema }
 // GET /sources => List (will use cache)
 sources()
 
+// GET /sources?offset=0&limit=30 => List (will use cache, for use primarily in rendering)
+sources({ offset: 0, limit: 30 })
+
 // POST /sources => Promise<Array>
 sources.$create({...})
 
@@ -111,10 +114,13 @@ sources.$get( id ).$isPending
 sources().$error
 sources.$get( id ).$error
 
-// clear cache => void
+// clear cache for the given request => void
 sources.$clear();
 sources.$get( id ).$clear()
 sources.$search.results({...}).$clear()
+
+// clear cache for all models/requests for the given the resource => void 
+sources.$clearAll();
 
 // reset with data from server => void
 sources.$reset();
