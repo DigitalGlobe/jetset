@@ -1,6 +1,0 @@
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "sources",
-  "type": "array",
-  "items": [{ "$ref": "source.json#/properties" }]
-}

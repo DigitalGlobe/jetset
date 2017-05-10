@@ -1,5 +1,13 @@
 # Changelog
 
+### 0.2.6
+
+- Fix regression where placeholder was not being returned
+
+### 0.2.5
+
+- Fix fetch reference
+
 ### 0.2.4
 
 - Update dependencies away from private repos so that jetset is fully open

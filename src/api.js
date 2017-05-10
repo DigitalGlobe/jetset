@@ -1,30 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { List, Map } from 'immutable';
-import initFetch from 'fetch';
+import initFetch from 'iso-fetch-stream';
 
 import { getSchemaRef, getIdField } from './lib/schema';
 import store from './store';
-import logger, { logError, logWarn } from './lib/log';
+import logger, { formatBranchArgs, logError, logWarn } from './lib/log';
 import getQueryString from './lib/query_string';
 
 /* basic state tree design for api.js
 * {
 *   $api: {
 *     [url]: {
-*       [resource]: {
-*         models: {
-*           [id]: {
-*             [key]: any,
-*             _fetched?: boolean
-*           }
-*         },
-*         requests: {
-*           [url]: {
-*             pending?: boolean,
-*             error?: Object,
-*             data?: List | Map
-*           }
+*       [resource]_models: {
+*         [id]: {
+*           [key]: any,
+*           _fetched?: boolean
+*         }
+*       },
+*       requests: {
+*         [url]: {
+*           pending?: boolean,
+*           error?: Object,
+*           data?: List | Map
 *         }
 *       }
 *     }
@@ -53,11 +51,20 @@ function createActions( props ) {
       [ schema.items[0] ]
     );
 
-    const getData      = props.getData || ( data => data );
-    const idField      = getIdField( modelRef );
-    const resourceType = key;
-    const resourcePath = `/${resourceType}`;
-    const url          = `${props.url}${resourcePath}`;
+    const schemaOptions = props[ key ];
+
+    const getData = (
+      !schemaOptions ?
+        props.getData :
+      typeof schemaOptions === 'object' ?
+        schemaOptions.getData :
+      null
+    ) || ( data => data );
+
+    const idField       = getIdField( modelRef );
+    const resourceType  = key;
+    const resourcePath  = `/${resourceType}`;
+    const url           = `${props.url}${resourcePath}`;
 
     const getState      = key => store.getState([ '$api', props.url ].concat( key || [] ).map( item => String( item ) ) );
     const setState      = ( val, key ) => store.setState([ '$api', props.url ].concat( key || [] ).map( item => String( item ) ), val );
@@ -366,9 +373,9 @@ function createActions( props ) {
       }
     }), {});
 
-    main._schema       = schema;
-    main._resourceType = resourceType;
-    main.getState      = getState;
+    main._schema         = schema;
+    main.shouldSubscribe = schemaOptions;
+    main.getState        = getState;
 
     memo[ key ] = main;
     if ( typeof window !== 'undefined' ) {
@@ -397,16 +404,22 @@ export default class Api extends React.Component {
   }
 
   componentWillMount() {
-    this.subscriptions = [
-      store.subscribeTo([ '$api', this.props.url ], state => {
-        logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${this.props.url}`, 'color: #5B4532' );
-        this.setState({ cache: state });
-      })
-    ];
+    const subscribeKeys = Object.keys( this.api ).filter( key => this.api[ key ].shouldSubscribe );
+    this.subscriptions = subscribeKeys.length
+      ? subscribeKeys.map( this.subscribeTo )
+      : this.subscribeTo();
   }
 
   componentWillUnmount() {
-    this.subscriptions.forEach( subscription => store.unsubscribe( subscription ) );
+    [].concat( this.subscriptions ).forEach( subscription => store.unsubscribe( subscription ) );
+  }
+
+  subscribeTo = key => {
+    const path = [ '$api', this.props.url ].concat( key || [] );
+    return store.subscribeTo( path , state => {
+      logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${formatBranchArgs(path)}`, 'color: #5B4532' );
+      this.setState({ cache: state });
+    });
   }
 
   render() {
