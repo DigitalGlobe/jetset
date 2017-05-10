@@ -57,8 +57,13 @@ function createActions( props ) {
       const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', props.url, resourceType ].concat( key || [] ), val );
       const deleteState   = path => setState( null, path );
 
+      const getRequests = path => getState([ 'requests' ].concat( path || [] ) );
+      const getRequestsData = path => getRequests([ path, 'data' ]);
+      const setRequests = ( data, path ) => setState( data, [ 'requests' ].concat( path || [] ) );
+      const setRequestsData = ( path, data ) => setState( data, [ 'requests', path, 'data' ] );
+
       const getCollection = path => {
-        const collection = getState([ 'requests', path, 'data' ]);
+        const collection = getRequestsData( path );
         if ( collection ) {
           const models = getModels();
           return collection.reduce(( memo, id ) => {
@@ -81,7 +86,11 @@ function createActions( props ) {
         setState( nextState );
       };
 
-      const clearCollection = ( path = '/' ) => deleteState([ 'requests', path, 'data' ]);
+      const clearCollection = ( path = '/' ) => setRequestsData( path, null );
+      const clearAll = () => {
+        setRequests( Map() );
+        setModels( Map() );
+      };
 
       const getModels  = () => getState( 'models' ) || Map();
       const setModels  = data => setState( data, 'models' );
@@ -280,6 +289,7 @@ function createActions( props ) {
 
       // remove the cache for the resource collection
       main.$clear = () => clearCollection();
+      main.$clearAll = clearAll;
       main.$reset = fetchAll;
 
 
@@ -355,6 +365,10 @@ function createActions( props ) {
       main.getState      = getState;
 
       memo[ key ] = main;
+      if ( typeof window !== 'undefined' ) {
+        window.jetset = window.jetset || {};
+        window.jetset[ key ] = main;
+      }
     }
     return memo;
   }, {} );

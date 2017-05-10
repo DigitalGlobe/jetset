@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.3
+
+- Add `props.<resource>.$clearAll()` method for nuclear cache clearing option
+
 ### 0.2.1/2
 
 - Proper ignoring/building for npm
