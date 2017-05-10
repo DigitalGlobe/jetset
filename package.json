@@ -54,9 +54,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "fetch": "DigitalGlobe/fetch",
     "immutable": "^3.8.1",
     "immutablediff": "DigitalGlobe/immutable-js-diff",
+    "iso-fetch-stream": "^0.1.0",
     "react-portal": "^3.1.0",
     "react-treeview": "glortho/react-treeview"
   },
