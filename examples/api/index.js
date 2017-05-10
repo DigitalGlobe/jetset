@@ -1,12 +1,13 @@
 import React from 'react';
 import { Route, Switch } from 'react-router';
 
-import ApiCollectionsExample from './api_collections';
-import ApiDecoratorExample   from './api_decorator';
-import ApiModelExample       from './api_model';
-import ApiSearchExample      from './api_search';
-import ApiRawExample         from './api_raw';
-import Gist                  from '../lib/gist';
+import ApiCollectionsExample    from './api_collections';
+import ApiDecoratorExample      from './api_decorator';
+import ApiModelExample          from './api_model';
+import ApiOverrideRoutesExample from './api_override_routes';
+import ApiSearchExample         from './api_search';
+import ApiRawExample            from './api_raw';
+import Gist                     from '../lib/gist';
 
 export default function ApiExampleRouter() {
   return (
@@ -38,6 +39,13 @@ export default function ApiExampleRouter() {
           <Gist gist="glortho/8bba60a8f55e81e68fa5431b7944e7d0" />
           <h1>Search Example</h1>
           <ApiSearchExample />
+        </div>
+      )} />
+      <Route path="/api/override-routes" render={() => (
+        <div>
+          <Gist gist=""/>
+          <h1>Override routes</h1>
+          <ApiOverrideRoutesExample />
         </div>
       )} />
       <Route path="/api/raw" render={() => (

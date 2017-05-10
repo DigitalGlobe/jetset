@@ -34,6 +34,7 @@ ReactDOM.render((
         <NavLink { ...styles } to="/api/model">model</NavLink>
         <NavLink { ...styles } to="/api/search">search</NavLink>
         <NavLink { ...styles } to="/api/raw">raw api methods</NavLink>
+        <NavLink { ...styles } to="/api/override-routes">override routes</NavLink>
         <NavLink { ...styles } to="/api/decorator">decorator</NavLink>
 
         <span style={ styles.style }>Non-Api examples:</span>
