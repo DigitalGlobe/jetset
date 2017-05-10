@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { List, Map } from 'immutable';
-import initFetch from 'fetch';
+import initFetch from 'iso-fetch-stream';
 
 import { isSchema, getIdField } from './lib/schema';
 import store from './store';
