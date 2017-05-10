@@ -11,6 +11,19 @@
     "name": "Jed Verity",
     "url": "https://github.com/glortho"
   },
+  "contributors": [{
+    "name": "Jon Saints",
+    "url": "https://github.com/saintsjd"
+  }, {
+    "name": "Maxwell O'Roark",
+    "url": "https://github.com/maxwell-oroark"
+  }, {
+    "name": "Ryan Herman",
+    "url": "https://github.com/log0s"
+  }, {
+    "name": "Winnie Palangpour",
+    "url": "https://github.com/winrox"
+  }],
   "keywords": [
     "react",
     "react-component",
