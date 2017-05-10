@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.2.4
+
+- Update dependencies away from private repos so that jetset is fully open
+  source.
+
 ### 0.2.3
 
 - Add `props.<resource>.$clearAll()` method for nuclear cache clearing option
