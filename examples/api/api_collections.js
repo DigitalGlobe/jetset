@@ -1,7 +1,7 @@
 import React from 'react';
 import Api from '../../src/index';
 
-const sourcesSchema = require( '../schemas/sources.json' );
+const schema = require( '../schemas/combined.json' );
 
 function Sources({ sources }) {
   return (
@@ -26,7 +26,7 @@ function Sources({ sources }) {
 
 export default function ApiCollectionsExample() {
   return (
-    <Api url="http://localhost:3000/hub/api" sources={sourcesSchema }>
+    <Api url="http://localhost:3000/hub/api" schema={ schema }>
       <Sources />
     </Api>
   );

@@ -25,6 +25,15 @@ export function getIdField( schema ) {
     .find( field => /^_?id$/.test( field ) ) || 'id';
 }
 
+export function getSchemaRef( schema, ref ) {
+  const keys = ref.split( '/' ).slice( 1 );
+  const val = keys.reduce(( memo, key ) => {
+    memo[ key ] = memo[ key ] || schema[ key ];
+    return memo[ key ];
+  }, {});
+  return [ val, keys.slice( -1 ) ];
+}
+
 export function isSchema( maybeSchema ) {
   return maybeSchema && typeof maybeSchema === 'object' && ( !!maybeSchema.$schema || !!maybeSchema.schema );
 }
