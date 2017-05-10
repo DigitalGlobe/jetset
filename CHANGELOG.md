@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.2.6
+
+- Fix regression where placeholder was not being returned
 
 ### 0.2.5
 
