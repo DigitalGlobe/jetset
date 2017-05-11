@@ -194,9 +194,12 @@ function createActions( props ) {
 
       const deleteOne = id => api.delete( `/${id}` );
 
-      const search = path => {
-        if ( shouldFetch( path ) ) {
-          return api.get( path ).then( setSearchResults( path ) );
+      const search = route => {
+        if ( shouldFetch( route ) ) {
+          return api.get( route ).then( data => {
+            setSearchResults( route, data );
+            return data;
+          });
         }
         // TODO: store promise as pending value so it can be used on repeat
         // calls
