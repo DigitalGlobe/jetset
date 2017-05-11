@@ -7,6 +7,7 @@ import { getSchemaRef, getIdField } from './lib/schema';
 import store from './store';
 import logger, { formatBranchArgs, logError, logWarn } from './lib/log';
 import getQueryString from './lib/query_string';
+import config from './config';
 
 /* basic state tree design for api.js
 * {
@@ -430,17 +431,22 @@ export default class Api extends React.Component {
     this.subscriptions.forEach( subscription => store.unsubscribe( subscription ) );
   }
 
-  subscribeTo = key => {
-    const { children, ...props } = this.props;
-    const path = [ '$api', props.url ].concat( key || [] );
-    return store.subscribeTo( path , state => {
+  log = ( path, { children, ...props } ) => {
+    if ( config.mode === 'development' ) {
       const componentNames = ( children 
         ? React.Children.map( children, child => child.type.name ) 
         : []
       ).filter( item => !!item );
       const propsString = Object.keys( props ).map( key => `${key}="${String( props[key ])}"` ).join( ' ' );
-      logger(`\uD83C\uDF00 <Api ${propsString}>${ componentNames.length ? `%c<${componentNames.join( '/>, ' )}/>` : '{ unnamed children }'}`, 'color: blue', `</Api> re-rendered based on state changes on branch:` );
+      logger(`\uD83C\uDF00 <Api ${propsString}>%c${ componentNames.length ? `<${componentNames.join( '/>, ' )}/>` : '{ unnamed children }'}`, 'color: blue', `</Api> re-rendered based on state changes on branch:` );
       logger( `%c${formatBranchArgs(path)}`, 'color: #5B4532' );
+    }
+  }
+
+  subscribeTo = key => {
+    const path = [ '$api', this.props.url ].concat( key || [] );
+    return store.subscribeTo( path , state => {
+      this.log( path, this.props );
       this.setState({ cache: state });
     });
   }
