@@ -126,7 +126,7 @@ function createActions( props ) {
       method( error, [ 'requests', path, 'error' ] );
     };
 
-    const setSearchResults = path => data => setCollection( data, path );
+    const setSearchResults = ( path, data ) => setCollection( data, path );
     const getSearchResults = path => getCollection( path );
 
     const removeFromCollections = ( map, id ) =>
@@ -228,7 +228,10 @@ function createActions( props ) {
 
     const search = route => {
       if ( shouldFetch( route ) ) {
-        return api.get( route ).then( setSearchResults( route ) );
+        return api.get( route ).then( data => {
+          setSearchResults( route, data );
+          return data;
+        });
       }
       // TODO: store promise as pending value so it can be used on repeat
       // calls
