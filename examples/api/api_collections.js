@@ -3,6 +3,12 @@ import Api from '../../src/index';
 
 const sourcesSchema = require( '../schemas/sources.json' );
 
+function create( sources ) {
+  sources
+    .$create({ title: 'foo' })
+    .then( data => console.log( 'Successfully created', data ) );
+}
+
 function Sources({ sources }) {
   return (
     <div>
@@ -16,7 +22,7 @@ function Sources({ sources }) {
               <button onClick={() => source.$delete()}>Delete</button>
             </div>
           )}
-          <button onClick={() => sources.$create({ title: 'foo' })}>New foo</button>
+          <button onClick={() => create( sources )}>New foo</button>
           <button onClick={() => sources.$clear()}>Clear cache</button>
         </span>
       }
