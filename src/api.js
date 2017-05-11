@@ -234,8 +234,6 @@ function createActions( props ) {
       return Promise.resolve( 'pending' );
     };
 
-      /**/
-
     const $clear = id => () => setModel( id, null );
     const $reset = id => () => fetchOne( id );
 
@@ -394,9 +392,8 @@ function createActions( props ) {
       }
     }), {});
 
-    main._schema         = schema;
-    main.shouldSubscribe = schemaOptions;
-    main.getState        = getState;
+    main._schema  = schema;
+    main.getState = getState;
 
     memo[ key ] = main;
     if ( typeof window !== 'undefined' ) {
@@ -413,7 +410,8 @@ export default class Api extends React.Component {
     url: PropTypes.string.isRequired,
     // see https://github.com/github/fetch#sending-cookies for reference
     credentials: PropTypes.oneOf( [ 'same-origin', 'include' ] ),
-    token: PropTypes.string
+    auth: PropTypes.string,
+    authorization: PropTypes.string
   }
 
   subscriptions = []
@@ -425,20 +423,24 @@ export default class Api extends React.Component {
   }
 
   componentWillMount() {
-    const subscribeKeys = Object.keys( this.api ).filter( key => this.api[ key ].shouldSubscribe );
-    this.subscriptions = subscribeKeys.length
-      ? subscribeKeys.map( this.subscribeTo )
-      : this.subscribeTo();
+    this.subscriptions = [ this.subscribeTo() ];
   }
 
   componentWillUnmount() {
-    [].concat( this.subscriptions ).forEach( subscription => store.unsubscribe( subscription ) );
+    this.subscriptions.forEach( subscription => store.unsubscribe( subscription ) );
   }
 
   subscribeTo = key => {
-    const path = [ '$api', this.props.url ].concat( key || [] );
+    const { children, ...props } = this.props;
+    const path = [ '$api', props.url ].concat( key || [] );
     return store.subscribeTo( path , state => {
-      logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${formatBranchArgs(path)}`, 'color: #5B4532' );
+      const componentNames = ( children 
+        ? React.Children.map( children, child => child.type.name ) 
+        : []
+      ).filter( item => !!item );
+      const propsString = Object.keys( props ).map( key => `${key}="${String( props[key ])}"` ).join( ' ' );
+      logger(`\uD83C\uDF00 <Api ${propsString}>${ componentNames.length ? `%c<${componentNames.join( '/>, ' )}/>` : '{ unnamed children }'}`, 'color: blue', `</Api> re-rendered based on state changes on branch:` );
+      logger( `%c${formatBranchArgs(path)}`, 'color: #5B4532' );
       this.setState({ cache: state });
     });
   }
