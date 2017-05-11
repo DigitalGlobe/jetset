@@ -3,7 +3,7 @@
 
 ### 0.2.8
 
-- Switch to `resource.$list()` as the primary list retrieval method instead of `resource()`
+- Switch to `resource.$list()` as the primary list retrieval method instead of `resource()` (which also works for now)
 
 ### 0.2.7
 
