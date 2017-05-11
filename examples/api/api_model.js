@@ -2,7 +2,7 @@ import React from 'react';
 import { sources } from './api_decorator';
 
 const SourceDetail = sources( props => {
-  const source = props.sources().last();
+  const source = props.sources.$list().last();
   if ( source ) {
     const detail = props.sources.$get( source.get( '_id' ) );
     return (

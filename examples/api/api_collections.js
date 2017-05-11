@@ -12,11 +12,11 @@ function create( sources ) {
 function Sources({ sources }) {
   return (
     <div>
-      { sources().$isPending ?
+      { sources.$list().$isPending ?
         <span>Loading...</span>
       :
         <span>
-          {sources().map( source =>
+          {sources.$list().map( source =>
             <div key={ source.get( '_id' ) }>
               <span>{ source.get( 'title' ) }</span>
               <button onClick={() => source.$delete()}>Delete</button>

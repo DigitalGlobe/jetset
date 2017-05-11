@@ -55,7 +55,6 @@ function createActions( props ) {
       const getState      = key => store.getState([ '$api', props.url, resourceType ].concat( key || [] ).map( item => String( item ) ) );
       const setState      = ( val, key ) => store.setState([ '$api', props.url, resourceType ].concat( key || [] ).map( item => String( item ) ), val );
       const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', props.url, resourceType ].concat( key || [] ), val );
-      const deleteState   = path => setState( null, path );
 
       const getRequests = path => getState([ 'requests' ].concat( path || [] ) );
       const getRequestsData = path => getRequests([ path, 'data' ]);
@@ -266,7 +265,7 @@ function createActions( props ) {
         return model;
       };
 
-      const main = params => {
+      const $list = params => {
         const path = '/' + ( params ? `?${getQueryString( params )}` : '' );
         const collection = getCollection( path );
         if ( !collection ) {
@@ -276,6 +275,10 @@ function createActions( props ) {
           return collection.map( addRestMethods );
         }
       };
+
+      const main = params => $list( params );
+
+      main.$list = $list;
 
       main.$get = id => {
         const model = getModel( id );
