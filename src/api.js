@@ -34,22 +34,22 @@ import config from './config';
 // TODO: use some more specific method from store's undo implementation
 const isUndo = () => store.getState( '_reset' );
 
-function createActions( props ) {
+function createActions({ schema, url, ...props }) {
 
   const fetchOptions = props.credentials ? { credentials: props.credentials } : {};
   if ( props.auth || props.authorization ) fetchOptions.headers = { Authorization: props.auth || props.authorization };
   const fetch = initFetch( fetchOptions );
 
-  return Object.keys( props.schema.definitions ).reduce(( memo, key ) => {
+  return Object.keys( schema.properties ).reduce(( memo, key ) => {
 
-    const schema = props.schema.definitions[ key ];
+    const routeSchema = schema.properties[ key ];
 
     const [ modelRef, cacheKey = key ] = (
-      schema.type === 'object' ?
+      routeSchema.type === 'object' ?
         [ schema ] :
-      schema.items[0].$ref ?
-        getSchemaRef( props.schema, schema.items[0].$ref ) :
-      [ schema.items[0] ]
+      routeSchema.items[0].$ref ?
+        getSchemaRef( schema, routeSchema.items[0].$ref ) :
+      [ routeSchema.items[0] ]
     );
 
     const schemaOptions = props[ key ];
@@ -75,9 +75,9 @@ function createActions( props ) {
       delete: id => `${resourcePath}/${id}`
     }, ( schemaOptions || {} ).routes || {} );
 
-    const getState      = key => store.getState([ '$api', props.url ].concat( key || [] ).map( item => String( item ) ) );
-    const setState      = ( val, key ) => store.setState([ '$api', props.url ].concat( key || [] ).map( item => String( item ) ), val );
-    const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', props.url ].concat( key || [] ), val );
+    const getState      = key => store.getState([ '$api', url ].concat( key || [] ).map( item => String( item ) ) );
+    const setState      = ( val, key ) => store.setState([ '$api', url ].concat( key || [] ).map( item => String( item ) ), val );
+    const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', url ].concat( key || [] ), val );
 
     const getRequests = path => getState([ 'requests' ].concat( path || [] ) );
     const getRequestsData = path => getRequests([ path, 'data' ]);
@@ -174,7 +174,7 @@ function createActions( props ) {
       ...memo,
       [method]: ( path, ...args ) => {
         setPending( path, true );
-        return fetch[ method ]( `${props.url}${path}`, ...args )
+        return fetch[ method ]( `${url}${path}`, ...args )
           .then(
             response => {
               const data = getData( response );
@@ -209,7 +209,7 @@ function createActions( props ) {
     };
 
     const createOne = data => {
-      const route = routes.create();
+      const route = routes.create( data );
       return api.post( route, data ).then( data => {
         fetchAll();
         return data;
@@ -217,7 +217,7 @@ function createActions( props ) {
     };
 
     const updateOne = ( id, data ) => {
-      const route = routes.update( id );
+      const route = routes.update( id, data );
       return api.put( route, data );
     };
 
@@ -296,7 +296,7 @@ function createActions( props ) {
       return model;
     };
 
-    const main = params => {
+    const $list = params => {
       const path = routes.list() + ( params ? `?${getQueryString( params )}` : '' );
       const collection = getCollection( path );
       if ( !collection ) {
@@ -306,6 +306,10 @@ function createActions( props ) {
         return collection.map( addRestMethods );
       }
     };
+
+    const main = params => $list( params );
+
+    main.$list = $list;
 
     main.$get = id => {
       const model = getModel( id );

@@ -1,5 +1,14 @@
 # Changelog
 
+
+### 0.2.8
+
+- Switch to `resource.$list()` as the primary list retrieval method instead of `resource()`
+
+### 0.2.7
+
+- Make sure promise returned by `$search` resolves to full response
+
 ### 0.2.6
 
 - Fix regression where placeholder was not being returned

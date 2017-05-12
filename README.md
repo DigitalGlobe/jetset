@@ -47,7 +47,7 @@ want to become familiar with its [api and data structures](http://facebook.githu
     function MyComponent({ sources }) {
       return (
         <div>
-          { sources().map( item => (
+          { sources.$list().map( item => (
             <div>
               <span>{ item.get( 'title' ) }</span>
               <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
@@ -74,10 +74,10 @@ want to become familiar with its [api and data structures](http://facebook.githu
 const { sources } = props; // e.g. from <Api url="..." sources={ sourcesSchema } />
 
 // GET /sources => List (will use cache)
-sources()
+sources.$list()
 
 // GET /sources?offset=0&limit=30 => List (will use cache, for use primarily in rendering)
-sources({ offset: 0, limit: 30 })
+sources.$list({ offset: 0, limit: 30 })
 
 // POST /sources => Promise<Array>
 sources.$create({...})
@@ -107,11 +107,11 @@ sources.api.$get( '/some/other/route' )
 sources.api.post( '/some/other/route' )
 
 // check if underlying request is pending => boolean|void
-sources().$isPending
+sources.$list().$isPending
 sources.$get( id ).$isPending
 
 // check if request got an error => Error|void
-sources().$error
+sources.$list().$error
 sources.$get( id ).$error
 
 // clear cache for the given request => void

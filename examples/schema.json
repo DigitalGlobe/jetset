@@ -11,12 +11,10 @@
           "type": "string"
         }
       }
-    },
+    }
+  },
+  "properties": {
     "sources": {
-      "type": "array",
-      "items": [{ "$ref": "#/definitions/source" }]
-    },
-    "sources_also": {
       "type": "array",
       "items": [{ "$ref": "#/definitions/source" }]
     }

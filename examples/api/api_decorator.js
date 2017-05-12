@@ -13,7 +13,7 @@ export const sources = Component => props =>
 export default class SourcesDecorated extends React.Component {
   render() {
     return (
-      <span>{ this.props.sources().size } Sources</span>
+      <span>{ this.props.sources.$list().size } Sources</span>
     );
   }
 }

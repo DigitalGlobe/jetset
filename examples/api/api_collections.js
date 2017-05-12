@@ -3,20 +3,26 @@ import Api from '../../src/index';
 
 const schema = require( '../schema.json' );
 
+function create( sources ) {
+  sources
+    .$create({ title: 'foo' })
+    .then( data => console.log( 'Successfully created', data ) );
+}
+
 function Sources({ sources }) {
   return (
     <div>
-      { sources().$isPending ?
+      { sources.$list().$isPending ?
         <span>Loading...</span>
       :
         <span>
-          {sources().map( source =>
+          {sources.$list().map( source =>
             <div key={ source.get( '_id' ) }>
               <span>{ source.get( 'title' ) }</span>
               <button onClick={() => source.$delete()}>Delete</button>
             </div>
           )}
-          <button onClick={() => sources.$create({ title: 'foo' })}>New foo</button>
+          <button onClick={() => create( sources )}>New foo</button>
           <button onClick={() => sources.$clear()}>Clear cache</button>
         </span>
       }
@@ -26,7 +32,7 @@ function Sources({ sources }) {
 
 export default function ApiCollectionsExample() {
   return (
-    <Api url="http://localhost:3000/hub/api" schema={ schema } sources>
+    <Api url="http://localhost:3000/hub/api" schema={ schema }>
       <Sources />
     </Api>
   );
