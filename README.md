@@ -54,7 +54,7 @@ want to become familiar with its [api and data structures](http://facebook.githu
               <button onClick={ item.$delete }>Delete</button>
             </div>
           ))}
-          <button onClick={ sources.$create({ title: 'foo' }) }>Create new item</button>
+          <button onClick={() => </button>sources.$create({ title: 'foo' }) }>Create new item</button>
         </div>
       );
     }
