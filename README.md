@@ -185,7 +185,7 @@ See https://github.com/github/fetch#sending-cookies for more info.
 The api component accepts an authorization prop that will be used for the Authorization
 header:
 
-```
+```javascript
 <Api 
   url="http://my.api.com" 
   sources={ sourcesSchema }
@@ -195,6 +195,37 @@ header:
 
 Note: This will result in a `Authorization: Bearer some-token-here` being added
 to all fetch headers.
+
+
+##### Overriding default routes
+
+By default routes will be made from the root `title` attribute of your schema.
+If you need to override one or more of those routes, you can pass in a `routes`
+object.
+
+For example:
+
+```javascript
+const routes = {
+  list: () => '/sources_list'
+}
+
+<Api url="http://whatever" sources={{ schema: sourcesSchema, routes }}>...</Api>
+```
+
+Full reference for `routes` option:
+
+```javascript
+const routes = {
+  create: (payload: Object) => string,
+  list:   () => string,
+  get:    (id: number|string) => string,
+  update: (id: number|string, payload: Object) => string,
+  delete: (id: number|string) => string
+}
+```
+
+Note that these keys match their equivalent `$create`, `$update`, etc. methods.
 
 
 #### Devtools

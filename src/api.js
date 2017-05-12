@@ -35,7 +35,7 @@ import getQueryString from './lib/query_string';
 // TODO: use some more specific method from store's undo implementation
 const isUndo = () => store.getState( '_reset' );
 
-function createActions( props ) {
+function createActions({ url, ...props }) {
 
   const fetchOptions = props.credentials ? { credentials: props.credentials } : {};
   if ( props.auth || props.authorization ) fetchOptions.headers = { Authorization: props.auth || props.authorization };
@@ -50,11 +50,19 @@ function createActions( props ) {
       const idField      = getIdField( schema );
       const resourceType = schema.title;
       const resourcePath = `/${resourceType}`;
-      const url          = `${props.url}${resourcePath}`;
 
-      const getState      = key => store.getState([ '$api', props.url, resourceType ].concat( key || [] ).map( item => String( item ) ) );
-      const setState      = ( val, key ) => store.setState([ '$api', props.url, resourceType ].concat( key || [] ).map( item => String( item ) ), val );
-      const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', props.url, resourceType ].concat( key || [] ), val );
+      const routes = Object.assign({
+        create: () => resourcePath,
+        list:   () => resourcePath,
+        search: () => resourcePath,
+        get:    id => `${resourcePath}/${id}`,
+        update: id => `${resourcePath}/${id}`,
+        delete: id => `${resourcePath}/${id}`
+      }, props[ key ].routes || {} );
+
+      const getState      = key => store.getState([ '$api', url, resourceType ].concat( key || [] ).map( item => String( item ) ) );
+      const setState      = ( val, key ) => store.setState([ '$api', url, resourceType ].concat( key || [] ).map( item => String( item ) ), val );
+      const setStateQuiet = ( val, key ) => store.setStateQuiet([ '$api', url, resourceType ].concat( key || [] ), val );
 
       const getRequests = path => getState([ 'requests' ].concat( path || [] ) );
       const getRequestsData = path => getRequests([ path, 'data' ]);
@@ -151,7 +159,7 @@ function createActions( props ) {
         ...memo,
         [method]: ( path, ...args ) => {
           setPending( path, true );
-          return fetch[ method ]( `${url}${path === '/' ? '' : path}`, ...args )
+          return fetch[ method ]( `${url}${path}`, ...args )
             .then(
               response => {
                 const data = getData( response );
@@ -171,27 +179,37 @@ function createActions( props ) {
       /**
        * api calls
        */
-      const fetchAll = ( path = '/' ) => {
-        if ( shouldFetch( path ) ) {
-          api.get( path ).then( data => setCollection( data, path ) );
+      const fetchAll = path => {
+        const route = path || routes.list();
+        if ( shouldFetch( route ) ) {
+          api.get( route ).then( data => setCollection( data, route ) );
         }
       };
 
       const fetchOne = id => {
-        const path = `/${id}`;
-        if ( shouldFetch( path ) ) {
-          api.get( path ).then( data => setModel( data[ idField ], { ...data, _fetched: true }));
+        const route = routes.get( id );
+        if ( shouldFetch( route ) ) {
+          api.get( route ).then( data => setModel( data[ idField ], { ...data, _fetched: true }));
         }
       };
 
-      const createOne = data => api.post( '/', data ).then( data => {
-        fetchAll();
-        return data;
-      });
+      const createOne = data => {
+        const route = routes.create( data );
+        return api.post( route, data ).then( data => {
+          fetchAll();
+          return data;
+        });
+      };
 
-      const updateOne = ( id, data ) => api.put( `/${id}`, data );
+      const updateOne = ( id, data ) => {
+        const route = routes.update( id, data );
+        return api.put( route, data );
+      };
 
-      const deleteOne = id => api.delete( `/${id}` );
+      const deleteOne = id => {
+        const route = routes.delete( id );
+        return api.delete( route );
+      };
 
       const search = route => {
         if ( shouldFetch( route ) ) {
@@ -204,6 +222,7 @@ function createActions( props ) {
         // calls
         return Promise.resolve( 'pending' );
       };
+
 
       /**/
 
@@ -266,7 +285,7 @@ function createActions( props ) {
       };
 
       const $list = params => {
-        const path = '/' + ( params ? `?${getQueryString( params )}` : '' );
+        const path = routes.list() + ( params ? `?${getQueryString( params )}` : '' );
         const collection = getCollection( path );
         if ( !collection ) {
           fetchAll( path );
@@ -283,7 +302,7 @@ function createActions( props ) {
       main.$get = id => {
         const model = getModel( id );
         if ( !model || !model.get( '_fetched' ) ) {
-          const path = `/${id}`;
+          const path = routes.get( id );
           fetchOne( id );
           const placeholder = getPlaceholder( path, Map );
           placeholder.$delete = $delete( id );
@@ -316,53 +335,54 @@ function createActions( props ) {
           ? createOne( data )
           : optimisticCreate( data, options );
 
-      // call signature: search({ queryOrWhatever: 'foo', otherParam: 0, anotherParam: 30 })
-      // - sort so that we can cache consistently
-      main.$search = ({ route = '', ...args }) => {
+      main.$search = ({ route, ...args }) => {
         const queryString = getQueryString( args );
-        return search( route + '?' + queryString );
+        const fullRoute = ( route || routes.search() ) + `?${queryString}`;
+        return search( fullRoute );
       };
 
-      main.$search.results = ({ route = '', ...args }) => {
+      main.$search.results = ({ route, ...args }) => {
         const queryString = getQueryString( args );
-        const path = `${route}?${queryString}`;
-        const resultsCached = getSearchResults( path );
+        const fullRoute = ( route || routes.search() ) + `?${queryString}`;
+        const resultsCached = getSearchResults( fullRoute );
         if ( resultsCached ) {
           return addRestMethods( resultsCached );
         } else {
           const placeholder = List();
-          placeholder.$isPending = !!getPending( path );
-          placeholder.$error = getError( path );
+          placeholder.$isPending = !!getPending( fullRoute );
+          placeholder.$error = getError( fullRoute );
           return placeholder;
         }
       };
+
 
       // hang standard api methods off of .api so devs can construct
       // non-standard paths
       main.api = [ 'delete', '$get', 'get', 'post', 'put', 'stream' ].reduce(( memo, method ) => ({
         ...memo,
         [method]: ( path, ...args ) => {
+          const route = resourcePath + path;
           if ( method === '$get' ) {
-            const cache = getState([ 'requests', path, 'data' ]);
+            const cache = getRequestsData( route );
             if ( cache ) {
               return List.isList( cache )
-                ? getCollection( path ).map( addRestMethods )
+                ? getCollection( route ).map( addRestMethods )
                 : cache;
             } else {
-              if ( shouldFetch( path ) ) {
-                api.get( path, ...args ).then( data => {
+              if ( shouldFetch( route ) ) {
+                api.get( route, ...args ).then( data => {
                   if ( Array.isArray( data ) ) {
-                    setCollection( data, path );
+                    setCollection( data, route );
                   } else {
-                    setState( data, [ 'requests', path, 'data' ] );
+                    setRequestsData( route, data );
                   }
                   return data;
                 });
               }
-              return getPlaceholder( path );
+              return getPlaceholder( route );
             }
           } else {
-            return api[ method ]( path, ...args );
+            return api[ method ]( route, ...args );
           }
         }
       }), {});

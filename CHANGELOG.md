@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.9
+
+- Allow for passing in optional `routes` config to selectively override
+  default routes.
 
 ### 0.2.8
 

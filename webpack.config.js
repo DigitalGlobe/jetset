@@ -21,6 +21,7 @@ const devBuild = {
     path: __dirname + '/examples/public',
     filename: '[name].js'
   },
+  devtool: 'inline-source-map',
   devServer: {
     contentBase: __dirname + '/examples/public',
     historyApiFallback: {
