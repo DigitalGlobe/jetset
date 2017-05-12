@@ -218,7 +218,8 @@ Full reference for `routes` option:
 ```javascript
 const routes = {
   create: (payload: Object) => string,
-  list:   () => string,
+  list:   (params?: Object) => string,
+  search: (params?: Object) => string,
   get:    (id: number|string) => string,
   update: (id: number|string, payload: Object) => string,
   delete: (id: number|string) => string
