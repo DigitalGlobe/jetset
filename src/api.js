@@ -285,7 +285,7 @@ function createActions({ url, ...props }) {
       };
 
       const $list = params => {
-        const path = routes.list() + ( params ? `?${getQueryString( params )}` : '' );
+        const path = routes.list( params ) + ( params ? `?${getQueryString( params )}` : '' );
         const collection = getCollection( path );
         if ( !collection ) {
           fetchAll( path );
@@ -337,13 +337,13 @@ function createActions({ url, ...props }) {
 
       main.$search = ({ route, ...args }) => {
         const queryString = getQueryString( args );
-        const fullRoute = ( route || routes.search() ) + `?${queryString}`;
+        const fullRoute = ( route || routes.search( args ) ) + `?${queryString}`;
         return search( fullRoute );
       };
 
       main.$search.results = ({ route, ...args }) => {
         const queryString = getQueryString( args );
-        const fullRoute = ( route || routes.search() ) + `?${queryString}`;
+        const fullRoute = ( route || routes.search( args ) ) + `?${queryString}`;
         const resultsCached = getSearchResults( fullRoute );
         if ( resultsCached ) {
           return addRestMethods( resultsCached );
