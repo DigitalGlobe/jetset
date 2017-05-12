@@ -5,6 +5,9 @@
 - Allow for passing in optional `routes` config to selectively override
   default routes.
 
+- Expose `props.localState` for setting/getting the more complete scope of
+  local state
+
 ### 0.2.8
 
 - Switch to `resource.$list()` as the primary list retrieval method instead of `resource()` (which also works for now)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fromJS, Map as iMap } from 'immutable';
+import { Map as iMap } from 'immutable';
 
 import store from './store';
 import logger, { formatBranchArgs } from './lib/log';
@@ -54,29 +54,39 @@ function subscribe({ local, paths }) {
         this.setState({ [path]: state && state.toJS ? state.toJS() : state });
       }
 
-      merge = ( path, val ) => {
+      merge = ( val, path ) => {
         if ( typeof val !== 'object' ) {
-          return this.replace( path, val );
+          return this.replace( val, path );
         } else {
-          const fullPath = rootPath.concat( path );
+          const fullPath = rootPath.concat( path || [] );
           const state = store.getState( fullPath ) || iMap();
           return store.setState( fullPath, state.mergeDeep( val ) );
         }
       }
 
-      replace = ( path, val ) => store.setState( rootPath.concat( path ), val )
+      replace = ( val, path ) => store.setState( rootPath.concat( path || [] ), val )
 
-      methods = () => [ ...nPaths.keys() ].reduce(( memo, path ) => {
-        const currentState = this.state[path];
-        return {
-          ...memo,
-          [path]: {
-            get: () => currentState,
-            set: val => this.merge( path, val ),
-            replace: val => this.replace( path, val )
-          }
+      methods = () => {
+        const keyState = [ ...nPaths.keys() ].reduce(( memo, path ) => {
+          const currentState = this.state[path];
+          return {
+            ...memo,
+            [path]: {
+              get: () => currentState,
+              set: val => this.merge( val, path ),
+              replace: val => this.replace( path, val )
+            }
+          };
+        }, {});
+
+        const localState = {
+          get: () => ({ ...this.state }),
+          set: val => this.merge( val ),
+          replace: val => this.replace( val )
         };
-      }, {})
+
+        return { ...keyState, localState };
+      }
 
       render = () => (
         <Component 
