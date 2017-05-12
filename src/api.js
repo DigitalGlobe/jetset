@@ -111,7 +111,7 @@ function createActions({ url, ...props }) {
         method( error, [ 'requests', path, 'error' ] );
       };
 
-      const setSearchResults = path => data => setCollection( data, path );
+      const setSearchResults = ( path, data ) => setCollection( data, path );
       const getSearchResults = path => getCollection( path );
 
       const removeFromCollections = ( map, id ) =>

@@ -1,5 +1,10 @@
 # Changelog
 
+
+### 0.2.11
+
+- Fix setSearchResults regression
+
 ### 0.2.10
 
 - Pass params into routes.list() and routes.search()
