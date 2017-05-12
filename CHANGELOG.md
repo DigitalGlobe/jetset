@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.10
+
+- Pass params into routes.list() and routes.search()
+
 ### 0.2.9
 
 - Allow for passing in optional `routes` config to selectively override
