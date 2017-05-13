@@ -54,7 +54,7 @@ want to become familiar with its [api and data structures](http://facebook.githu
               <button onClick={ item.$delete }>Delete</button>
             </div>
           ))}
-          <button onClick={() => </button>sources.$create({ title: 'foo' }) }>Create new item</button>
+          <button onClick={() => sources.$create({ title: 'foo' }) }>Create new item</button>
         </div>
       );
     }
@@ -207,7 +207,8 @@ For example:
 
 ```javascript
 const routes = {
-  list: () => '/sources_list'
+  list:   () => '/sources_list',
+  search: () => ({ method: 'post', route: '/sources/search' })
 }
 
 <Api url="http://whatever" sources={{ schema: sourcesSchema, routes }}>...</Api>
@@ -216,13 +217,18 @@ const routes = {
 Full reference for `routes` option:
 
 ```javascript
-const routes = {
-  create: (payload: Object) => string,
-  list:   (params?: Object) => string,
-  search: (params?: Object) => string,
-  get:    (id: number|string) => string,
-  update: (id: number|string, payload: Object) => string,
-  delete: (id: number|string) => string
+type RouteConfig = {
+  method: 'get' | 'post' | 'put' | 'delete',
+  route: string
+}
+
+type Routes = {
+  create: (payload: Object)                    => string | RouteConfig,
+  list:   (params?: Object)                    => string | RouteConfig,
+  search: (params?: Object)                    => string | RouteConfig,
+  get:    (id: number|string)                  => string | RouteConfig,
+  update: (id: number|string, payload: Object) => string | RouteConfig,
+  delete: (id: number|string)                  => string | RouteConfig
 }
 ```
 

@@ -7,6 +7,7 @@ import { isSchema, getIdField } from './lib/schema';
 import store from './store';
 import logger, { logError, logWarn } from './lib/log';
 import getQueryString from './lib/query_string';
+import config from './config';
 
 /* basic state tree design for api.js
 * {
@@ -35,6 +36,32 @@ import getQueryString from './lib/query_string';
 // TODO: use some more specific method from store's undo implementation
 const isUndo = () => store.getState( '_reset' );
 
+const methodDict = {
+  create: 'post',
+  list: 'get',
+  get: 'get',
+  update: 'put',
+  delete: 'delete',
+  search: 'get'
+};
+
+const logRoutes = ( routes, resource, ns ) => {
+  if ( config.mode === 'development' ) {
+    /* eslint-disable no-console */
+    console.groupCollapsed( `Rendering Api component for %c${resource}`, 'color: green', `with these routes`);
+    console.table(
+      Object.keys( routes ).reduce(( memo, key ) => {
+        const val = routes[ key ]( 'id', {} );
+        const def = typeof val === 'string'
+          ? { method: methodDict[ key ], route: val }
+          : val;
+        return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}.<fn>`]: `\$${key}()` })}, {});
+      })
+    );
+    console.groupEnd();
+  }
+};
+
 function createActions({ url, ...props }) {
 
   const fetchOptions = props.credentials ? { credentials: props.credentials } : {};
@@ -52,13 +79,15 @@ function createActions({ url, ...props }) {
       const resourcePath = `/${resourceType}`;
 
       const routes = Object.assign({
-        create: () => resourcePath,
-        list:   () => resourcePath,
-        search: () => resourcePath,
-        get:    id => `${resourcePath}/${id}`,
-        update: id => `${resourcePath}/${id}`,
-        delete: id => `${resourcePath}/${id}`
+        create: () => ({ method: 'post', route: resourcePath }),
+        list:   () => ({ method: 'get', route: resourcePath }),
+        search: () => ({ method: 'get', route: resourcePath }),
+        get:    id => ({ method: 'get', route: `${resourcePath}/${id}` }),
+        update: id => ({ method: 'put', route: `${resourcePath}/${id}` }),
+        delete: id => ({ method: 'delete', route: `${resourcePath}/${id}` })
       }, props[ key ].routes || {} );
+
+      logRoutes( routes, resourceType, key );
 
       const getState      = key => store.getState([ '$api', url, resourceType ].concat( key || [] ).map( item => String( item ) ) );
       const setState      = ( val, key ) => store.setState([ '$api', url, resourceType ].concat( key || [] ).map( item => String( item ) ), val );
@@ -176,52 +205,47 @@ function createActions({ url, ...props }) {
         }
       }), {});
 
+      const getRouteConfig = ( config, defaultMethod = 'get' ) =>
+        typeof config === 'string'
+          ? { method: defaultMethod, route: config }
+          : { method: config.method.toLowerCase(), route: config.route };
+
       /**
        * api calls
        */
       const fetchAll = path => {
-        const route = path || routes.list();
+        const { route: defaultRoute, method } = getRouteConfig( routes.list() );
+        const route = path || defaultRoute;
         if ( shouldFetch( route ) ) {
-          api.get( route ).then( data => setCollection( data, route ) );
+          api[ method ]( route ).then( data => setCollection( data, route ) );
         }
       };
 
       const fetchOne = id => {
-        const route = routes.get( id );
+        const { route, method } = getRouteConfig( routes.get( id ) );
         if ( shouldFetch( route ) ) {
-          api.get( route ).then( data => setModel( data[ idField ], { ...data, _fetched: true }));
+          api[ method ]( route ).then( data => setModel( data[ idField ], { ...data, _fetched: true }));
         }
       };
 
       const createOne = data => {
-        const route = routes.create( data );
-        return api.post( route, data ).then( data => {
+        const { route, method } = getRouteConfig( routes.create( data ), 'post' );
+        return api[ method ]( route, data ).then( data => {
           fetchAll();
           return data;
         });
       };
 
       const updateOne = ( id, data ) => {
-        const route = routes.update( id, data );
-        return api.put( route, data );
+        const { route, method } = getRouteConfig( routes.update( id, data ), 'put' );
+        return api[ method ]( route, data );
       };
 
       const deleteOne = id => {
-        const route = routes.delete( id );
-        return api.delete( route );
+        const { route, method } = getRouteConfig( routes.delete( id ), 'delete' );
+        return api[ method ]( route );
       };
 
-      const search = route => {
-        if ( shouldFetch( route ) ) {
-          return api.get( route ).then( data => {
-            setSearchResults( route, data );
-            return data;
-          });
-        }
-        // TODO: store promise as pending value so it can be used on repeat
-        // calls
-        return Promise.resolve( 'pending' );
-      };
 
 
       /**/
@@ -335,15 +359,31 @@ function createActions({ url, ...props }) {
           ? createOne( data )
           : optimisticCreate( data, options );
 
-      main.$search = ({ route, ...args }) => {
-        const queryString = getQueryString( args );
-        const fullRoute = ( route || routes.search( args ) ) + `?${queryString}`;
-        return search( fullRoute );
+      main.$search = params => {
+        const { method, route } = getRouteConfig( routes.search( params ) );
+        const fullRoute = method === 'get'
+          ? route + `?${getQueryString( params )}`
+          : route;
+        if ( shouldFetch( fullRoute ) ) {
+          const promise = method === 'get'
+            ? api.get( fullRoute )
+            : api[ method ]( fullRoute, params );
+
+          return promise.then( data => {
+            setSearchResults( fullRoute, data );
+            return data;
+          });
+        }
+        // TODO: store promise as pending value so it can be used on repeat
+        // calls
+        return Promise.resolve( 'pending' );
       };
 
-      main.$search.results = ({ route, ...args }) => {
-        const queryString = getQueryString( args );
-        const fullRoute = ( route || routes.search( args ) ) + `?${queryString}`;
+      main.$search.results = params => {
+        const { route, method } = getRouteConfig( routes.search( params ) );
+        const fullRoute = method === 'get'
+          ? route + `?${getQueryString( params )}`
+          : route;
         const resultsCached = getSearchResults( fullRoute );
         if ( resultsCached ) {
           return addRestMethods( resultsCached );
