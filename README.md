@@ -3,7 +3,7 @@
 </p>
 
 # Jetset
-> Multi-faceted library of tools built around an immutable state tree
+> RESTful API fetching and caching for React apps, backed by an immutable state tree
 
 
 NOTE: This is very much a work in progress. Everything subject to change!
