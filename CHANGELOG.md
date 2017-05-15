@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.2.12
+
+- Allow for method overrides per route
 
 ### 0.2.11
 
