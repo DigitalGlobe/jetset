@@ -55,7 +55,8 @@ const logRoutes = ( routes, resource, ns ) => {
         const def = typeof val === 'string'
           ? { method: methodDict[ key ], route: val }
           : val;
-        return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}.<fn>`]: `\$${key}()` })}, {});
+        const arg = key === 'get' ? 'id' : '';
+        return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}.<fn>`]: `\$${key}(${arg})` })}, {});
       })
     );
     console.groupEnd();
