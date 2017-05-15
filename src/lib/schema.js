@@ -26,5 +26,24 @@ export function getIdField( schema ) {
 }
 
 export function isSchema( maybeSchema ) {
-  return maybeSchema && typeof maybeSchema === 'object' && ( !!maybeSchema.$schema || !!maybeSchema.schema );
+  return (
+    maybeSchema && ( 
+      typeof maybeSchema === 'object' && 
+      ( !!maybeSchema.$schema || !!maybeSchema.schema )
+    ) || (
+      typeof maybeSchema === 'string' &&
+      maybeSchema.indexOf( '/' ) === 0
+    )
+  );
+}
+
+export function getSchema( maybeSchema ) {
+  return (
+    maybeSchema && typeof maybeSchema === 'object' && ( maybeSchema.$schema || maybeSchema.schema )
+      ? maybeSchema.schema || maybeSchema
+      : typeof maybeSchema === 'string' && maybeSchema.indexOf( '/' ) === 0
+        ? { title: maybeSchema.slice( 1 ), properties: { id: { type: 'string' } } }
+        : null
+  );
+
 }

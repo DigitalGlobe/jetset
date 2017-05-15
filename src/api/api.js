@@ -1,7 +1,7 @@
 import { List, Map } from 'immutable';
 import initFetch from 'iso-fetch-stream';
 
-import { isSchema, getIdField } from '../lib/schema';
+import { getSchema, getIdField } from '../lib/schema';
 import initApiStore from './store';
 import { logError, logWarn } from '../lib/log';
 import getQueryString from '../lib/query_string';
@@ -43,10 +43,11 @@ export default function createActions({ url, ...props }) {
 
   return Object.keys( props ).reduce(( memo, key ) => {
 
-    if ( isSchema( props[ key ] ) ) {
+    const schema = getSchema( props[ key ] );
 
-      const schema       = props[ key ].schema || props[ key ];
-      const getData      = props[ key ].getData || ( data => data );
+    if ( schema ) {
+      const options      = typeof props[ key ] === 'object' ? props[ key ] : {};
+      const getData      = options.getData || ( data => data );
       const idField      = getIdField( schema );
       const resourceType = schema.title;
       const resourcePath = `/${resourceType}`;
@@ -62,7 +63,7 @@ export default function createActions({ url, ...props }) {
         get:    id => ({ method: 'get', route: `${resourcePath}/${id}` }),
         update: id => ({ method: 'put', route: `${resourcePath}/${id}` }),
         delete: id => ({ method: 'delete', route: `${resourcePath}/${id}` })
-      }, props[ key ].routes || {} );
+      }, options.routes || {} );
 
       logRoutes( routes, resourceType, key );
 
