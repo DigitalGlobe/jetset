@@ -2,6 +2,9 @@
   <a href="https://github.com/DigitalGlobe/jetset"><img src="https://cdn.rawgit.com/DigitalGlobe/jetset/074ede86/examples/public/jetset.png?raw=true" /></a>
 </p>
 
+[![npm version](https://badge.fury.io/js/jetset.svg)](https://badge.fury.io/js/jetset)
+[![dependencies](https://david-dm.org/DigitalGlobe/jetset.svg)](https://david-dm.org/DigitalGlobe/jetset.svg)
+
 # Jetset
 > RESTful API fetching and caching for React apps, backed by an immutable state tree
 
