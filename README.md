@@ -1,5 +1,10 @@
+<p align="center">
+  <a href="https://github.com/DigitalGlobe/jetset"><img src="https://cdn.rawgit.com/DigitalGlobe/jetset/074ede86/examples/public/jetset.png?raw=true" /></a>
+</p>
+
 # Jetset
 > Multi-faceted library of tools built around an immutable state tree
+
 
 NOTE: This is very much a work in progress. Everything subject to change!
 
