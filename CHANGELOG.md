@@ -1,5 +1,10 @@
 # Changelog
 
+
+### 0.2.13
+
+- Fix route log reducer to not use first entry as start value
+
 ### 0.2.12
 
 - Allow for method overrides per route
