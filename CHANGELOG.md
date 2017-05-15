@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.14
+
+- Split out api store into separate module for easier maintenance and testing
+- Fix $list route config after recent regression
 
 ### 0.2.13
 
