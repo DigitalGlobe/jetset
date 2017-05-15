@@ -56,7 +56,7 @@ const logRoutes = ( routes, resource, ns ) => {
           ? { method: methodDict[ key ], route: val }
           : val;
         const arg = key === 'get' ? 'id' : '';
-        return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}.<fn>`]: `\$${key}(${arg})` })});
+        return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}...`]: `\$${key}(${arg})` })});
       }, {})
     );
     console.groupEnd();
