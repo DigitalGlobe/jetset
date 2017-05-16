@@ -87,6 +87,46 @@ export default MyApi(({ myResource }) =>
   </div>
 )
 ```
+Example with jetset helpers:
+
+This example shows off conditional rendering based on the status of underlying fetches, and the simplicity of search/pagination using jetset.
+
+```jsx
+class MyComponent extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      limit: 30,
+      offset: 0
+    }
+  }
+  
+  onPrev = () =>
+    this.setState( state => ({ offset: state.offset - state.limit }) )
+    
+  onNext = () =>
+    this.setState( state => ({ offset: state.offset + state.limit }) )
+  
+  render() {
+    const list = this.props.myResource.$list( this.state ); // e.g. GET /my_resource?limit=30&offset=0 (cached)
+    return (
+    
+      list.$isPending ?
+        <span>Loading...</span>  
+      : 
+      list.$error ?
+        <span>Error: {list.$error.message}</span>
+      :
+      <div>
+        { list.map( item => <div>{ item.get( 'title' ) }</div> ) }
+        <button onClick={ this.onPrev }>Prev</button>
+        <button onClick={ this.onNext }>Next</button>
+      </div>
+    )
+  }
+}
+```
 
 ### Props
 
