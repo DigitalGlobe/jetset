@@ -1,5 +1,15 @@
 # Changelog
 
+### 0.3.0
+
+- Allow for passing in `myResource="/my_resource"` prop instead of a json schema,
+  saving schemas only for more complex relationships and/or setting up an api
+  on both server and client-side
+- Add `getData` method as an option on individual routes
+- Make all route config properties optional to selectively override just
+  method, route, getData, etc.
+- Better documentation
+
 ### 0.2.14
 
 - Split out api store into separate module for easier maintenance and testing
