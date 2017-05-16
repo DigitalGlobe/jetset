@@ -1,6 +1,6 @@
 import { Map, List } from 'immutable';
 
-import { getIdField } from '../lib/schema';
+import { getIdFromModel } from '../lib/schema';
 import store from '../store';
 
 /* basic state tree layout
@@ -30,7 +30,6 @@ import store from '../store';
 export default function initApiStore( url, schema ) {
 
   const resourceType = schema.title;
-  const idField = getIdField( schema );
 
   const methods = {
 
@@ -132,7 +131,7 @@ export default function initApiStore( url, schema ) {
     setCollection: ( data = List(), path = '/' ) => {
       const state = methods.getState();
       const nextState = state.withMutations( map => {
-        const dict = data.reduce(( memo, item ) => ({ ...memo, [item[idField]]: item }), {});
+        const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
         map.set( 'models', methods.getModels().mergeDeep( dict ) );
         map.setIn([ 'requests', path, 'data' ], List( Object.keys( dict ) ) );
       });

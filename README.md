@@ -11,7 +11,7 @@
 Stop re-solving the problems of fetching, caching, and managing state for your
 RESTful API, so you can focus on your React app's unique needs.
 
-Advantages of jetset include:
+:sparkles: Advantages of jetset include:
 
 * Automatic translation of routes into intuitive methods that fetch and cache data smartly
 * Optimistic UI updates by default (with option to turn them off)
@@ -92,7 +92,7 @@ export default MyApi(({ myResource }) =>
 ```javascript
 type ApiProps = {
 
-  // REQUIRED
+  /* REQUIRED */
 
   // protocol, host, path to api - e.g. 'https://my.api.com/v2'
   url: string,
@@ -100,9 +100,9 @@ type ApiProps = {
   // one or more resource configs - e.g. '/my_resource' or a route config (see below)
   [path: string]: string | RouteOverrides,
 
-  // OPTIONAL
+  /* OPTIONAL */
 
-  // For cookies, cors, etc. see https://github.com/github/fetch#sending-cookies
+  // For cookies, cors, etc. (see https://github.com/github/fetch#sending-cookies)
   credentials?: 'include' | 'same-origin',
 
   // Set an Authorization header - e.g. "Bearer <some-token-here>"
@@ -128,8 +128,8 @@ For example:
 ```javascript
 
 type RouteConfig = {
-  method: 'get' | 'post' | 'put' | 'delete',
-  route: string,
+  method?:  'get' | 'post' | 'put' | 'delete',
+  route?:   string,
   getData?: (response: Array<Object> | Object) => Array<Object> | Object
 }
 
@@ -221,7 +221,8 @@ sources.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
 
 #### Devtools
 
-There are some very preliminary dev tools available by doing this:
+There are some very preliminary dev tools available, including time travel
+debugging, by doing this:
 
 ```javascript
 import TreeViewer from 'jetset/tree_viewer';
@@ -247,7 +248,8 @@ Better stuff coming soon!
 
 ## Examples
 
-Note: Examples currently assume timbr-omni is running with the api-lib-poc branch checked out.
+Note: Examples are not yet fully usable outside of DigitalGlobe, but they're
+still worth running in order to see example code.
 
 1. Clone this repo
 

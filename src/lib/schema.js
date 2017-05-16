@@ -1,3 +1,4 @@
+import { Map as iMap } from 'immutable';
 /**
  * example schemas
  *
@@ -25,6 +26,12 @@ export function getIdField( schema ) {
     .find( field => /^_?id$/.test( field ) ) || 'id';
 }
 
+export function getIdFromModel( model ) {
+  return iMap.isMap( model )
+    ? model.get( '_id' ) || model.get( 'id' ) || model.get( 'ID' )
+    : model._id || model.id || model.ID;
+}
+
 export function isSchema( maybeSchema ) {
   return (
     maybeSchema && ( 
@@ -39,11 +46,16 @@ export function isSchema( maybeSchema ) {
 
 export function getSchema( maybeSchema ) {
   return (
-    maybeSchema && typeof maybeSchema === 'object' && ( maybeSchema.$schema || maybeSchema.schema )
-      ? maybeSchema.schema || maybeSchema
-      : typeof maybeSchema === 'string' && maybeSchema.indexOf( '/' ) === 0
-        ? { title: maybeSchema.slice( 1 ), properties: { id: { type: 'string' } } }
-        : null
+    maybeSchema && typeof maybeSchema === 'object' ? (
+      maybeSchema.$schema || maybeSchema.schema ?
+        maybeSchema.schema || maybeSchema :
+      maybeSchema.routes ?
+        { title: maybeSchema.routes.default.slice( 1 ) } :
+      null
+    ) :
+    typeof maybeSchema === 'string' && maybeSchema.indexOf( '/' ) === 0
+      ? { title: maybeSchema.slice( 1 ) }
+      : null
   );
 
 }

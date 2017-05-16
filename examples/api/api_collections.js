@@ -1,8 +1,6 @@
 import React from 'react';
 import Api from '../../src/index';
 
-const sourcesSchema = require( '../schemas/sources.json' );
-
 function create( sources ) {
   sources
     .$create({ title: 'foo' })
@@ -32,7 +30,7 @@ function Sources({ sources }) {
 
 export default function ApiCollectionsExample() {
   return (
-    <Api url="http://localhost:3000/hub/api" sources={sourcesSchema}>
+    <Api url="http://localhost:3000/hub/api" sources="/sources">
       <Sources />
     </Api>
   );

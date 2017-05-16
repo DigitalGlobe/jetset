@@ -1,7 +1,7 @@
 import { List, Map } from 'immutable';
 import initFetch from 'iso-fetch-stream';
 
-import { getSchema, getIdField } from '../lib/schema';
+import { getSchema, getIdFromModel } from '../lib/schema';
 import initApiStore from './store';
 import { logError, logWarn } from '../lib/log';
 import getQueryString from '../lib/query_string';
@@ -23,7 +23,9 @@ const logRoutes = ( routes, resource, ns ) => {
     console.groupCollapsed( `Rendering Api component for %c${resource}`, 'color: green', `with these routes`);
     console.table(
       Object.keys( routes ).reduce(( memo, key ) => {
-        const val = routes[ key ]( 'id', {} );
+        const val = typeof routes[ key ] === 'function'
+          ? routes[ key ]( 'id', {} )
+          : routes[ key ];
         const def = typeof val === 'string'
           ? { method: methodDict[ key ], route: val }
           : val;
@@ -48,7 +50,6 @@ export default function createActions({ url, ...props }) {
     if ( schema ) {
       const options      = typeof props[ key ] === 'object' ? props[ key ] : {};
       const getData      = options.getData || ( data => data );
-      const idField      = getIdField( schema );
       const resourceType = schema.title;
       const resourcePath = `/${resourceType}`;
       const apiStore     = initApiStore( url, schema );
@@ -76,10 +77,9 @@ export default function createActions({ url, ...props }) {
           return fetch[ method ]( `${url}${path}`, ...args )
             .then(
               response => {
-                const data = getData( response );
                 apiStore.setPending( path, false );
                 apiStore.setError( path, null, { quiet: true } );
-                return data;
+                return response;
               },
               err => {
                 apiStore.setPending( path, false );
@@ -90,31 +90,49 @@ export default function createActions({ url, ...props }) {
         }
       }), {});
 
-      const getRouteConfig = ( config, defaultMethod = 'get' ) =>
-        typeof config === 'string'
-          ? { method: defaultMethod, route: config }
-          : { method: config.method.toLowerCase(), route: config.route };
+      const getRouteConfig = ( methodKey, ...args ) => {
+        const config = routes[ methodKey ]( ...args );
+        return typeof config === 'string'
+          ? { method: methodDict[ methodKey ], route: config, getData }
+          : { 
+            method:  ( config.method || methodDict[ methodKey ] ).toLowerCase(),
+            route:   config.route || routes.default || resourcePath,
+            getData: config.getData || getData
+          };
+      };
 
       /**
        * api calls
        */
       const fetchAll = path => {
-        const { route: defaultRoute, method } = getRouteConfig( routes.list() );
+        const { route: defaultRoute, method, getData } = getRouteConfig( 'list' );
         const route = path || defaultRoute;
         if ( shouldFetch( route ) ) {
-          api[ method ]( route ).then( data => apiStore.setCollection( data, route ) );
+          return api[ method ]( route ).then( response => {
+            const data = getData( response );
+            apiStore.setCollection( data, route );
+            return response;
+          });
+        } else {
+          // TODO: store pendingpromise to return here?
         }
       };
 
       const fetchOne = id => {
-        const { route, method } = getRouteConfig( routes.get( id ) );
+        const { route, method, getData } = getRouteConfig( 'get', id );
         if ( shouldFetch( route ) ) {
-          api[ method ]( route ).then( data => apiStore.setModel( data[ idField ], { ...data, _fetched: true }));
+          return api[ method ]( route ).then( response => {
+            const data = getData( response );
+            apiStore.setModel( getIdFromModel( data ), { ...data, _fetched: true });
+            return response;
+          });
+        } else {
+          // TODO: store pendingpromise to return here?
         }
       };
 
       const createOne = data => {
-        const { route, method } = getRouteConfig( routes.create( data ), 'post' );
+        const { route, method } = getRouteConfig( 'create', data );
         return api[ method ]( route, data ).then( data => {
           fetchAll();
           return data;
@@ -122,15 +140,14 @@ export default function createActions({ url, ...props }) {
       };
 
       const updateOne = ( id, data ) => {
-        const { route, method } = getRouteConfig( routes.update( id, data ), 'put' );
+        const { route, method } = getRouteConfig( 'update', id, data );
         return api[ method ]( route, data );
       };
 
       const deleteOne = id => {
-        const { route, method } = getRouteConfig( routes.delete( id ), 'delete' );
+        const { route, method } = getRouteConfig( 'delete', id );
         return api[ method ]( route );
       };
-
 
 
       /**/
@@ -174,7 +191,11 @@ export default function createActions({ url, ...props }) {
 
       const $update = id => ( vals, options = {} ) =>
         options.optimistic === false || !apiStore.getModel( id )
-          ? updateOne( id, vals ).then( data => apiStore.updateModel( id, data ) )
+          ? updateOne( id, vals ).then( response => {
+            const { getData } = getRouteConfig( 'update', id, vals );
+            apiStore.updateModel( id, getData( response ) );
+            return response;
+          })
           : optimisticUpdate( id, vals, options );
 
       const getPlaceholder = ( path = null, dataType = List ) => {
@@ -185,7 +206,7 @@ export default function createActions({ url, ...props }) {
       };
 
       const addRestMethods = model => {
-        const id = model.get( idField );
+        const id      = getIdFromModel( model );
         model.$delete = $delete( id );
         model.$update = $update( id );
         model.$clear  = $clear( id );
@@ -194,7 +215,7 @@ export default function createActions({ url, ...props }) {
       };
 
       const $list = params => {
-        const { route } = getRouteConfig( routes.list( params ) ); 
+        const { route } = getRouteConfig( 'list', params ); 
         const path = route + ( params ? `?${getQueryString( params )}` : '' );
         const collection = apiStore.getCollection( path );
         if ( !collection ) {
@@ -228,7 +249,6 @@ export default function createActions({ url, ...props }) {
       main.$clearAll = apiStore.clearAll;
       main.$reset = fetchAll;
 
-
       const optimisticCreate = ( data, options = {} ) => {
         if ( typeof options.optimistic === 'function' ) {
           const nextState = apiStore.getState().withMutations( map => options.optimistic( map, data ) );
@@ -246,7 +266,7 @@ export default function createActions({ url, ...props }) {
           : optimisticCreate( data, options );
 
       main.$search = params => {
-        const { method, route } = getRouteConfig( routes.search( params ) );
+        const { method, route } = getRouteConfig( 'search', params );
         const fullRoute = method === 'get'
           ? route + `?${getQueryString( params )}`
           : route;
@@ -266,7 +286,7 @@ export default function createActions({ url, ...props }) {
       };
 
       main.$search.results = params => {
-        const { route, method } = getRouteConfig( routes.search( params ) );
+        const { route, method } = getRouteConfig( 'search', params );
         const fullRoute = method === 'get'
           ? route + `?${getQueryString( params )}`
           : route;
