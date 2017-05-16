@@ -37,7 +37,9 @@ $ npm i --save jetset
 
 ## Use
 
-Specify your base url and route(s) as props on the Api component
+Note that jetset mostly uses [Immutable](https://github.com/facebook/immutable-js/) data structures - primarily [List](http://facebook.github.io/immutable-js/docs/#/List) and [Map](http://facebook.github.io/immutable-js/docs/#/Map).
+
+To get started just specify your base url and route(s) as props on the Api component.
 
 ### Quick start
 
@@ -50,9 +52,9 @@ const MyApi = Component =>
     <Component />
   </Api>
 
-export default MyApi(({ myResource }) =>
+export default MyApi( props =>
   <div>
-    { myResource.$list().map( item =>
+    { props.myResource.$list().map( item =>
       <div>{ item.get( 'title' ) }</div>
     )}
   </div>
@@ -77,7 +79,7 @@ export default MyApi(({ myResource }) =>
         <button onClick={ item.$delete }>Delete</button>
 
         {/* GET /my_resource/id */}
-        <button onClick={() => myResource.$get( item.get( 'id' ) ) }
+        <button onClick={() => myResource.$get( item.get( 'id' ) ) }>Get detail</button>
       </div>
     ))}
 
@@ -113,8 +115,18 @@ type ApiProps = {
   // for model routes)
   getData(response: Array<Object> | Object) => Array<Object> | Object
 }
+```
+For example:
 
-<Api { ...apiProps }>
+```jsx
+<Api
+  url             = "http://my.api.com/v1"
+  credentials     = "include"
+  authorization   = "Bearer <some-token>"
+  getData         = { response => response.data }
+  myResource      = "/my_resource"
+  myOtherResource = "/my_other_resource"
+>
 ```
 
 #### Overriding default routes, methods, etc.
@@ -145,8 +157,19 @@ type RouteOverrides = {
   update?: (id: number|string, payload: Object) => string | RouteConfig,
   delete?: (id: number|string)                  => string | RouteConfig
 }
+```
 
-<Api url="http://my.api.com" myResource={{ routes }}>...</Api>
+For example:
+
+```jsx
+const myResourceConfig = {
+  default: '/my_resource',
+  get:     id => `/my_resource/${id}/view`,
+  search:  () => ({ method: 'post', route: '/search' }),
+  update:  () => ({ method: 'post' })
+}
+
+<Api myResource={{ routes: myResourceConfig }} ... >
 ```
 
 Note that these keys match their equivalent `$create`, `$update`, etc. methods.
