@@ -6,7 +6,7 @@ const sourcesSchema = require( '../schemas/sources.json' );
 function create( sources ) {
   sources
     .$create({ title: 'foo' })
-    .then( data => console.log( 'Successfully created and cached', data ) );
+    .then( data => console.log( 'Successfully created', data ) );
 }
 
 function Sources({ sources }) {
