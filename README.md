@@ -46,7 +46,7 @@ import React from 'react';
 import Api from 'jetset/api';
 
 const MyApi = Component =>
-  <Api url="https://somehost.com/api" myResource="/my_resource">
+  <Api url="https://my.api.com" myResource="/my_resource">
     <Component />
   </Api>
 
