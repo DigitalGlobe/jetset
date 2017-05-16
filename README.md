@@ -1,7 +1,32 @@
-# Jetset
-> Multi-faceted library of tools built around an immutable state tree
+<p align="center">
+  <a href="https://github.com/DigitalGlobe/jetset"><img src="https://cdn.rawgit.com/DigitalGlobe/jetset/074ede86/examples/public/jetset.png?raw=true" /></a>
+</p>
 
-NOTE: This is very much a work in progress. Everything subject to change!
+[![npm version](https://badge.fury.io/js/jetset.svg)](https://badge.fury.io/js/jetset)
+[![dependencies](https://david-dm.org/DigitalGlobe/jetset.svg)](https://david-dm.org/DigitalGlobe/jetset.svg)
+
+# Jetset
+> RESTful API fetching and caching for React apps, backed by an immutable state tree
+
+Stop re-solving the problems of fetching, caching, and managing state for your
+RESTful API, so you can focus on your React app's unique needs.
+
+:sparkles: Advantages of jetset include:
+
+* Automatic translation of routes into intuitive methods that fetch and cache data smartly
+* Optimistic UI updates by default (with option to turn them off)
+* Zero-config for standard RESTful routes + simple overrides for
+  non-standard routes
+* [Immutable](https://github.com/facebook/immutable-js/) state tree guarantees no bugs from unexpected mutations
+* **Time travel debugging** included with jetset devtools!
+* Abstract away your API implementation details. If your api changes your code
+  doesn't need to.
+* Server-side support (uses [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch<Paste>) behind the scenes)
+* [*In progress*] Use [JSON schemas](http://json-schema.org/) to express
+  attributes of and relationships between your api models, allowing for even smarter
+  caching, reduction of fetches, type checking, and runtime safety warnings.
+
+This last one will provide some of the value of GraphQL + Relay without all the dependencies and complex set-up.
 
 ## Install
 
@@ -11,122 +36,229 @@ $ npm i --save jetset
 
 ## Use
 
+Note that jetset uses mostly [Immutable](https://github.com/facebook/immutable-js/) data structures - primarily [List](http://facebook.github.io/immutable-js/docs/#/List) and [Map](http://facebook.github.io/immutable-js/docs/#/Map).
 
-See below for different tools/libs available. Note that all state is stored in
-an [Immutable](https://github.com/facebook/immutable-js/) state tree, so you'll
-want to become familiar with its [api and data structures](http://facebook.github.io/immutable-js/docs/#/), especially [Map](http://facebook.github.io/immutable-js/docs/#/Map) and [List](http://facebook.github.io/immutable-js/docs/#/List), which we are using in the state tree instead of objects and arrays.
+To get started just specify your base url and route(s) as props on the Api component.
 
-### Api
-> Jetset the fetching, state management, and rendering of your api data!
+### Quick start
 
-1. Setup
+```jsx
+import React from 'react';
+import Api from 'jetset/api';
 
-    Create a [json schema](http://json-schema.org/) to match your REST resource.
-    Here is an example of a bare-minimum schema to set up everything for /sources:
+const MyApi = Component =>
+  <Api url="https://my.api.com" myResource="/my_resource">
+    <Component />
+  </Api>
 
-    ```json
-     {
-       "$schema": "http://json-schema.org/draft-04/schema#",
-       "title": "sources",
-       "properties": {
-         "_id": { "type": "string" }
-       }
-     }
-    ```
+export default MyApi( props =>
+  <div>
+    { props.myResource.$list().map( item =>
+      <div>{ item.get( 'title' ) }</div>
+    )}
+  </div>
+)
+```
 
-    More complex functionality, for example related data features, will require
-    more complex schemas (coming soon).
+#### More complete example:
 
-1. Quick start (using sources example from above)
+```jsx
+export default MyApi(({ myResource }) =>
+  <div>
 
-    ```javascript
-    import Api from 'jetset/api';
+    {/* GET /my_resource */}
+    { myResource.$list().map( item => (
+      <div>
+        <span>{ item.get( 'title' ) }</span>
+
+        {/* PUT /my_resource/id */}
+        <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
+
+        {/* DELETE /my_resource/id */}
+        <button onClick={ item.$delete }>Delete</button>
+
+        {/* GET /my_resource/id */}
+        <button onClick={() => myResource.$get( item.get( 'id' ) ) }>Get detail</button>
+      </div>
+    ))}
+
+    {/* POST /my_resource */}
+    <button onClick={() => myResource.$create({ title: 'foo' }) }>Create new item</button>
+  </div>
+)
+```
+#### Example with jetset helpers
+
+This example shows off conditional rendering based on the status of underlying fetches, and the simplicity of search/pagination using jetset.
+
+```jsx
+class MyComponent extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      limit: 30,
+      offset: 0
+    }
+  }
+  
+  onPrev = () =>
+    this.setState( state => ({ offset: state.offset - state.limit }) )
     
-    const sourcesSchema = require( './schemas/sources.json' );
+  onNext = () =>
+    this.setState( state => ({ offset: state.offset + state.limit }) )
+  
+  render() {
+    const list = this.props.myResource.$list( this.state ); // e.g. GET /my_resource?limit=30&offset=0 (cached)
+    return (
+    
+      list.$isPending ?
+        <span>Loading...</span>  
+      : 
+      list.$error ?
+        <span>Error: {list.$error.message}</span>
+      :
+      <div>
+        { list.map( item => <div>{ item.get( 'title' ) }</div> ) }
+        <button onClick={ this.onPrev }>Prev</button>
+        <button onClick={ this.onNext }>Next</button>
+      </div>
+    )
+  }
+}
+```
 
-    function MyComponent({ sources }) {
-      return (
-        <div>
-          { sources.$list().map( item => (
-            <div>
-              <span>{ item.get( 'title' ) }</span>
-              <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
-              <button onClick={ item.$delete }>Delete</button>
-            </div>
-          ))}
-          <button onClick={ sources.$create({ title: 'foo' }) }>Create new item</button>
-        </div>
-      );
-    }
-
-    function MyApi() {
-      return (
-        <Api url="https://somehost.com/api" sources={ sourcesSchema }>
-          <MyComponent />
-        </Api>
-      );
-    }
-    ```
-
-#### Reference
+### Props
 
 ```javascript
-const { sources } = props; // e.g. from <Api url="..." sources={ sourcesSchema } />
+type ApiProps = {
 
-// GET /sources => List (will use cache)
-sources.$list()
+  /* REQUIRED */
 
-// GET /sources?offset=0&limit=30 => List (will use cache, for use primarily in rendering)
-sources.$list({ offset: 0, limit: 30 })
+  // protocol, host, path to api - e.g. 'https://my.api.com/v2'
+  url: string,
 
-// POST /sources => Promise<Array>
-sources.$create({...})
+  // one or more resource configs - e.g. '/my_resource' or a route config (see below)
+  [path: string]: string | RouteOverrides,
 
-// GET /sources?key=val... => Promise<Array>
-sources.$search({ key: val, ...})
-sources.$search.results({ key: val,... }) // List (will use cache)
+  /* OPTIONAL */
 
-// GET /sources/id => Map (will use cache)
-sources.$get( id )
+  // For cookies, cors, etc. (see https://github.com/github/fetch#sending-cookies)
+  credentials?: 'include' | 'same-origin',
 
-// PUT /sources/id => Promise<Object>
-sources.$get( id ).$update({...})
-sources().find( model => model.get( '_id' ) === id ).$update({...})
+  // Set an Authorization header - e.g. "Bearer <some-token-here>"
+  authorization?: string,
 
-// DELETE /sources/id => Promise<Object>
-sources.$get( id ).$delete()
-sources().find( model => model.get( '_id' ) === id ).$delete()
-
-// GET /sources/some/other/route => Promise<Array|Object>
-sources.api.get( '/some/other/route' )
-
-// GET /sources/some/other/route => List|Map (will use cache)
-sources.api.$get( '/some/other/route' )
-
-// POST /sources/some/other/route => Promise<Array|Object>
-sources.api.post( '/some/other/route' )
-
-// check if underlying request is pending => boolean|void
-sources.$list().$isPending
-sources.$get( id ).$isPending
-
-// check if request got an error => Error|void
-sources.$list().$error
-sources.$get( id ).$error
-
-// clear cache for the given request => void
-sources.$clear();
-sources.$get( id ).$clear()
-sources.$search.results({...}).$clear()
-
-// clear cache for all models/requests for the given the resource => void 
-sources.$clearAll();
-
-// reset with data from server => void
-sources.$reset();
-sources.$get( id ).$reset()
-sources.$search.results({...}).$reset()
+  // If you need to process api responses before caching/returning (otherwise the
+  // whole response is expected to be an array for collection routes or an object
+  // for model routes)
+  getData(response: Array<Object> | Object) => Array<Object> | Object
+}
 ```
+For example:
+
+```jsx
+<Api
+  url             = "http://my.api.com/v1"
+  credentials     = "include"
+  authorization   = "Bearer <some-token>"
+  getData         = { response => response.data }
+  myResource      = "/my_resource"
+  myOtherResource = "/my_other_resource"
+>
+```
+
+#### Overriding default routes, methods, etc.
+
+When you pass in a string as the value of your resource, all routes are inferred according to REST standards.
+If you need to override one or more of those routes, you can pass in an object instead of a string, including 
+a `routes` object with as many overrides as you need.
+
+For example:
+
+```javascript
+
+type RouteConfig = {
+  method?:  'get' | 'post' | 'put' | 'delete',
+  route?:   string,
+  getData?: (response: Array<Object> | Object) => Array<Object> | Object
+}
+
+type RouteOverrides = {
+
+  default: string, // e.g. '/my_resource'
+
+  // one or more optional overrides
+  create?: (payload: Object)                    => string | RouteConfig,
+  list?:   (params?: Object)                    => string | RouteConfig,
+  search?: (params?: Object)                    => string | RouteConfig,
+  get?:    (id: number|string)                  => string | RouteConfig,
+  update?: (id: number|string, payload: Object) => string | RouteConfig,
+  delete?: (id: number|string)                  => string | RouteConfig
+}
+```
+
+For example:
+
+```jsx
+const myResourceConfig = {
+  default: '/my_resource',
+  get:     id => `/my_resource/${id}/view`,
+  search:  () => ({ method: 'post', route: '/search' }),
+  update:  () => ({ method: 'post' })
+}
+
+<Api myResource={{ routes: myResourceConfig }} ... >
+```
+
+Note that these keys match their equivalent `$create`, `$update`, etc. methods.
+
+### Docs / Reference
+
+Assuming this as a starting point:
+
+```javascript
+const { resource } = props; // e.g. from <Api url="..." resource="/resource" />
+```
+
+method|route|jetset fn|returns|uses cache
+------|-----|---------|-------|----------
+GET|/resource|`resource.$list()`|[List](http://facebook.github.io/immutable-js/docs/#/List)|yes
+GET|/resource?foo=bar|`resource.$list({foo: 'bar'})`|[List](http://facebook.github.io/immutable-js/docs/#/List)|yes
+GET|/resource?foo=bar|`resource.$search({foo: 'bar'})`|Promise<Array>|results are cached (see below)
+|||`resource.$search.results({foo: 'bar'})`|[List](http://facebook.github.io/immutable-js/docs/#/List)|yes
+POST|/resource|`resource.$create({foo: 'bar'})`|Promise<Object>|results are cached
+GET|/resource/id|`resource.$get(id)`|[Map](http://facebook.github.io/immutable-js/docs/#/Map)|yes
+PUT|/resource/id|`resource.$get(id).$update({foo: 'bar'})`|Promise<Object>|results are cached
+PUT|/resource/id|`resource.$list().get(index).$update({foo: 'bar'})`|Promise<Object>|results are cached
+DELETE|/resource/id|`resource.$get( id ).$delete()`|Promise<Object>|results are cached
+DELETE|/resource/id|`resource.$list().get(index).$delete()`|Promise<Object>|results are cached
+GET|/resource/some/route|`resource.api.get('/some/route')`|Promise<any>|no
+GET|/resource/some/route|`resource.api.$get('/some/route')`|[List](http://facebook.github.io/immutable-js/docs/#/List)|[Map](http://facebook.github.io/immutable-js/docs/#/Map)|yes
+POST|/resource/some/route|`resource.api.post('/some/route')`|Promise<any>|no
+PUT|/resource/some/route|`resource.api.put('/some/route')`|Promise<any>|no
+DELETE|/resource/some/route|`resource.api.delete('/some/route')`|Promise<any>|no
+
+##### Helper methods and properties
+
+jetset fn|returns|description
+---------|-------|-----------
+**$isPending**||Pending status of underlying fetches
+`resource.$list().$isPending`|Boolean \| void|Check to see if collection fetch is pending
+`resource.$get(id).$isPending`|Boolean \| void|Check to see if model fetch is pending
+**$error**||Error response for a given request
+`resource.$list().$error`|Error \| void|Check to see if underlying collection fetch resulted in an error
+`resource.$get(id).$error`|Error \| void|Check to see if underlying model fetch resulted in an error
+**$clear()**||Clear caches
+`resource.$clear()`|void|Clear the cache for `$list()`
+`resource.$get( id ).$clear()`|void|Clear the cache for `$get()`
+`resource.$search.results({...}).$clear()`|void|Clear the cache for `$search.results()`
+`resource.$clearAll()`|void|Clear all cache for the given resource
+**$reset()**||Reset cache with data from server
+`resource.$reset()`|void|Refetch and rehydrate `$list()`
+`resource.$get(id).$reset()`|void|Refetch and rehydrate `$get(id)`
+`resource.$search.results({...}).$reset()`|void|Refetch and rehydrate search results
+
 #### Optimism and pessimism
 
 By default, deletes and updates are optimistic. To turn this off, pass
@@ -148,58 +280,11 @@ sources.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
 }})
 ```
 
-#### Options
-
-##### Different API formats
-
-We are working to accommodate different Api formats. If your response format is
-different, or you want to massage data before caching it, you can pass in a `getData` 
-function to the `Api` component.
-
-For example:
-
-```javascript
-<Api 
-  url="http://my.api.com" 
-  sources={{ schema: sourcesSchema, getData: response => response.data }}
->
-```
-
-##### Credentials / Cookies / CORS
-
-You can pass in a `credentials` prop with 'same-origin' or 'include' as the
-value. For example:
-
-```
-<Api 
-  url="http://my.api.com" 
-  sources={ sourcesSchema }
-  credentials="include"
->
-```
-
-See https://github.com/github/fetch#sending-cookies for more info.
-
-##### Authorization
-
-The api component accepts an authorization prop that will be used for the Authorization
-header:
-
-```
-<Api 
-  url="http://my.api.com" 
-  sources={ sourcesSchema }
-  authorization="Bearer some-token-here"
->
-```
-
-Note: This will result in a `Authorization: Bearer some-token-here` being added
-to all fetch headers.
-
 
 #### Devtools
 
-There are some very preliminary dev tools available by doing this:
+There are some very preliminary dev tools available, including time travel
+debugging, by doing this:
 
 ```javascript
 import TreeViewer from 'jetset/tree_viewer';
@@ -225,7 +310,8 @@ Better stuff coming soon!
 
 ## Examples
 
-Note: Examples currently assume timbr-omni is running with the api-lib-poc branch checked out.
+Note: Examples are not yet fully usable outside of DigitalGlobe, but they're
+still worth running in order to see example code.
 
 1. Clone this repo
 

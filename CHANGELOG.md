@@ -1,9 +1,47 @@
 # Changelog
 
+### 0.3.0
+
+- Allow for passing in `myResource="/my_resource"` prop instead of a json schema,
+  saving schemas only for more complex relationships and/or setting up an api
+  on both server and client-side
+- Add `getData` method as an option on individual routes
+- Make all route config properties optional to selectively override just
+  method, route, getData, etc.
+- Better documentation
+
+### 0.2.14
+
+- Split out api store into separate module for easier maintenance and testing
+- Fix $list route config after recent regression
+
+### 0.2.13
+
+- Fix route log reducer to not use first entry as start value
+
+### 0.2.12
+
+- Allow for method overrides per route
+
+### 0.2.11
+
+- Fix setSearchResults regression
+
+### 0.2.10
+
+- Pass params into routes.list() and routes.search()
+
+### 0.2.9
+
+- Allow for passing in optional `routes` config to selectively override
+  default routes.
+
+- Expose `props.localState` for setting/getting the more complete scope of
+  local state
 
 ### 0.2.8
 
-- Switch to `resource.$list()` as the primary list retrieval method instead of `resource()`
+- Switch to `resource.$list()` as the primary list retrieval method instead of `resource()` (which also works for now)
 
 ### 0.2.7
 

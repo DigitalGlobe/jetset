@@ -9,12 +9,12 @@ class LocalStateExample extends React.Component {
         <div>
           <span>example state: { this.props.example.get() }</span>
           <button onClick={() => this.props.example.set( 'foo' )}>Set to foo</button>
-          <button onClick={() => this.props.example.set( 'bar' )}>Set to bar</button>
+          <button onClick={() => this.props.localState.set({ example: 'bar' })}>Set to bar</button>
         </div>
         <div>
           <span>example2 state: { this.props.example2.get() }</span>
           <button onClick={() => this.props.example2.set( 'foo' )}>Set to foo</button>
-          <button onClick={() => this.props.example2.set( 'bar' )}>Set to bar</button>
+          <button onClick={() => this.props.localState.set({ example2: 'bar' })}>Set to bar</button>
         </div>
       </div>
     );
