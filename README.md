@@ -87,7 +87,7 @@ export default MyApi(({ myResource }) =>
   </div>
 )
 ```
-Example with jetset helpers:
+#### Example with jetset helpers
 
 This example shows off conditional rendering based on the status of underlying fetches, and the simplicity of search/pagination using jetset.
 
