@@ -26,8 +26,7 @@ RESTful API, so you can focus on your React app's unique needs.
   attributes of and relationships between your api models, allowing for even smarter
   caching, reduction of fetches, type checking, and runtime safety warnings.
 
-  This last one is meant to provide some of the value of GraphQL + Relay
-  without all the dependencies and complex set-up.
+This last one will provide some of the value of GraphQL + Relay without all the dependencies and complex set-up.
 
 ## Install
 
