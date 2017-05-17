@@ -21,7 +21,7 @@ function Sources({ sources }) {
             </div>
           )}
           <button onClick={() => create( sources )}>New foo</button>
-          <button onClick={() => sources.$clear()}>Clear cache</button>
+          <button onClick={() => sources.$list().$clear()}>Clear cache</button>
         </span>
       }
     </div>

@@ -206,6 +206,8 @@ export default function createActions({ url, ...props }) {
         const placeholder = dataType();
         placeholder.$isPending = true;
         placeholder.$error = path ? apiStore.getError( path ) : null;
+        placeholder.$clear = (() => undefined);
+        placeholder.$reset = (() => Promise.reject( 'no data to reset' ));
         return placeholder;
       };
 
@@ -226,7 +228,13 @@ export default function createActions({ url, ...props }) {
           fetchAll( path );
           return getPlaceholder( path );
         } else {
-          return collection.map( addRestMethods );
+          const mapped = collection.map( addRestMethods );
+          mapped.$clear = () => apiStore.clearCollection( path );
+          mapped.$reset = () => {
+            mapped.$clear();
+            $list( params );
+          };
+          return mapped;
         }
       };
 
@@ -292,13 +300,18 @@ export default function createActions({ url, ...props }) {
         const fullRoute = method === 'get'
           ? route + `?${getQueryString( params )}`
           : route;
-        const resultsCached = apiStore.getCollection( fullRoute );
-        if ( resultsCached ) {
-          return resultsCached.map( addRestMethods );
+        const collection = apiStore.getCollection( fullRoute );
+        if ( collection ) {
+          const mapped = collection.map( addRestMethods );
+          mapped.$clear = () => apiStore.clearCollection( fullRoute );
+          mapped.$reset = () => {
+            main.$clear();
+            main.$search( params );
+          };
+          return mapped;
         } else {
-          const placeholder = List();
+          const placeholder = getPlaceholder( fullRoute );
           placeholder.$isPending = !!apiStore.getPending( fullRoute );
-          placeholder.$error = apiStore.getError( fullRoute );
           return placeholder;
         }
       };
