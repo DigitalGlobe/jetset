@@ -1,5 +1,12 @@
 # Changelog
 
+### 0.3.2
+
+- Add { refetch: false } as option for $create to avoid a full refetch unless
+  actually desired
+- Fix removeFromCollection regression
+- Add nuclear resetState() option
+
 ### 0.3.1
 
 - Make sure id is stringified for delete
