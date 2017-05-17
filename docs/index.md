@@ -56,8 +56,6 @@ When you pass in a string as the value of your resource, all routes are inferred
 If you need to override one or more of those routes, you can pass in an object instead of a string, including 
 a `routes` object with as many overrides as you need.
 
-For example:
-
 ```javascript
 
 type RouteConfig = {
