@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.3
+
+- Fix $clear and $reset for collections
+
 ### 0.3.2
 
 - Add { refetch: false } as option for $create to avoid a full refetch unless
