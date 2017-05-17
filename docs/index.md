@@ -135,9 +135,9 @@ jetset fn|returns|description
 `resource.$search.results({...}).$clear()`|void|Clear the cache for `$search.results()`
 `resource.$clearAll()`|void|Clear all cache for the given resource
 **$reset()**||Reset cache with data from server
-`resource.$reset()`|void|Refetch and rehydrate `$list()`
-`resource.$get(id).$reset()`|void|Refetch and rehydrate `$get(id)`
-`resource.$search.results({...}).$reset()`|void|Refetch and rehydrate search results
+`resource.$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
+`resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
+`resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
 
 ## Optimism and pessimism
 
