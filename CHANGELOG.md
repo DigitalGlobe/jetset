@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.3.4
+
+- When subscribing, use replace instead of merge on arrays since mergeDeep
+  won't work with arrays
+
 ### 0.3.3
 
 - Fix $clear and $reset for collections
