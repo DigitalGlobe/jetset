@@ -66,23 +66,23 @@ export default MyApi( props =>
 export default MyApi(({ myResource }) =>
   <div>
 
-    {/* GET /my_resource */}
+    // GET /my_resource
     { myResource.$list().map( item => (
       <div>
         <span>{ item.get( 'title' ) }</span>
 
-        {/* PUT /my_resource/id */}
+        // PUT /my_resource/id
         <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
 
-        {/* DELETE /my_resource/id */}
+        // DELETE /my_resource/id
         <button onClick={ item.$delete }>Delete</button>
 
-        {/* GET /my_resource/id */}
+        // GET /my_resource/id
         <button onClick={() => myResource.$get( item.get( 'id' ) ) }>Get detail</button>
       </div>
     ))}
 
-    {/* POST /my_resource */}
+    // POST /my_resource
     <button onClick={() => myResource.$create({ title: 'foo' }) }>Create new item</button>
   </div>
 )
