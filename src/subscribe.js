@@ -55,7 +55,7 @@ function subscribe({ local, paths }) {
       }
 
       merge = ( val, path ) => {
-        if ( typeof val !== 'object' ) {
+        if ( Array.isArray( val ) || typeof val !== 'object' ) {
           return this.replace( val, path );
         } else {
           const fullPath = rootPath.concat( path || [] );
