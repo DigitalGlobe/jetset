@@ -136,9 +136,6 @@ See the [docs](docs/index.md) for complete documentation/reference.
 
 ## Examples
 
-Note: Examples are not yet fully usable outside of DigitalGlobe, but they're
-still worth running in order to see example code.
-
 1. Clone this repo
 
 1. `npm i`
