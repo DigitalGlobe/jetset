@@ -145,8 +145,8 @@ By default, deletes and updates are optimistic. To turn this off, pass
 `{ optimistic: false }` in as an option. For example:
 
 ```javascript
-sources.$get( id ).$delete({ optimistic: false })
-sources.$get( id ).$update({ title: 'foo' }, { optimistic: false })
+myResource.$get( id ).$delete({ optimistic: false })
+myResource.$get( id ).$update({ title: 'foo' }, { optimistic: false })
 ```
 
 There is experimental support for optimistic creates. In this case, pass
@@ -155,7 +155,7 @@ arguments the current state and the data payload you are about to post. For
 example:
 
 ```javascript
-sources.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
+myResource.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
   state.setIn([ 'models', 'fooId' ], Map({ ...data, _id: 'fooId' }));
 }})
 ```
