@@ -248,8 +248,6 @@ export default function createActions({ url, ...props }) {
         }
       };
 
-      // remove the cache for the resource collection
-      main.$clear = () => apiStore.clearCollection();
       main.$clearAll = apiStore.clearAll;
       main.$reset = fetchAll;
 
@@ -296,7 +294,7 @@ export default function createActions({ url, ...props }) {
           : route;
         const resultsCached = apiStore.getCollection( fullRoute );
         if ( resultsCached ) {
-          return addRestMethods( resultsCached );
+          return resultsCached.map( addRestMethods );
         } else {
           const placeholder = List();
           placeholder.$isPending = !!apiStore.getPending( fullRoute );
@@ -304,7 +302,6 @@ export default function createActions({ url, ...props }) {
           return placeholder;
         }
       };
-
 
       // hang standard api methods off of .api so devs can construct
       // non-standard paths
