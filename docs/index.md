@@ -154,7 +154,7 @@ store.clearState()
 
 ## Optimism and pessimism
 
-By default, deletes and updates are optimistic. To turn this off, pass
+By default, `$delete()` and `$update(...)` are optimistic. To turn this off, pass
 `{ optimistic: false }` in as an option. For example:
 
 ```javascript
@@ -162,7 +162,7 @@ myResource.$get( id ).$delete({ optimistic: false })
 myResource.$get( id ).$update({ title: 'foo' }, { optimistic: false })
 ```
 
-There is experimental support for optimistic creates. In this case, pass
+There is experimental support for optimistic `$create(...)`. In this case, pass
 a function in as the value of `optimistic`. This function will receive as
 arguments the current state and the data payload you are about to post. For
 example:
@@ -173,6 +173,11 @@ myResource.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
 }})
 ```
 
+Otherwise, `$create(...)` will call a refetch of `$list()` on success. To prevent this, pass `{ refetch: false }` as an option:
+
+```
+myResource.$create({ title: 'foo' }, { refetch: false })
+```
 
 ## Devtools
 
