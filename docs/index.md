@@ -175,7 +175,7 @@ myResource.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
 
 Otherwise, `$create(...)` will call a refetch of `$list()` on success. To prevent this, pass `{ refetch: false }` as an option:
 
-```
+```javascript
 myResource.$create({ title: 'foo' }, { refetch: false })
 ```
 
