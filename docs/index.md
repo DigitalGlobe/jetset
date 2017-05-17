@@ -91,7 +91,7 @@ const myResourceConfig = {
 <Api myResource={{ routes: myResourceConfig }} ... >
 ```
 
-Note that these keys match their equivalent `$get`, `$search`, $update`, etc. methods.
+Note that these keys match their equivalent `$get`, `$search`, `$update`, etc. methods.
 
 ## Reference
 
