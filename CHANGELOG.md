@@ -7,7 +7,7 @@
 - Fix removeFromCollection regression
 - Add nuclear resetState() option like so:
 
-```
+```javascript
 import store from 'jetset/store';
 store.clearState();
 ```
