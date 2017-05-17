@@ -131,10 +131,14 @@ export default function createActions({ url, ...props }) {
         }
       };
 
-      const createOne = data => {
+      const createOne = ( data, options = {} ) => {
         const { route, method } = getRouteConfig( 'create', data );
         return api[ method ]( route, data ).then( data => {
-          fetchAll();
+          if ( options.refetch !== false ) {
+            fetchAll();
+          } else {
+            apiStore.updateCollection( data );
+          }
           return data;
         });
       };
@@ -253,16 +257,16 @@ export default function createActions({ url, ...props }) {
         if ( typeof options.optimistic === 'function' ) {
           const nextState = apiStore.getState().withMutations( map => options.optimistic( map, data ) );
           if ( nextState ) apiStore.setState( nextState );
-          return createOne( data );
+          return createOne( data, options );
         } else {
           logWarn( `Optimistic creates must receive a function that updates the state with the optimistic data. The create will proceed pessimistically.`);
-          return createOne( data );
+          return createOne( data, options );
         }
       };
 
       main.$create = ( data, options = {} ) =>
         !options.optimistic
-          ? createOne( data )
+          ? createOne( data, options )
           : optimisticCreate( data, options );
 
       main.$search = params => {

@@ -1,4 +1,4 @@
-import { Map, List } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
 
 import { getIdFromModel } from '../lib/schema';
 import store from '../store';
@@ -93,16 +93,17 @@ export default function initApiStore( url, schema ) {
 
     deleteModel: id => {
       const undo = [];
-      const state = methods.getState();
       const idStr = String( id );
-      methods.setState( state.withMutations( map => {
-        const model = methods.getModel( idStr );
-        if ( model ) {
-          map.update( 'models', ( models = Map() ) => models.delete( idStr ) );
-          undo.push(() => methods.setModels( methods.getModels().set( idStr, model ) ));
-          undo.push( ...methods.removeFromCollections( map, idStr ) );
-        }
-      }));
+      methods.setState(
+        methods.getState().withMutations( map => {
+          const model = methods.getModel( idStr );
+          if ( model ) {
+            map.update( 'models', ( models = Map() ) => models.delete( idStr ) );
+            undo.push(() => methods.setModels( methods.getModels().set( idStr, model ) ));
+            undo.push( ...methods.removeFromCollections( map, idStr ) );
+          }
+        })
+      );
       return undo;
     },
 
@@ -132,14 +133,25 @@ export default function initApiStore( url, schema ) {
       }
     },
 
-    setCollection: ( data = List(), path = '/' ) => {
-      const state = methods.getState();
-      const nextState = state.withMutations( map => {
-        const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
-        map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
-        map.setIn( methods.requestsPath([ path, 'data' ]), List( Object.keys( dict ) ) );
-      });
-      methods.setState( nextState );
+    setCollection: ( data = List(), path = `/${resourceType}` ) => {
+      methods.setState(
+        methods.getState().withMutations( map => {
+          const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
+          map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
+          map.setIn( methods.requestsPath([ path, 'data' ]), List( Object.keys( dict ) ) );
+        })
+      );
+      return methods.getCollection( path );
+    },
+
+    updateCollection: ( model, path = `/${resourceType}` ) => {
+      const id = String( getIdFromModel( model ) );
+      methods.setState(
+        methods.getState().withMutations( map => {
+          map.update( 'models', ( models = Map() ) => models.mergeDeep( fromJS({ [id]: model }) ) );
+          map.updateIn( methods.requestsPath([ path, 'data' ]), ( data = List() ) => data.push( id ));
+        })
+      );
     },
 
     clearCollection: ( path = '/' ) => 
@@ -154,7 +166,7 @@ export default function initApiStore( url, schema ) {
             if ( ~modelIdx ) {
               const nextCollection = collection.delete( modelIdx );
               map.setIn( methods.requestsPath([ path, 'data' ]), nextCollection );
-              undo.push(() => methods.setCollection( nextCollection.insert( modelIdx, id ), path ));
+              undo.push(() => methods.setRequestsData( path, nextCollection.insert( modelIdx, id ) ) );
             }
           }
           return undo;
