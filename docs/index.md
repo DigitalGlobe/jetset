@@ -1,7 +1,7 @@
 # Documentation
 
 - [Props](#props)
-  - [Overriding routes, methods, etc.](#overriding-routes-methods-etc)
+  - [Overriding routes, methods, etc.](#overriding-default-routes-methods-etc)
 - [Reference](#reference)
   - [Helper methods and properties](#helper-methods-and-properties)
 - [Optimism and pessimism](#optimism-and-pessimism)
