@@ -135,9 +135,9 @@ jetset fn|returns|description
 `resource.$search.results({...}).$clear()`|void|Clear the cache for `$search.results()`
 `resource.$clearAll()`|void|Clear all cache for the given resource
 **$reset()**||Reset cache with data from server
-`resource.$reset()`|void|Refetch and rehydrate `$list()`
-`resource.$get(id).$reset()`|void|Refetch and rehydrate `$get(id)`
-`resource.$search.results({...}).$reset()`|void|Refetch and rehydrate search results
+`resource.$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
+`resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
+`resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
 
 ## Optimism and pessimism
 
@@ -145,8 +145,8 @@ By default, deletes and updates are optimistic. To turn this off, pass
 `{ optimistic: false }` in as an option. For example:
 
 ```javascript
-sources.$get( id ).$delete({ optimistic: false })
-sources.$get( id ).$update({ title: 'foo' }, { optimistic: false })
+myResource.$get( id ).$delete({ optimistic: false })
+myResource.$get( id ).$update({ title: 'foo' }, { optimistic: false })
 ```
 
 There is experimental support for optimistic creates. In this case, pass
@@ -155,7 +155,7 @@ arguments the current state and the data payload you are about to post. For
 example:
 
 ```javascript
-sources.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
+myResource.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
   state.setIn([ 'models', 'fooId' ], Map({ ...data, _id: 'fooId' }));
 }})
 ```
