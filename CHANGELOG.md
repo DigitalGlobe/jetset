@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.1
+
+- Make sure id is stringified for delete
+
 ### 0.3.0
 
 - Allow for passing in `myResource="/my_resource"` prop instead of a json schema,
