@@ -4,6 +4,7 @@
   - [Overriding routes, methods, etc.](#overriding-default-routes-methods-etc)
 - [Reference](#reference)
   - [Helper methods and properties](#helper-methods-and-properties)
+  - [Cache management helpers](#cache-management-helpers)
 - [Optimism and pessimism](#optimism-and-pessimism)
 - [Devtools](#devtools)
 
@@ -144,9 +145,9 @@ jetset fn|returns|description
 `resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
 `resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
 
-:boom: Nuclear option to clear 100% of jetset's cache:
+#### :boom: Nuclear option to clear 100% of jetset's cache:
 
-```
+```javascript
 import store from 'jetset/store'
 store.clearState()
 ```
