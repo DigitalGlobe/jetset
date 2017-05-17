@@ -1,10 +1,10 @@
 import React from 'react';
-import { sources } from './api_decorator';
+import { users } from './api_decorator';
 
-const SourceDetail = sources( props => {
-  const source = props.sources.$list().last();
-  if ( source ) {
-    const detail = props.sources.$get( source.get( '_id' ) );
+const UserDetail = users( props => {
+  const user = props.users.$list().first();
+  if ( user ) {
+    const detail = props.users.$get( user.get( 'id' ) );
     return (
       <div style={{ width: '48%' }}>
         {
@@ -17,8 +17,8 @@ const SourceDetail = sources( props => {
       </div>
     );
   } else {
-    return <div>Waiting for sources...</div>;
+    return <div>Waiting for users...</div>;
   }
 });
 
-export default SourceDetail;
+export default UserDetail;

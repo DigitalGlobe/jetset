@@ -15,12 +15,12 @@ export default function ApiExampleRouter() {
         <div>
           <Gist gist="glortho/2baa82c84bdbea96a981f5d7fca56381" />
           <div>
-            <h1>Sources 1</h1>
+            <h1>Users</h1>
             <ApiCollectionsExample />
           </div>
           <hr/>
           <div>
-            <h1>Sources 2</h1>
+            <h1>Users Also</h1>
             <ApiCollectionsExample />
           </div>
           <hr/>
@@ -29,7 +29,7 @@ export default function ApiExampleRouter() {
       <Route path="/api/model" render={() => (
         <div>
           <Gist gist="glortho/94876497b4b08caed0333895c30f4c8a" />
-          <h1>Source Detail</h1>
+          <h1>User Detail</h1>
           <ApiModelExample />
         </div>
       )} />
@@ -50,7 +50,7 @@ export default function ApiExampleRouter() {
       <Route path="/api/decorator" render={() => (
         <div>
           <Gist gist="glortho/81a14b0fef58e01f799bb35d62f28f42"/>
-          <h1>Sources Decorator</h1>
+          <h1>Users Decorator</h1>
           <ApiDecoratorExample />
         </div>
       )} />
