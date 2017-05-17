@@ -5,7 +5,12 @@
 - Add { refetch: false } as option for $create to avoid a full refetch unless
   actually desired
 - Fix removeFromCollection regression
-- Add nuclear resetState() option
+- Add nuclear resetState() option like so:
+
+```
+import store from 'jetset/store';
+store.clearState();
+```
 
 ### 0.3.1
 

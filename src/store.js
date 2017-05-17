@@ -156,8 +156,9 @@ const store = {
     if ( initialState ) setState( path, initialState );
     return onChange;
   },
-  nextState: undo.next,
-  prevState: undo.prev,
+  clearState: () => store.setState( Map({}) ),
+  nextState:  undo.next,
+  prevState:  undo.prev,
   resetState: undo.reset
 };
 
