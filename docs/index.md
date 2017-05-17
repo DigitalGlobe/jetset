@@ -129,6 +129,11 @@ jetset fn|returns|description
 **$error**||Error response for a given request
 `resource.$list().$error`|Error \| void|Check to see if underlying collection fetch resulted in an error
 `resource.$get(id).$error`|Error \| void|Check to see if underlying model fetch resulted in an error
+
+### Cache management helpers
+
+jetset fn|returns|description
+---------|-------|-----------
 **$clear()**||Clear caches
 `resource.$clear()`|void|Clear the cache for `$list()`
 `resource.$get( id ).$clear()`|void|Clear the cache for `$get()`
@@ -138,6 +143,13 @@ jetset fn|returns|description
 `resource.$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
 `resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
 `resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
+
+:boom: Nuclear option to clear 100% of jetset's cache:
+
+```
+import store from 'jetset/store'
+store.clearState()
+```
 
 ## Optimism and pessimism
 
