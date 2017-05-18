@@ -2,6 +2,7 @@
 
 - [Props](#props)
   - [Custom routes, methods, etc.](#custom-routes-methods-etc)
+  - [Custom fetchers/methods](#custom-fetchers)
 - [Reference](#reference)
   - [Helper methods and properties](#helper-methods-and-properties)
   - [Cache management helpers](#cache-management-helpers)
@@ -120,6 +121,22 @@ Note that `usesCache` causes the method to return data instead of a promise. If
 you omit this key or set it to false, no cache will be used and it will return
 a promise instead.
 
+##### Type reference for custom fetchers
+
+```javascript
+type CustomFetcherConfig = {
+  route:      string, // absolute path, not relative to default route
+  method:     'get' | 'post' | 'put' | 'delete', // defaults to get
+  body?:      Object, // params to post or put
+  usesCache?: boolean
+}
+
+const routes = {
+  [key: string]: (args: any) => CustomFetcherConfig
+}
+```
+
+
 ## Reference
 
 Assuming this as a starting point:
@@ -141,7 +158,7 @@ PUT|/resource/id|`resource.$list().get(index).$update({foo: 'bar'})`|Promise<Obj
 DELETE|/resource/id|`resource.$get( id ).$delete()`|Promise<Object>|results are cached
 DELETE|/resource/id|`resource.$list().get(index).$delete()`|Promise<Object>|results are cached
 GET|/resource/some/route|`resource.api.get('/some/route')`|Promise<any>|no
-GET|/resource/some/route|`resource.api.$get('/some/route')`|[List](http://facebook.github.io/immutable-js/docs/#/List)|[Map](http://facebook.github.io/immutable-js/docs/#/Map)|yes
+GET|/resource/some/route|`resource.api.$get('/some/route')`|[List](http://facebook.github.io/immutable-js/docs/#/List) \| [Map](http://facebook.github.io/immutable-js/docs/#/Map)|yes
 POST|/resource/some/route|`resource.api.post('/some/route')`|Promise<any>|no
 PUT|/resource/some/route|`resource.api.put('/some/route')`|Promise<any>|no
 DELETE|/resource/some/route|`resource.api.delete('/some/route')`|Promise<any>|no
