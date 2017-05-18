@@ -221,11 +221,11 @@ export default function createActions({ url, ...props }) {
         return model;
       };
 
-      const $list = params => {
+      const $list = ( params, options = {} ) => {
         const { route } = getRouteConfig( 'list', params ); 
         const path = route + ( params ? `?${getQueryString( params )}` : '' );
         const collection = apiStore.getCollection( path );
-        if ( !collection ) {
+        if ( options.reset || !collection ) {
           fetchAll( path );
           return getPlaceholder( path );
         } else {
@@ -243,9 +243,9 @@ export default function createActions({ url, ...props }) {
 
       main.$list = $list;
 
-      main.$get = id => {
+      main.$get = ( id, options = {} ) => {
         const model = apiStore.getModel( id );
-        if ( !model || !model.get( '_fetched' ) ) {
+        if ( options.reset || !model || !model.get( '_fetched' ) ) {
           const path = routes.get( id );
           fetchOne( id );
           const placeholder = getPlaceholder( path, Map );

@@ -165,8 +165,9 @@ jetset fn|returns|description
 `resource.$search.results({...}).$clear()`|void|Clear the cache for `$search.results()`
 `resource.$clearAll()`|void|Clear all cache for the given resource
 **$reset()**||Reset cache with data from server
-`resource.$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
+`resource.$list().$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
 `resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
+`resource.$get( id, { reset: true } )`|[Map](http://facebook.github.io/immutable-js/docs/#/List) (empty placeholder)|Force fresh fetch of data and rehydrate cache
 `resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
 
 #### :boom: Nuclear option to clear 100% of jetset's cache:

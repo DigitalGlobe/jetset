@@ -1,5 +1,19 @@
 # Changelog
 
+### 0.4.1
+
+- Allow for passing `{ reset: true }` as an option into `$get()` and `$list()`
+  as an easy way to guarantee a reset of cache without testing sizes etc. For
+  example:
+
+```javascript
+// force data to be refetched every time this component mounts
+componentWillMount() {
+  this.props.users.$get( 1, { reset: true } )
+}
+```
+
+
 ### 0.4.0
 
 - Add option for specifying custom methods as well as routes. For example:
