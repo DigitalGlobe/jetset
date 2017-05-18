@@ -106,9 +106,11 @@ const routes = {
 }
 
 <Api ... users={{ routes }}>
+```
 
-// then...
+Then...
 
+```jsx
 const userAlbums = this.props.users.$getUserAlbums( 1 )
 
 userAlbums.map( album => <div>{ album.get( 'title' ) }</div> )
