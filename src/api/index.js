@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import logger from '../lib/log';
-import createActions from './api';
+import createActions from './main';
 import store from '../store';
 
 export default class Api extends React.Component {
