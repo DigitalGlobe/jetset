@@ -1,5 +1,24 @@
 # Changelog
 
+### 0.4.0
+
+- Add option for specifying custom methods as well as routes. For example:
+
+```jsx
+const routes = {
+  default: '/users',
+  getUserAlbums: id => ({ method: 'get', route: `/users/${id}/albums`, usesCache: true })
+}
+
+<Api ... users={{ routes }}>
+
+// then...
+
+const userAlbums = this.props.users.$getUserAlbums( 1 )
+
+userAlbums.map( album => <div>{ album.get( 'title' ) }</div> )
+```
+
 ### 0.3.4
 
 - When subscribing, use replace instead of merge on arrays since mergeDeep

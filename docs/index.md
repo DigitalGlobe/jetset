@@ -1,7 +1,7 @@
 # Documentation
 
 - [Props](#props)
-  - [Overriding routes, methods, etc.](#overriding-default-routes-methods-etc)
+  - [Custom routes, methods, etc.](#custom-routes-methods-etc)
 - [Reference](#reference)
   - [Helper methods and properties](#helper-methods-and-properties)
   - [Cache management helpers](#cache-management-helpers)
@@ -50,7 +50,7 @@ For example:
 >
 ```
 
-### Overriding default routes, methods, etc.
+### Custom routes, methods, etc.
 
 When you pass in a string as the value of your resource, all routes are inferred according to REST standards.
 
@@ -93,6 +93,30 @@ const myResourceConfig = {
 ```
 
 Note that these keys match their equivalent `$get`, `$search`, `$update`, etc. methods.
+
+#### Custom fetchers
+
+Sometimes you may want to add a custom method to your resource on top of the
+standard REST calls. For example:
+
+```jsx
+const routes = {
+  default: '/users',
+  getUserAlbums: id => ({ method: 'get', route: `/users/${id}/albums`, usesCache: true })
+}
+
+<Api ... users={{ routes }}>
+
+// then...
+
+const userAlbums = this.props.users.$getUserAlbums( 1 )
+
+userAlbums.map( album => <div>{ album.get( 'title' ) }</div> )
+```
+
+Note that `usesCache` causes the method to return data instead of a promise. If
+you omit this key or set it to false, no cache will be used and it will return
+a promise instead.
 
 ## Reference
 
