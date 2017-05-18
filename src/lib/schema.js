@@ -32,17 +32,18 @@ export function getIdFromModel( model ) {
     : model._id || model.id || model.ID;
 }
 
-export function isSchema( maybeSchema ) {
+export const isSchema = props => key => {
+  const maybeSchema = props[ key ];
   return (
     maybeSchema && ( 
       typeof maybeSchema === 'object' && 
-      ( !!maybeSchema.$schema || !!maybeSchema.schema )
+      ( !!maybeSchema.$schema || !!maybeSchema.schema || !!maybeSchema.routes )
     ) || (
       typeof maybeSchema === 'string' &&
       maybeSchema.indexOf( '/' ) === 0
     )
   );
-}
+};
 
 export function getSchema( maybeSchema ) {
   return (
@@ -57,5 +58,4 @@ export function getSchema( maybeSchema ) {
       ? { title: maybeSchema.slice( 1 ) }
       : null
   );
-
 }
