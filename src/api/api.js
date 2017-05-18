@@ -95,7 +95,8 @@ export default function createActions({ url, ...props }) {
         return typeof config === 'string'
           ? { method: methodDict[ methodKey ], route: config, getData }
           : { 
-            method:  ( config.method || methodDict[ methodKey ] ).toLowerCase(),
+            ...config,
+            method:  ( config.method || methodDict[ methodKey ] || 'get' ).toLowerCase(),
             route:   config.route || routes.default || resourcePath,
             getData: config.getData || getData
           };
@@ -346,6 +347,42 @@ export default function createActions({ url, ...props }) {
           }
         }
       }), {});
+
+
+      // add custom methods specified by user in routes config
+
+      const fetchCustom = config =>
+        api[ config.method ]( config.route, config.body )
+          .then( response => {
+            const data = config.getData( response );
+            apiStore.setRequestsData( config.route, data );
+            return response;
+          });
+
+      Object.keys( routes ).forEach( key => {
+        if ( !methodDict[ key ] ) {
+          main[ `\$${key}` ] = ( ...args ) => {
+            const config = getRouteConfig( key, ...args );
+            if ( config.usesCache ) {
+              const cache  = apiStore.getRequestsData( config.route );
+              if ( cache ) {
+                cache.$clear = () => apiStore.setRequestsData( config.route, null );
+                cache.$reset = () => {
+                  cache.$clear();
+                  fetchCustom( config );
+                };
+                return cache;
+              } else {
+                if ( shouldFetch( config.route ) ) fetchCustom( config );
+                return getPlaceholder( config.route );
+              }
+            } else { 
+              return api[ config.method ]( config.route, config.body )
+                .then( response => config.getData( response ) );
+            }
+          };
+        }
+      });
 
       main._schema       = schema;
       main._resourceType = resourceType;
