@@ -68,7 +68,7 @@ function subscribe({ local, paths }) {
 
       methods = () => {
         const keyState = [ ...nPaths.keys() ].reduce(( memo, path ) => {
-          const currentState = this.state[path];
+          const currentState = { ...this.state }[path];
           return {
             ...memo,
             [path]: {
