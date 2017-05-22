@@ -1,5 +1,14 @@
 # Changelog
 
+### 0.4.3
+
+- Remove old api.js build artifact that was causing problems when requiring
+  jetset/api
+
+### 0.4.2
+
+- Fix custom fetcher regression
+
 ### 0.4.1
 
 - Allow for passing `{ reset: true }` as an option into `$get()` and `$list()`
