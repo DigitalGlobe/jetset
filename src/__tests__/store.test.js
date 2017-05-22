@@ -2,9 +2,9 @@ import { fromJS, Map } from 'immutable';
 
 const { managesState } = require( '../store' );
 
-describe( 'store / managesState', () => {
+describe( 'store / state management', () => {
 
-  describe( 'setState', () => {
+  describe( 'setting', () => {
 
     test( 'sets flat string state', () => {
       const { setState } = managesState();
@@ -62,7 +62,7 @@ describe( 'store / managesState', () => {
     });
   });
 
-  describe( 'getState', () => {
+  describe( 'getting', () => {
 
     test( 'gets flat state', () => {
       const { getState, setState } = managesState();
@@ -91,6 +91,23 @@ describe( 'store / managesState', () => {
       setState( key, val );
       const expected = Map({[key]: val});
       const actual = getState();
+      expect( expected ).toEqual( actual );
+    });
+  });
+
+  describe( 'resetting', () => {
+    test( 'does not flag reset val if undo is false', () => {
+      const { resetState } = managesState();
+      const val = Map();
+      const expected = Map({ _reset: false });
+      const actual = resetState( val, false );
+      expect( expected ).toEqual( actual );
+    });
+    test( 'flags reset val if undo is true', () => {
+      const { resetState } = managesState();
+      const val = Map();
+      const expected = Map({ _reset: true });
+      const actual = resetState( val );
       expect( expected ).toEqual( actual );
     });
   });
