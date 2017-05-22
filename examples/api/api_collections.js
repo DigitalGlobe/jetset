@@ -8,6 +8,7 @@ function create( users ) {
 }
 
 function Users({ users }) {
+  console.log(users.$getUserAlbums( 1 ) );
   return (
     <div>
       { users.$list().$isPending ?
@@ -33,8 +34,12 @@ function Users({ users }) {
 }
 
 export default function ApiCollectionsExample() {
+  const routes = {
+    default: '/users',
+    getUserAlbums: id => ({ method: 'get', route: `/users/${id}/albums`, usesCache: true })
+  };
   return (
-    <Api url="https://jsonplaceholder.typicode.com" users="/users">
+    <Api url="https://jsonplaceholder.typicode.com" users={{ routes }}>
       <Users />
     </Api>
   );

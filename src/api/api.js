@@ -46,7 +46,7 @@ function configureRoutes( key, rootPath, options = {} ) {
     get:    id => ({ method: 'get', route: `${rootPath}/${id}` }),
     update: id => ({ method: 'put', route: `${rootPath}/${id}` }),
     delete: id => ({ method: 'delete', route: `${rootPath}/${id}` })
-  }, options );
+  }, options.routes || {});
 
   logRoutes( routes, rootPath, key );
 
