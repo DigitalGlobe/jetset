@@ -144,4 +144,4 @@ See the [docs](docs/index.md) for complete documentation/reference.
 
 1. Go to http://localhost:8080 (or whatever port you can see assigned in the console)
 
-Source code is available in src/examples.
+Source code is available in /examples.
