@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.4
+
+- Clone root state object in subscribe's get() to ensure comparability
+
 ### 0.4.3
 
 - Remove old api.js build artifact that was causing problems when requiring
