@@ -57,5 +57,3 @@ export default function configureRoutes( key, rootPath, options = {} ) {
     }
   };
 }
-
-

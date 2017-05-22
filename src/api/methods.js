@@ -85,7 +85,8 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
           return response;
         }),
 
-    shouldFetch
+    shouldFetch,
+    ...api
   };
 
   return methods;

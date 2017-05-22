@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import logger from '../lib/log';
+import logger, { formatBranchArgs } from '../lib/log';
 import createActions from './main';
 import store from '../store';
 
 export default class Api extends React.Component {
 
   static propTypes = {
-    url: PropTypes.string.isRequired,
+    url:           PropTypes.string.isRequired,
     // see https://github.com/github/fetch#sending-cookies for reference
-    credentials: PropTypes.oneOf( [ 'same-origin', 'include' ] ),
-    token: PropTypes.string
+    credentials:   PropTypes.oneOf( [ 'same-origin', 'include' ] ),
+    token:         PropTypes.string,
+    auth:          PropTypes.string,
+    authorization: PropTypes.string
   }
 
   subscriptions = []
@@ -23,13 +25,12 @@ export default class Api extends React.Component {
   }
 
   componentWillMount() {
-    this.subscriptions = Object.keys( this.api ).map( key => {
-      const resource = this.api[ key ]._resourceType;
-      return store.subscribeTo([ '$api', this.props.url, resource ], state => {
-        logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${this.props.url + ' ‣ ' + resource}`, 'color: #5B4532' );
+    this.subscriptions = Object.keys( this.api ).map( key =>
+      store.subscribeTo( this.api[ key ].subscribePath, state => {
+        logger(`\uD83C\uDF00 <Api> is re-rendering based on state changes on branch: %c${formatBranchArgs( this.api[ key ].subscribePath )}`, 'color: #5B4532' );
         this.setState({ cache: state });
-      });
-    });
+      })
+    );
   }
 
   componentWillUnmount() {

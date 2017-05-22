@@ -175,7 +175,9 @@ export default function initApiStore( url, schema ) {
     clearAll: () => {
       methods.setRequests( Map() );
       methods.setModels( Map() );
-    }
+    },
+
+    subscribePath: rootPath
   };
 
   return methods;
