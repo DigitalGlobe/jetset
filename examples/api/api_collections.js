@@ -1,5 +1,5 @@
 import React from 'react';
-import Api from '../../src/index';
+import Api from '../../src/api';
 
 function create( users ) {
   users
