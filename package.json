@@ -7,6 +7,17 @@
     "type": "git",
     "url": "https://github.com/DigitalGlobe/jetset"
   },
+  "main": "umd/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "babel --ignore __tests__ -d . src",
+    "build:es": "BABEL_ENV=es babel --ignore __tests__ -d ./es src",
+    "build:umd": "BABEL_ENV=umd babel  --ignore __tests -d ./umd src",
+    "prepublish": "npm run build & npm run build:umd & npm run build:es",
+    "test": "NODE_ENV=test jest"
+  },
   "author": {
     "name": "Jed Verity",
     "url": "https://github.com/glortho"
@@ -46,13 +57,6 @@
     "immutable state tree",
     "subscribe"
   ],
-  "main": "index.js",
-  "scripts": {
-    "start": "webpack-dev-server",
-    "build": "babel --ignore __tests__ -d . src",
-    "prepublish": "npm run build",
-    "test": "NODE_ENV=test jest"
-  },
   "dependencies": {
     "immutable": "^3.8.1",
     "immutablediff": "glortho/immutable-js-diff",

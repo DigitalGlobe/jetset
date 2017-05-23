@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.4.5
+
+- Add es + umd builds.
+- Add store tests.
+
 ### 0.4.4
 
 - Clone root state object in subscribe's get() to ensure comparability

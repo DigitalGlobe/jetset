@@ -2,7 +2,17 @@
   "presets": ["es2015", "react", "stage-1" ],
   "plugins": [
     "transform-decorators-legacy"
-  ]
+  ],
+  "env": {
+    "es": {
+     "presets": [["es2015", {"modules": false}], "react", "stage-1"],
+      "plugins": ["transform-decorators-legacy"]
+    },
+    "umd": {
+      "presets": [["es2015", {"modules": "umd"}], "react", "stage-1"],
+      "plugins": ["transform-decorators-legacy"]
+    }
+  }
 }
 
 
