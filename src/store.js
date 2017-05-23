@@ -52,7 +52,7 @@ export function offersSubscription() {
   };
 }
 
-export function canUndo({ apply = () => {} }) {
+export function canUndo({ apply = () => {} } = {}) {
 
   const log = ( ...args ) => logger( '\u23f1 timetravel: ', ...args );
 
@@ -64,9 +64,9 @@ export function canUndo({ apply = () => {} }) {
       const current = undo.get( idx );
       const next = undo.get( idxNext );
       const changes = diff( current, next ).toJS();
-      if ( !ignore || !changes.every( item => item.path.indexOf( `/${ignore}` ) === 0 ) ) {
+      idx = idxNext;
+      if ( !ignore || !changes.every( item => item.path.indexOf( ` ‣ ${ignore}` ) === 0 ) ) {
         log( `diff:`, changes );
-        idx = idxNext;
         apply( next );
         return true;
       } else {
@@ -74,12 +74,12 @@ export function canUndo({ apply = () => {} }) {
         return false;
       }
     },
-    prev({ ignore }) {
+    prev({ ignore } = {}) {
       const idxNext = idx - 1;
       if ( idxNext >= -(undo.size) ) {
         const display = idx * -1;
         log(`stepping back to ${display} state(s) ago` );
-        if ( !methods.apply( idxNext ) ) {
+        if ( !methods.apply( idxNext, ignore ) ) {
           methods.prev({ ignore });
         }
       } else {
@@ -88,11 +88,11 @@ export function canUndo({ apply = () => {} }) {
         log(`there are no earlier states than this one`);
       }
     },
-    next({ ignore }) {
+    next({ ignore } = {}) {
       if ( idx < -1 ) {
         const idxNext = idx + 1;
         log(`stepping forward to ${idx === -2 ? 'current state' : (idx + 2) * -1 + ' state(s) ago' }`);
-        if ( !methods.apply( idxNext ) ) {
+        if ( !methods.apply( idxNext, ignore ) ) {
           methods.next({ ignore });
         }
       } else {
@@ -108,6 +108,7 @@ export function canUndo({ apply = () => {} }) {
     },
     save( state ) {
       undo = undo.push( state );
+      return undo;
     },
     isDirty() {
       return idx !== -1;

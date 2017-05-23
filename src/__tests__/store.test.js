@@ -1,8 +1,10 @@
-import { fromJS, Map } from 'immutable';
+import { fromJS, List, Map } from 'immutable';
 
-const { managesState } = require( '../store' );
+const store = require( '../store' );
 
 describe( 'store / state management', () => {
+
+  const { managesState } = store;
 
   describe( 'setting', () => {
 
@@ -110,5 +112,114 @@ describe( 'store / state management', () => {
       const actual = resetState( val );
       expect( expected ).toEqual( actual );
     });
+  });
+});
+
+describe( 'store / subscriptions', () => {
+
+  const { offersSubscription } = store;
+
+  test( 'adds subscriptions', () => {
+    const { subscribe, invoke } = offersSubscription();
+    const callback = jest.fn();
+    const arg = 'foo';
+    subscribe( callback );
+    invoke( arg );
+    expect( callback ).toHaveBeenCalledWith( arg );
+  });
+
+  test( 'unsubscribes', () => {
+    const { subscribe, invoke, unsubscribe } = offersSubscription();
+    const callback = jest.fn();
+    subscribe( callback );
+    invoke();
+    unsubscribe( callback );
+    invoke();
+    expect( callback ).toHaveBeenCalledTimes( 1 );
+  });
+});
+
+describe( 'store / undo', () => {
+
+  const { canUndo } = store;
+
+  test( 'saves undo state', () => {
+    const { save } = canUndo();
+    const state = 'foo';
+    const expected = List([ 'foo' ]);
+    const actual = save( state );
+    expect( expected ).toEqual( actual );
+  });
+
+  test( 'applies undo state', () => {
+    const applyMock = jest.fn();
+    const { apply, save } = canUndo({ apply: applyMock });
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ bar: 'bar' });
+    save( state1 );
+    save( state2 );
+    apply( -1 );
+    expect( applyMock ).toHaveBeenCalledWith( state2 );
+    apply( -2 );
+    expect( applyMock ).toHaveBeenLastCalledWith( state1 );
+  });
+
+  test( 'skips state when ignore path is specified', () => {
+    const applyMock = jest.fn();
+    const { apply, save } = canUndo({ apply: applyMock });
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ foo: 'bar' });
+    save( state1 );
+    save( state2 );
+    const expected = false;
+    const actual = apply( -2, 'foo' );
+    expect( expected ).toBe( actual );
+    expect( applyMock ).not.toHaveBeenCalled();
+  });
+
+  test( 'does not skip state when ignore path does not match', () => {
+    const applyMock = jest.fn();
+    const { apply, save } = canUndo({ apply: applyMock });
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ foo: 'baz' });
+    save( state1 );
+    save( state2 );
+    const expected = true;
+    const actual = apply( -2, 'bar' );
+    expect( expected ).toBe( actual );
+  });
+
+  test( 'applies previous state when exists', () => {
+    const apply = jest.fn();
+    const { prev, save } = canUndo({ apply });
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ bar: 'bar' });
+    save( state1 );
+    save( state2 );
+    prev();
+    expect( apply ).toHaveBeenCalledWith( state1 );
+  });
+
+  test( 'applies empty state when no previous state exists', () => {
+    const apply = jest.fn();
+    const { prev, save } = canUndo({ apply });
+    const state1 = Map({ foo: 'foo' });
+    save( state1 );
+    prev();
+    expect( apply ).toHaveBeenCalledWith( Map({}) );
+  });
+
+  test( 'run recursively when ignore path matches', () => {
+    const apply = jest.fn();
+    const undo = canUndo({ apply });
+    const spy = jest.spyOn( undo, 'apply' );
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ foo: 'bar' });
+    undo.save( state1 );
+    undo.save( state2 );
+    undo.prev({ ignore: 'foo' });
+    expect( spy ).toHaveBeenCalledTimes( 1 );
+    expect( apply ).toHaveBeenCalledTimes( 1 );
+    expect( apply ).toHaveBeenCalledWith( Map({}) );
   });
 });

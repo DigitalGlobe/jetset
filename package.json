@@ -51,7 +51,7 @@
     "start": "webpack-dev-server",
     "build": "babel --ignore __tests__ -d . src",
     "prepublish": "npm run build",
-    "test": "jest"
+    "test": "NODE_ENV=test jest"
   },
   "dependencies": {
     "immutable": "^3.8.1",
@@ -72,7 +72,7 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-react": "^6.10.3",
-    "jest": "^19.0.2",
+    "jest": "^20.0.3",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
