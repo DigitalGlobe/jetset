@@ -1,7 +1,7 @@
 import { fromJS, Map, List } from 'immutable';
 
 import { getIdFromModel } from '../lib/schema';
-import store from '../store';
+import stateTree from '../store';
 
 /* basic state tree layout
 * {
@@ -27,7 +27,7 @@ import store from '../store';
 * }
 */
 
-export default function initApiStore( url, schema ) {
+export default function initApiStore( url, schema, store = stateTree ) {
 
   const resourceType = schema.title;
   const rootPath = [ '$api', url, resourceType ];
@@ -95,7 +95,7 @@ export default function initApiStore( url, schema ) {
       const undo = [];
       const idStr = String( id );
       methods.setState(
-        methods.getState().withMutations( map => {
+        ( methods.getState() || Map() ).withMutations( map => {
           const model = methods.getModel( idStr );
           if ( model ) {
             map.update( 'models', ( models = Map() ) => models.delete( idStr ) );
@@ -119,7 +119,7 @@ export default function initApiStore( url, schema ) {
 
     // collections (lists hydrated with models)
 
-    getCollection: path => {
+    getCollection: ( path = `/${resourceType}` ) => {
       const collection = methods.getRequestsData( path );
       if ( collection ) {
         const models = methods.getModels();
@@ -135,7 +135,7 @@ export default function initApiStore( url, schema ) {
 
     setCollection: ( data = List(), path = `/${resourceType}` ) => {
       methods.setState(
-        methods.getState().withMutations( map => {
+        ( methods.getState() || Map() ).withMutations( map => {
           const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
           map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
           map.setIn( methods.requestsPath([ path, 'data' ]), List( Object.keys( dict ) ) );
@@ -147,7 +147,7 @@ export default function initApiStore( url, schema ) {
     updateCollection: ( model, path = `/${resourceType}` ) => {
       const id = String( getIdFromModel( model ) );
       methods.setState(
-        methods.getState().withMutations( map => {
+        ( methods.getState() || Map() ).withMutations( map => {
           map.update( 'models', ( models = Map() ) => models.mergeDeep( fromJS({ [id]: model }) ) );
           map.updateIn( methods.requestsPath([ path, 'data' ]), ( data = List() ) => data.push( id ));
         })
@@ -158,7 +158,7 @@ export default function initApiStore( url, schema ) {
       methods.setRequestsData( path, null ),
 
     removeFromCollections: ( map, id ) =>
-      [ ...map.getIn( methods.requestsPath() ).entries() ]
+      [ ...( map.getIn( methods.requestsPath() ) || Map() ).entries() ]
         .reduce(( undo, [path, request] ) => {
           const collection = request.get( 'data' );
           if ( List.isList( collection ) ) {
