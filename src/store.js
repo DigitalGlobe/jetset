@@ -17,12 +17,16 @@ export function managesState() {
       );
     },
     setState( path, val ) {
-      const immutableVal = fromJS( val );
-      _state = (
-        Array.isArray( path ) ?
-          _state.setIn( path, immutableVal ) :
-        _state.set( path, immutableVal )
-      );
+      if ( val ) {
+        const immutableVal = fromJS( val );
+        _state = (
+          Array.isArray( path ) ?
+            _state.setIn( path, immutableVal ) :
+          _state.set( path, immutableVal )
+        );
+      } else {
+        _state = path;
+      }
       return _state;
     },
     resetState( val, isUndo = true ) {
@@ -118,50 +122,59 @@ export function canUndo({ apply = () => {} } = {}) {
   return methods;
 }
 
-const { invoke, subscribe, ...subscriptionMethods } = offersSubscription();
-const { setState, resetState, ...stateMethods } = managesState();
+export function initStore({ 
+  subscriptionInit = offersSubscription,
+  stateInit        = managesState,
+  undoInit         = canUndo
+} = {}) {
 
-// TODO: clarify options
-const undo = canUndo({ apply: ( state, options = {} ) => invoke( resetState( state ), !options.reset ) } );
+  const { invoke, subscribe, ...subscriptionMethods } = subscriptionInit();
+  const { setState, resetState, ...stateMethods } = stateInit();
 
-const setStateEmoji = '\uD83C\uDFDB';
+  // TODO: clarify options
+  const undo = undoInit({ apply: ( state, options = {} ) => invoke( resetState( state ), !options.reset ) } );
 
-const store = {
-  ...subscriptionMethods,
-  ...stateMethods,
-  setState( ...args ) {
-    if ( undo.isDirty() ) undo.reset();
-    const statePrev = stateMethods.getState();
-    const stateNext = setState( ...args );
-    undo.save( stateNext );
-    logger( `${setStateEmoji} setting state: `, diff( statePrev, stateNext ).toJS() );
-    // TODO: bump into next event loop to avoid possible collisions?
-    invoke( stateNext );
-  },
-  setStateQuiet( ...args ) {
-    const statePrev = stateMethods.getState();
-    const stateNext = setState( ...args );
-    logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateNext ).toJS() );
-  },
-  subscribeAll: subscribe,
-  subscribeTo( path, callback, initialState ) {
-    let cache = null;
-    const onChange = state => {
-      const nextState = state.getIn( [].concat( path ) );
-      if ( nextState !== cache ) {
-        callback( nextState );
-        cache = nextState;
-      }
-    };
-    subscribe( onChange );
-    if ( initialState ) setState( path, initialState );
-    return onChange;
-  },
-  clearState: () => store.setState( Map({}) ),
-  nextState:  undo.next,
-  prevState:  undo.prev,
-  resetState: undo.reset
-};
+  const setStateEmoji = '\uD83C\uDFDB';
 
-export default store;
+  const store = {
+    ...subscriptionMethods,
+    ...stateMethods,
+    setState( ...args ) {
+      if ( undo.isDirty() ) undo.reset();
+      const statePrev = stateMethods.getState();
+      const stateNext = setState( ...args );
+      undo.save( stateNext );
+      logger( `${setStateEmoji} setting state: `, diff( statePrev, stateNext ).toJS() );
+      // TODO: bump into next event loop to avoid possible collisions?
+      invoke( stateNext );
+    },
+    setStateQuiet( ...args ) {
+      const statePrev = stateMethods.getState();
+      const stateNext = setState( ...args );
+      logger( `%c${setStateEmoji} setting state quiet (no re-rendering):`, `color: #999`, diff( statePrev, stateNext ).toJS() );
+      return stateNext;
+    },
+    subscribeAll: subscribe,
+    subscribeTo( path, callback, initialState ) {
+      let cache = null;
+      const onChange = state => {
+        const nextState = state.getIn( [].concat( path ) );
+        if ( nextState !== cache ) {
+          callback( nextState );
+          cache = nextState;
+        }
+      };
+      subscribe( onChange );
+      if ( initialState ) setState( path, initialState );
+      return onChange;
+    },
+    clearState: () => store.setState( Map({}) ),
+    nextState:  undo.next,
+    prevState:  undo.prev,
+    resetState: undo.reset
+  };
 
+  return store;
+}
+
+export default initStore();

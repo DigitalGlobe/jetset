@@ -62,6 +62,14 @@ describe( 'store / state management', () => {
       const actual = setState( key, val );
       expect( expected ).toEqual( actual );
     });
+
+    test( 'resets state if no path + val is passed in', () => {
+      const { setState } = managesState();
+      const val = 'foo';
+      const expected = val;
+      const actual = setState( val );
+      expect( expected ).toEqual( actual );
+    });
   });
 
   describe( 'getting', () => {
@@ -209,7 +217,7 @@ describe( 'store / undo', () => {
     expect( apply ).toHaveBeenCalledWith( Map({}) );
   });
 
-  test( 'run recursively when ignore path matches', () => {
+  test( 'runs prev recursively when ignore path matches', () => {
     const apply = jest.fn();
     const undo = canUndo({ apply });
     const spy = jest.spyOn( undo, 'apply' );
@@ -221,5 +229,179 @@ describe( 'store / undo', () => {
     expect( spy ).toHaveBeenCalledTimes( 1 );
     expect( apply ).toHaveBeenCalledTimes( 1 );
     expect( apply ).toHaveBeenCalledWith( Map({}) );
+  });
+
+  test( 'does not apply next when already at most recent state', () => {
+    const apply = jest.fn();
+    const { next, save } = canUndo({ apply });
+    const state1 = Map({ foo: 'foo' });
+    save( state1 );
+    next();
+    expect( apply ).not.toHaveBeenCalled();
+  });
+
+  test( 'applies next state when it exists', () => {
+    const apply = jest.fn();
+    const { next, prev, save } = canUndo({ apply });
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ foo: 'bar' });
+    save( state1 );
+    save( state2 );
+    prev();
+    next();
+    expect( apply ).toHaveBeenCalledTimes( 2 );
+    expect( apply ).toHaveBeenLastCalledWith( state2 );
+  });
+
+  test( 'runs prev recursively when ignore path matches', () => {
+    const apply = jest.fn();
+    const undo = canUndo({ apply });
+    const spy = jest.spyOn( undo, 'apply' );
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ foo: 'bar' });
+    undo.save( state1 );
+    undo.save( state2 );
+    undo.prev();
+    undo.next({ ignore: 'foo' });
+    expect( spy ).toHaveBeenCalledTimes( 2 );
+    expect( apply ).toHaveBeenCalledTimes( 1 );
+    expect( apply ).toHaveBeenCalledWith( state1 );
+  });
+
+  test( 'does not reset when not dirty', () => {
+    const apply = jest.fn();
+    const { reset } = canUndo({ apply });
+    reset();
+    expect( apply ).not.toHaveBeenCalled();
+  });
+
+  test( 'resets when dirty', () => {
+    const apply = jest.fn();
+    const { reset, save, prev } = canUndo({ apply });
+    const state1 = Map({ foo: 'foo' });
+    const state2 = Map({ foo: 'bar' });
+    save( state1 );
+    save( state2 );
+    prev();
+    reset();
+    expect( apply ).toHaveBeenCalledTimes( 2 );
+    expect( apply ).toHaveBeenLastCalledWith( state2, { reset: true } );
+  });
+});
+
+describe( 'store / public', () => {
+  test( 'invokes subscriptions on state set', () => {
+    const invoke = jest.fn();
+    const subscriptionInit = () => ({ ...store.offersSubscription(), invoke });
+    const storeMethods = store.initStore({ subscriptionInit });
+    const key = 'foo';
+    const val = 'bar';
+    storeMethods.setState( key, val );
+    expect( invoke.mock.calls[0][0] ).toEqual( Map({ [key]: val }) );
+  });
+
+  test( 'saves undo on state set', () => {
+    const save = jest.fn();
+    const undoInit = () => ({ ...store.canUndo(), save });
+    const storeMethods = store.initStore({ undoInit });
+    const key = 'foo';
+    const val = 'bar';
+    storeMethods.setState( key, val );
+    expect( save.mock.calls[0][0] ).toEqual( Map({ [key]: val }) );
+  });
+
+  test( 'resets undo when dirty', () => {
+    const isDirty = jest.fn(() => true);
+    const reset = jest.fn();
+    const undoInit = () => ({ ...store.canUndo(), isDirty, reset });
+    const storeMethods = store.initStore({ undoInit });
+    const key = 'foo';
+    const val = 'bar';
+    storeMethods.setState( key, val );
+    expect( reset ).toHaveBeenCalledTimes( 1 );
+  });
+
+  test( 'can set state quietly without invoking subscriptions', () => {
+    const invoke = jest.fn();
+    const undoInit = () => ({ ...store.canUndo(), invoke });
+    const storeMethods = store.initStore({ undoInit });
+    const key = 'foo';
+    const val = 'bar';
+    const expected = Map({ [key]: val });
+    const actual = storeMethods.setStateQuiet( key, val );
+    expect( expected ).toEqual( actual );
+    expect( invoke ).not.toHaveBeenCalled();
+  });
+
+  test( 'subscribes to branches of state', () => {
+    const cb = jest.fn();
+    const storeMethods = store.initStore();
+    const key = 'foo';
+    const val = 'bar';
+    const val2 = 'baz';
+    storeMethods.subscribeTo( key, cb );
+    storeMethods.setState( key, val );
+    storeMethods.setState( key, val2 );
+    expect( cb ).toHaveBeenCalledTimes( 2 );
+    expect( cb ).toHaveBeenLastCalledWith( val2 );
+  });
+
+  test( 'does not invoke callback when subsequent sets are duplicates', () => {
+    const cb = jest.fn();
+    const storeMethods = store.initStore();
+    const key = 'foo';
+    const val = 'bar';
+    storeMethods.subscribeTo( key, cb );
+    storeMethods.setState( key, val );
+    storeMethods.setState( key, val );
+    expect( cb ).toHaveBeenCalledTimes( 1 );
+    expect( cb ).toHaveBeenCalledWith( val );
+  });
+
+  test( 'sets initial state when present', () => {
+    const cb = jest.fn();
+    const storeMethods = store.initStore();
+    const key = 'foo';
+    const initialState = { bar: 'bar' };
+    storeMethods.subscribeTo( key, cb, initialState );
+    const expected = Map( initialState );
+    const actual = storeMethods.getState( key );
+    expect( expected ).toEqual( actual );
+  });
+
+  test( 'subscribes to nested state', () => {
+    const cb = jest.fn();
+    const storeMethods = store.initStore();
+    const key = [ 'foo', 'bar' ];
+    const val = 'baz';
+    storeMethods.subscribeTo( key, cb );
+    storeMethods.setState( key, val );
+    expect( cb ).toHaveBeenCalledTimes( 1 );
+    expect( cb ).toHaveBeenCalledWith( val );
+  });
+
+  test( 'unsubscribes', () => {
+    const cb = jest.fn();
+    const storeMethods = store.initStore();
+    const key = 'foo';
+    const val = 'bar';
+    const val2 = 'baz';
+    const sub = storeMethods.subscribeTo( key, cb );
+    storeMethods.setState( key, val );
+    storeMethods.unsubscribe( sub );
+    storeMethods.setState( key, val2 );
+    expect( cb ).toHaveBeenCalledTimes( 1 );
+    expect( cb ).toHaveBeenCalledWith( val );
+  });
+
+  test( 'clears state', () => {
+    const storeMethods = store.initStore();
+    const key = 'foo';
+    const val = 'bar';
+    storeMethods.setState( key, val );
+    storeMethods.clearState();
+    const expected = Map({});
+    const actual = storeMethods.getState();
+    expect( expected ).toEqual( actual );
   });
 });
