@@ -162,11 +162,17 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
       : vals;
     const undoUpdate = apiStore.updateModel( id, placeholder );
     if ( undoUpdate.length ) {
-      return api.updateOne( id, vals ).catch( err => {
-        logError( `Failed to update ${id} with vals`, vals, err );
-        undoUpdate.forEach( undo => undo() );
-        return Promise.reject( err );
-      });
+      return api.updateOne( id, vals )
+        .then( response => {
+          const { getData } = getRouteConfig( 'update', id, vals );
+          apiStore.updateModel( id, getData( response ) );
+          return response;
+        })
+        .catch( err => {
+          logError( `Failed to update ${id} with vals`, vals, err );
+          undoUpdate.forEach( undo => undo() );
+          return Promise.reject( err );
+        });
     } else {
       return Promise.reject( new Error( 404 ) );
     }

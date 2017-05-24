@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.7
+
+- Fix getData for optimistic update and elsewhere
+
 ### 0.4.6
 
 - Fix getData regression for string configs and $search handler

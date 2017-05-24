@@ -56,12 +56,12 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
     },
 
     createOne: ( data, options = {} ) => {
-      const { route, method } = getRouteConfig( 'create', data );
+      const { route, method, getData } = getRouteConfig( 'create', data );
       return api[ method ]( route, data ).then( data => {
         if ( options.refetch !== false ) {
           methods.fetchAll();
         } else {
-          store.updateCollection( data );
+          store.updateCollection( getData( data ) );
         }
         return data;
       });
