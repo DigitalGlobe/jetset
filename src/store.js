@@ -17,7 +17,7 @@ export function managesState() {
       );
     },
     setState( path, val ) {
-      if ( val ) {
+      if ( typeof val !== 'undefined' ) {
         const immutableVal = fromJS( val );
         _state = (
           Array.isArray( path ) ?
