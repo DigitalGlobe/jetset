@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.6
+
+- Fix getData regression for string configs and $search handler
+
 ### 0.4.5
 
 - Add es + umd builds.
