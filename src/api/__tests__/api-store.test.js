@@ -1,4 +1,4 @@
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 
 describe( 'api store', () => {
 
@@ -183,15 +183,13 @@ describe( 'api store', () => {
     expect( store.getCollection( key ).get( 1 ) ).toEqual( fromJS( model ) );
   });
 
-  //test.only( 'clears collections', () => {
-    //const store = getStore();
-    //const list = fromJS([{ id: 'bar' }]);
-    //store.setCollection( list );
-    //store.setCollection( list, '/foo' );
-    //store.clearCollection();
-    //// TODO: why is this failing
-    ////expect( store.getCollection() )
-  //});
+  test( 'clears collections', () => {
+    const store = getStore();
+    const list = fromJS([{ id: 'bar' }]);
+    store.setCollection( list );
+    store.clearCollection();
+    expect( store.getCollection() ).toBeNull();
+  });
 
   test( 'populates models on set collection', () => {
     const store = getStore();
@@ -201,13 +199,28 @@ describe( 'api store', () => {
     expect( store.getModel( 'bar' ) ).toEqual( data.get(1) );
   });
 
-  test( 'removes model from collection on delete', () => {
+  test( 'removes model on delete', () => {
     const store = getStore();
     const data = fromJS([{ id: 'foo' }, { id: 'bar' }]);
     store.setCollection( data );
     store.deleteModel( 'foo' );
     expect( store.getModel( 'foo' ) ).toBeUndefined();
     expect( store.getModel( 'bar' ) ).toEqual( data.get(1) );
+  });
+
+  test( 'removes models from collections', () => {
+    const store = getStore();
+    const data = fromJS([{ id: 'foo' }, { id: 'bar' }]);
+    const path = '/foo';
+    store.setCollection( data );
+    store.setCollection( data, path);
+    store.setState( store.getState().withMutations( map => {
+      const expected = 2;
+      const actual = store.removeFromCollections( map, 'foo' ).length;
+      expect( expected ).toBe( actual );
+    }));
+    expect( store.getCollection().size ).toBe( 1 );
+    expect( store.getCollection( path ).size ).toBe( 1 );
   });
 
   test( 'updates model', () => {
@@ -232,5 +245,14 @@ describe( 'api store', () => {
       console.log( error ); // eslint-disable-line
       expect.hasAssertions();
     } 
+  });
+
+  test( 'clears all', () => {
+    const store = getStore();
+    const data = fromJS([{ id: 'foo' }, { id: 'bar' }]);
+    store.setCollection( data );
+    store.clearAll();
+    expect( store.getRequests() ).toEqual( Map() );
+    expect( store.getModels() ).toEqual( Map() );
   });
 });

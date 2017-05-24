@@ -155,7 +155,7 @@ export default function initApiStore( url, schema, store = stateTree ) {
     },
 
     clearCollection: ( path = `/${resourceType}` ) => 
-      methods.setRequestsData( path, null ),
+      methods.setRequests( Map(), path ),
 
     removeFromCollections: ( map, id ) =>
       [ ...( map.getIn( methods.requestsPath() ) || Map() ).entries() ]
