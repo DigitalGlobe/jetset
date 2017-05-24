@@ -59,7 +59,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   // SEARCH
 
   const $search = params => {
-    const { method, route } = getRouteConfig( 'search', params );
+    const { method, route, getData } = getRouteConfig( 'search', params );
     const fullRoute = method === 'get'
       ? route + `?${getQueryString( params )}`
       : route;
@@ -69,7 +69,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
         : api[ method ]( fullRoute, params );
 
       return promise.then( data => {
-        apiStore.setCollection( data, fullRoute );
+        apiStore.setCollection( getData( data ), fullRoute );
         return data;
       });
     }

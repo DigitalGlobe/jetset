@@ -47,7 +47,7 @@ export default function configureRoutes( key, rootPath, options = {} ) {
     getRouteConfig: ( methodKey, ...args ) => {
       const config = routes[ methodKey ]( ...args );
       return typeof config === 'string'
-        ? { method: methodDict[ methodKey ], route: config, getData: data => data }
+        ? { method: methodDict[ methodKey ], route: config, getData: options.getData || ( data => data ) }
         : {
           ...config,
           method:  ( config.method || methodDict[ methodKey ] || 'get' ).toLowerCase(),
