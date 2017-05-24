@@ -34,7 +34,7 @@ type ApiProps = {
   // If you need to process api responses before caching/returning (otherwise the
   // whole response is expected to be an array for collection routes or an object
   // for model routes)
-  getData(response: Array<Object> | Object) => Array<Object> | Object
+  getData?: (response: Array<Object> | Object) => Array<Object> | Object
 }
 ```
 
