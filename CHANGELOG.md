@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.10
+
+- Better pattern and documentation for api decorator
+
 ### 0.4.9
 
 - Better debugging name for api decorator 

@@ -6,6 +6,7 @@
 - [Reference](#reference)
   - [Helper methods and properties](#helper-methods-and-properties)
   - [Cache management helpers](#cache-management-helpers)
+  - [Api Decorator](#api-decorator)
 - [Optimism and pessimism](#optimism-and-pessimism)
 - [Devtools](#devtools)
 
@@ -194,6 +195,43 @@ jetset fn|returns|description
 ```javascript
 import store from 'jetset/store'
 store.clearState()
+```
+## Api decorator
+
+You can facilitate binding components to api resources with the api decorator.
+For example:
+
+```javascript
+import { apiDecorator } from 'jetset'
+
+const users = apiDecorator({ url: 'http://my.api.com', users: '/users' });
+
+@users
+class NeedsUsers extends React.Component {
+  someMethod() {
+    this.props.users.$list() // or whatever
+  }
+}
+```
+
+Or for a whole api: 
+
+```javascript
+import { apiDecorator } from 'jetset'
+
+const api = apiDecorator({
+  url: 'http://my.api.com',
+  users: '/users', 
+  posts: '/posts' 
+})
+
+@api
+class NeedsUsers extends React.Component {
+  someMethod() {
+    this.props.users.$list() // or whatever
+    this.props.posts.$list() // or whatever
+  }
+}
 ```
 
 ## Optimism and pessimism
