@@ -16,5 +16,3 @@ export default apiProps =>
       ? React.createElement( Api, apiProps, createChildren( children, maybeComponent ) )
       : ApiDecorator.bind( null, [].concat( children, maybeComponent || [] ) );
   };
-
-
