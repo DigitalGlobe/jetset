@@ -10,17 +10,11 @@ const createChildren = ( components, props, index = 0 ) => {
   }
 };
 
-export default function apiDecorator( apiProps ) {
-
-  function MyApi( children, props ) {
-    return React.createElement( Api, apiProps, createChildren( children, props ) );
-  }
-
-  return function ApiDecorator( children, maybeComponent, maybeContext ) {
+export default apiProps =>
+  function ApiDecorator( children, maybeComponent, maybeContext ) {
     return maybeContext
-      ? MyApi( children, maybeComponent )
+      ? React.createElement( Api, apiProps, createChildren( children, maybeComponent ) )
       : ApiDecorator.bind( null, [].concat( children, maybeComponent || [] ) );
   };
-}
 
 
