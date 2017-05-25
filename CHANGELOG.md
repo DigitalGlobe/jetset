@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.11
+
+- Allow for multiple children to be passed in as part of decorator rendering
+
 ### 0.4.10
 
 - Better pattern and documentation for api decorator
