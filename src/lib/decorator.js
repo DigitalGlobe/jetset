@@ -18,10 +18,10 @@ export default function apiDecorator( apiProps ) {
     return React.createElement( Api, apiProps, createChildren( children, props ) );
   }
 
-  return function MaybeDecorate( memo, maybeComponent, maybeContext ) {
+  return function ApiDecorator( memo, maybeComponent, maybeContext ) {
     return maybeContext
       ? MyApi( maybeComponent, memo )
-      : MaybeDecorate.bind( null, maybeComponent ? memo.concat( maybeComponent ) : [ memo ] );
+      : ApiDecorator.bind( null, maybeComponent ? memo.concat( maybeComponent ) : [ memo ] );
   };
 }
 

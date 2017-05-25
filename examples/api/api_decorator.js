@@ -6,7 +6,13 @@ export const users = decorator({
   users: '/users'
 });
 
+export const posts = decorator({
+  url:   'https://jsonplaceholder.typicode.com',
+  posts: '/posts'
+});
+
 @users
+@posts
 export default class UsersDecorated extends React.Component {
   render() {
     return (
