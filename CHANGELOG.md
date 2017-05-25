@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.9
+
+- Better debugging name for api decorator 
+
 ### 0.4.8
 
 - Add decorator helper that accepts Api props as argument and can then
