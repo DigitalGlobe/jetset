@@ -12,7 +12,11 @@ const createChildren = ( components, props, index = 0 ) => {
     return React.createElement( components[ index ], props, createChildren( components, props, index + 1 ) );
   } else { 
     const { children, ...rest } = props;
-    return children ? cloneChildren( children, rest ) : null;
+    return children ? (
+      React.Children.count( children ) > 1 ?
+        cloneChildren( children, rest ) :
+        React.cloneElement( children, rest ) 
+    ) : null;
   }
 };
 

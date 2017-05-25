@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.12
+
+- Safer cloning for children in decorator
+
 ### 0.4.11
 
 - Allow for multiple children to be passed in as part of decorator rendering
