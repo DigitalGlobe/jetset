@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.13
+
+- Safer safe cloning
+
 ### 0.4.12
 
 - Safer cloning for children in decorator

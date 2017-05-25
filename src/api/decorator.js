@@ -2,7 +2,7 @@ import React from 'react';
 import Api from './index';
 
 const cloneChildren = ( children, props ) =>
-  React.Children.map( children, child => typeof child.type === 'function' 
+  React.Children.map( children, child => child && typeof child.type === 'function' 
     ? React.cloneElement( child, props ) 
     : null
   );
