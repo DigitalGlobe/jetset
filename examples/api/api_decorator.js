@@ -1,11 +1,10 @@
 import React from 'react';
-import Api from '../../src/api';
+import decorator from '../../src/lib/decorator';
 
-export const users = Component => props =>
-  <Api url="https://jsonplaceholder.typicode.com" users="/users">
-    <Component { ...props } />
-  </Api>;
-
+export const users = decorator({
+  url:   'https://jsonplaceholder.typicode.com',
+  users: '/users'
+});
 
 @users
 export default class UsersDecorated extends React.Component {

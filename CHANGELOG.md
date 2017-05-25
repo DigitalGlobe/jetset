@@ -1,5 +1,23 @@
 # Changelog
 
+### 0.4.8
+
+- Add decorator helper that accepts Api props as argument and can then
+  decorate components and other decorators. For example:
+
+  ```javascript
+  import apiDecorator from 'jetset/lib/decorator'
+
+  const users = apiDecorator({ url: 'http://my.api.com', users: '/users' })
+
+  @users
+  class NeedsUsers extends React.Component {
+    someMethod() {
+      this.props.users.$list() // or whatever
+    }
+  }
+  ```
+
 ### 0.4.7
 
 - Fix getData for optimistic update and elsewhere
