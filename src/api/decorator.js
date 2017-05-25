@@ -1,11 +1,13 @@
 import React from 'react';
 import Api from './index';
 
+const safeClone = ( child, props ) => 
+  child && typeof child.type === 'function'
+    ? React.cloneElement( child, props )
+    : child;
+
 const cloneChildren = ( children, props ) =>
-  React.Children.map( children, child => child && typeof child.type === 'function' 
-    ? React.cloneElement( child, props ) 
-    : null
-  );
+  <div>{ React.Children.map( children, child => safeClone( child, props ) ) }</div>;
 
 const createChildren = ( components, props, index = 0 ) => {
   if ( components[ index ] ) {
@@ -15,7 +17,7 @@ const createChildren = ( components, props, index = 0 ) => {
     return children ? (
       React.Children.count( children ) > 1 ?
         cloneChildren( children, rest ) :
-        React.cloneElement( children, rest ) 
+        safeClone( children, rest ) 
     ) : null;
   }
 };
