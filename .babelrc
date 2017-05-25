@@ -5,7 +5,7 @@
   ],
   "env": {
     "es": {
-     "presets": [["es2015", {"modules": false}], "react", "stage-1"],
+      "presets": [["es2015", {"modules": false}], "react", "stage-1"],
       "plugins": ["transform-decorators-legacy"]
     },
     "umd": {
