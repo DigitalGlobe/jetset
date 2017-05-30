@@ -47,12 +47,13 @@ export default function configureRoutes( key, rootPath, options = {} ) {
     getRouteConfig: ( methodKey, ...args ) => {
       const config = routes[ methodKey ]( ...args );
       return typeof config === 'string'
-        ? { method: methodDict[ methodKey ], route: config, getData: options.getData || ( data => data ) }
+        ? { method: methodDict[ methodKey ], route: config, getData: options.getData || ( data => data ), onError: options.onError || ( error => Promise.reject(error) ) }
         : {
           ...config,
           method:  ( config.method || methodDict[ methodKey ] || 'get' ).toLowerCase(),
           route:   config.route || routes.default || rootPath,
-          getData: config.getData || options.getData || ( data => data )
+          getData: config.getData || options.getData || ( data => data ),
+          onError: config.onError || options.onError || ( error => Promise.reject( error ) )
         };
     }
   };

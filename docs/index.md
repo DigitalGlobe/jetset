@@ -36,6 +36,8 @@ type ApiProps = {
   // whole response is expected to be an array for collection routes or an object
   // for model routes)
   getData?: (response: Array<Object> | Object) => Array<Object> | Object
+  // You can pass a callback function for specific ways to handle errors.
+  onError?: (error: <Object>) => // do whatever operation you need to here.eg // localStorage.removeItem('some_cookie')
 }
 ```
 
@@ -49,6 +51,7 @@ For example:
   getData         = { response => response.data }
   myResource      = "/my_resource"
   myOtherResource = "/my_other_resource"
+  onError = { error => console.log("mycustomerror: ", error }
 >
 ```
 
@@ -56,14 +59,14 @@ For example:
 
 When you pass in a string as the value of your resource, all routes are inferred according to REST standards.
 
-If you need to override one or more of those routes, you can pass in an object instead of a string, including 
+If you need to override one or more of those routes, you can pass in an object instead of a string, including
 a `routes` object with as many overrides as you need.
 
 ```javascript
 
 type RouteConfig = {
   method?:  'get' | 'post' | 'put' | 'delete',
-  route?:   string,
+  route?:   string | (config) object
   getData?: (response: Array<Object> | Object) => Array<Object> | Object
 }
 
@@ -88,7 +91,8 @@ const myResourceConfig = {
   default: '/my_resource',
   get:     id => `/my_resource/${id}/view`,
   search:  () => ({ method: 'post', route: '/search' }),
-  update:  () => ({ method: 'post' })
+  update:  () => ({ method: 'post' }),
+  onError: (error) => // do something on error with single route
 }
 
 <Api myResource={{ routes: myResourceConfig }} ... >
@@ -104,6 +108,7 @@ standard REST calls. For example:
 ```jsx
 const routes = {
   default: '/users',
+  onError: (error => localStorage.removeItem('some_cookie'))
   getUserAlbums: id => ({ method: 'get', route: `/users/${id}/albums`, usesCache: true })
 }
 
@@ -214,15 +219,15 @@ class NeedsUsers extends React.Component {
 }
 ```
 
-Or for a whole api: 
+Or for a whole api:
 
 ```javascript
 import { apiDecorator } from 'jetset'
 
 const api = apiDecorator({
   url: 'http://my.api.com',
-  users: '/users', 
-  posts: '/posts' 
+  users: '/users',
+  posts: '/posts'
 })
 
 @api
@@ -286,5 +291,3 @@ jetset.toggleDevTools()
 ```
 
 Better stuff coming soon!
-
-
