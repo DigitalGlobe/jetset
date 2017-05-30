@@ -29,34 +29,37 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
   const methods = {
 
     fetchAll: path => {
-      const { route: defaultRoute, method, getData } = getRouteConfig( 'list' );
+      const { route: defaultRoute, method, getData, onError } = getRouteConfig( 'list' );
       const route = path || defaultRoute;
       if ( shouldFetch( route ) ) {
         return api[ method ]( route ).then( response => {
           const data = getData( response );
           store.setCollection( data, route );
           return response;
-        });
+        })
+        .catch( onError );
       } else {
         // TODO: store pendingpromise to return here?
       }
     },
 
     fetchOne: id => {
-      const { route, method, getData } = getRouteConfig( 'get', id );
+      const { route, method, getData, onError } = getRouteConfig( 'get', id );
       if ( shouldFetch( route ) ) {
         return api[ method ]( route ).then( response => {
           const data = getData( response );
           store.setModel( getIdFromModel( data ), { ...data, _fetched: true });
           return response;
-        });
+        })
+        .catch( onError );
+
       } else {
         // TODO: store pendingpromise to return here?
       }
     },
 
     createOne: ( data, options = {} ) => {
-      const { route, method, getData } = getRouteConfig( 'create', data );
+      const { route, method, getData, onError } = getRouteConfig( 'create', data );
       return api[ method ]( route, data ).then( data => {
         if ( options.refetch !== false ) {
           methods.fetchAll();
@@ -64,7 +67,8 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
           store.updateCollection( getData( data ) );
         }
         return data;
-      });
+      })
+      .catch( onError );
     },
 
     updateOne: ( id, data ) => {
