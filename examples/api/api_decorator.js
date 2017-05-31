@@ -1,19 +1,16 @@
 import React from 'react';
-import Api from '../../src/index';
+import { apiDecorator } from '../../src';
 
-const schema = require( '../schema.json' );
+export const users = apiDecorator({
+  url:   'https://jsonplaceholder.typicode.com',
+  users: '/users'
+});
 
-export const sources = Component => props =>
-  <Api url="http://localhost:3000/hub/api" schema={ schema }>
-    <Component { ...props } />
-  </Api>;
-
-
-@sources
-export default class SourcesDecorated extends React.Component {
+@users
+export default class UsersDecorated extends React.Component {
   render() {
     return (
-      <span>{ this.props.sources.$list().size } Sources</span>
+      <span>{ this.props.users.$list().size } Users</span>
     );
   }
 }

@@ -3,4 +3,6 @@ node_modules
 /*.js
 /api
 /lib
+/umd
+/es
 !webpack.config.js

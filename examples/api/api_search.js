@@ -1,29 +1,29 @@
 import React from 'react';
-import { sources } from './api_decorator';
+import { users } from './api_decorator';
 
-@sources
+@users
 export default class ApiSearchExample extends React.Component {
 
   constructor( props ) {
     super( props );
-    this.state = { query: '' };
+    this.state = { username: '' };
   }
 
   onSubmit = event => {
     event.preventDefault();
     this.setState(
-      { query: this.refs.input.value },
-      () => this.props.sources.$search( this.state )
+      { username: this.refs.input.value },
+      () => this.props.users.$search( this.state )
     );
   }
 
   render() {
-    const results = this.props.sources.$search.results( this.state );
+    const results = this.props.users.$search.results( this.state );
     return (
       <div>
         <div>
           <form onSubmit={ this.onSubmit }>
-            <input ref="input" type="text" />
+            <input ref="input" type="text" placeholder="Try 'Bret' or 'Delphine'"/>
             <button>Search</button>
           </form>
         </div>
@@ -32,7 +32,7 @@ export default class ApiSearchExample extends React.Component {
           <div>Searching...</div>
         :
           results.map( result =>
-            <div key={ result.get( '_id' ) }>{ result.get( 'title' ) }</div>
+            <div key={ result.get( 'id' ) }>{ result.get( 'name' ) }</div>
           )}
         </div>
       </div>

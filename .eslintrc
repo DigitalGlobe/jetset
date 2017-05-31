@@ -24,7 +24,8 @@
     "jest": true,
     "process": true,
     "global": true,
-    "analytics": "true"
+    "analytics": "true",
+    "test": "true"
   },
   "plugins": [
     "flowtype",

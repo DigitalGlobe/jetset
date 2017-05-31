@@ -1,5 +1,119 @@
 # Changelog
 
+### 0.4.11-15
+
+- Safe cloning/children experimentation
+
+### 0.4.10
+
+- Better pattern and documentation for api decorator
+
+### 0.4.9
+
+- Better debugging name for api decorator 
+
+### 0.4.8
+
+- Add decorator helper that accepts Api props as argument and can then
+  decorate components and other decorators. For example:
+
+  ```javascript
+  import apiDecorator from 'jetset/lib/decorator'
+
+  const users = apiDecorator({ url: 'http://my.api.com', users: '/users' })
+
+  @users
+  class NeedsUsers extends React.Component {
+    someMethod() {
+      this.props.users.$list() // or whatever
+    }
+  }
+  ```
+
+### 0.4.7
+
+- Fix getData for optimistic update and elsewhere
+
+### 0.4.6
+
+- Fix getData regression for string configs and $search handler
+
+### 0.4.5
+
+- Add es + umd builds.
+- Add store tests.
+
+### 0.4.4
+
+- Clone root state object in subscribe's get() to ensure comparability
+
+### 0.4.3
+
+- Remove old api.js build artifact that was causing problems when requiring
+  jetset/api
+
+### 0.4.2
+
+- Fix custom fetcher regression
+
+### 0.4.1
+
+- Allow for passing `{ reset: true }` as an option into `$get()` and `$list()`
+  as an easy way to guarantee a reset of cache without testing sizes etc. For
+  example:
+
+```javascript
+// force data to be refetched every time this component mounts
+componentWillMount() {
+  this.props.users.$get( 1, { reset: true } )
+}
+```
+
+
+### 0.4.0
+
+- Add option for specifying custom methods as well as routes. For example:
+
+```jsx
+const routes = {
+  default: '/users',
+  getUserAlbums: id => ({ method: 'get', route: `/users/${id}/albums`, usesCache: true })
+}
+
+<Api ... users={{ routes }}>
+
+// then...
+
+const userAlbums = this.props.users.$getUserAlbums( 1 )
+
+userAlbums.map( album => <div>{ album.get( 'title' ) }</div> )
+```
+
+### 0.3.4
+
+- When subscribing, use replace instead of merge on arrays since mergeDeep
+  won't work with arrays
+
+### 0.3.3
+
+- Fix $clear and $reset for collections
+
+### 0.3.2
+
+- Add { refetch: false } as option for $create to avoid a full refetch unless
+  actually desired
+- Fix removeFromCollection regression
+- Add nuclear clearState() option like so:
+
+```javascript
+import store from 'jetset/store';
+store.clearState();
+```
+
+### 0.3.1
+
+- Make sure id is stringified for delete
+
 ### 0.3.0
 
 - Allow for passing in `myResource="/my_resource"` prop instead of a json schema,

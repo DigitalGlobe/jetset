@@ -1,7 +1,7 @@
-import { Map, List } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
 
 import { getIdFromModel } from '../lib/schema';
-import store from '../store';
+import stateTree from '../store';
 
 /* basic state tree layout
 * {
@@ -27,9 +27,10 @@ import store from '../store';
 * }
 */
 
-export default function initApiStore( url, schema ) {
+export default function initApiStore( url, schema, store = stateTree ) {
 
   const resourceType = schema.title;
+  const rootPath = [ '$api', url, resourceType ];
 
   const methods = {
 
@@ -38,67 +39,71 @@ export default function initApiStore( url, schema ) {
     _getState: store.getState,
 
     getState: key =>
-      store.getState([ '$api', url, resourceType ].concat( key || [] ).map( item => String( item ) ) ),
+      store.getState( rootPath.concat( key || [] ).map( item => String( item ) ) ),
 
-    setState: ( val, key ) => 
-      store.setState([ '$api', url, resourceType ].concat( key || [] ).map( item => String( item ) ), val ),
+    setState: ( val, key ) =>
+      store.setState( rootPath.concat( key || [] ).map( item => String( item ) ), val ),
 
-    setStateQuiet: ( val, key ) => 
-      store.setStateQuiet([ '$api', url, resourceType ].concat( key || [] ), val ),
+    setStateQuiet: ( val, key ) =>
+      store.setStateQuiet( rootPath.concat( key || [] ), val ),
 
     // requests
 
-    getRequests: path => 
-      methods.getState([ 'requests' ].concat( path || [] ) ),
+    requestsPath: path => [ 'requests' ].concat( path || [] ),
 
-    getRequestsData: path => 
+    getRequests: path =>
+      methods.getState( methods.requestsPath( path ) ),
+
+    getRequestsData: path =>
       methods.getRequests([ path, 'data' ]),
 
-    setRequests: ( data, path ) => 
-      methods.setState( data, [ 'requests' ].concat( path || [] ) ),
+    setRequests: ( data, path ) =>
+      methods.setState( data, methods.requestsPath( path ) ),
 
-    setRequestsData: ( path, data ) => 
+    setRequestsData: ( path, data ) =>
       methods.setRequests( data, [ path, 'data' ] ),
 
-    getPending: path => 
+    getPending: path =>
       methods.getRequests([ path, 'pending' ]),
 
-    setPending: ( path, data ) => 
-      methods.setStateQuiet( data, [ 'requests', path, 'pending' ]),
+    setPending: ( path, data ) =>
+      methods.setStateQuiet( data, methods.requestsPath([ path, 'pending' ]) ),
 
-    getError: path => 
+    getError: path =>
       methods.getRequests([ path, 'error' ]),
 
     setError: ( path, error, options = {} ) => {
       const method = options.quiet ? methods.setStateQuiet : methods.setState;
-      method( error, [ 'requests', path, 'error' ] );
+      method( error, methods.requestsPath([ path, 'error' ]) );
     },
 
     // models
 
-    getModels: () => 
+    getModels: () =>
       methods.getState( 'models' ) || Map(),
 
-    setModels: data => 
+    setModels: data =>
       methods.setState( data, 'models' ),
 
-    getModel: id => 
+    getModel: id =>
       methods.getState([ 'models', id ]),
 
-    setModel: ( id, data ) => 
+    setModel: ( id, data ) =>
       methods.setState( data, [ 'models', id ] ),
 
     deleteModel: id => {
       const undo = [];
-      const state = methods.getState();
-      methods.setState( state.withMutations( map => {
-        const model = methods.getModel( id );
-        if ( model ) {
-          map.set( 'models', methods.getModels().delete( id ) );
-          undo.push(() => methods.setModels( methods.getModels().set( id, model ) ));
-          undo.push( ...methods.removeFromCollections( map, id ) );
-        }
-      }));
+      const idStr = String( id );
+      methods.setState(
+        ( methods.getState() || Map() ).withMutations( map => {
+          const model = methods.getModel( idStr );
+          if ( model ) {
+            map.update( 'models', ( models = Map() ) => models.delete( idStr ) );
+            undo.push(() => methods.setModels( methods.getModels().set( idStr, model ) ));
+            undo.push( ...methods.removeFromCollections( map, idStr ) );
+          }
+        })
+      );
       return undo;
     },
 
@@ -114,7 +119,7 @@ export default function initApiStore( url, schema ) {
 
     // collections (lists hydrated with models)
 
-    getCollection: path => {
+    getCollection: ( path = `/${resourceType}` ) => {
       const collection = methods.getRequestsData( path );
       if ( collection ) {
         const models = methods.getModels();
@@ -128,29 +133,40 @@ export default function initApiStore( url, schema ) {
       }
     },
 
-    setCollection: ( data = List(), path = '/' ) => {
-      const state = methods.getState();
-      const nextState = state.withMutations( map => {
-        const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
-        map.set( 'models', methods.getModels().mergeDeep( dict ) );
-        map.setIn([ 'requests', path, 'data' ], List( Object.keys( dict ) ) );
-      });
-      methods.setState( nextState );
+    setCollection: ( data = List(), path = `/${resourceType}` ) => {
+      methods.setState(
+        ( methods.getState() || Map() ).withMutations( map => {
+          const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
+          map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
+          map.setIn( methods.requestsPath([ path, 'data' ]), List( Object.keys( dict ) ) );
+        })
+      );
+      return methods.getCollection( path );
     },
 
-    clearCollection: ( path = '/' ) => 
-      methods.setRequestsData( path, null ),
+    updateCollection: ( model, path = `/${resourceType}` ) => {
+      const id = String( getIdFromModel( model ) );
+      methods.setState(
+        ( methods.getState() || Map() ).withMutations( map => {
+          map.update( 'models', ( models = Map() ) => models.mergeDeep( fromJS({ [id]: model }) ) );
+          map.updateIn( methods.requestsPath([ path, 'data' ]), ( data = List() ) => data.push( id ));
+        })
+      );
+    },
+
+    clearCollection: ( path = `/${resourceType}` ) => 
+      methods.setRequests( Map(), path ),
 
     removeFromCollections: ( map, id ) =>
-      [ ...map.get( 'requests' ).entries() ]
+      [ ...( map.getIn( methods.requestsPath() ) || Map() ).entries() ]
         .reduce(( undo, [path, request] ) => {
           const collection = request.get( 'data' );
           if ( List.isList( collection ) ) {
             const modelIdx = collection.findIndex( modelId => modelId === id );
             if ( ~modelIdx ) {
               const nextCollection = collection.delete( modelIdx );
-              map.setIn([ 'requests', path, 'data' ], nextCollection );
-              undo.push(() => methods.setCollection( nextCollection.insert( modelIdx, id ), path ));
+              map.setIn( methods.requestsPath([ path, 'data' ]), nextCollection );
+              undo.push(() => methods.setRequestsData( path, nextCollection.insert( modelIdx, id ) ) );
             }
           }
           return undo;
@@ -159,7 +175,9 @@ export default function initApiStore( url, schema ) {
     clearAll: () => {
       methods.setRequests( Map() );
       methods.setModels( Map() );
-    }
+    },
+
+    subscribePath: rootPath
   };
 
   return methods;
