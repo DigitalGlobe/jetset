@@ -33,7 +33,8 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
       const route = path || defaultRoute;
       if ( shouldFetch( route ) ) {
         return api[ method ]( route ).then( response => {
-          const data = getData( response );
+          //const data = getData( response );
+          const data = [];
           store.setCollection( data, route );
           return response;
         })

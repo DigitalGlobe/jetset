@@ -1,4 +1,4 @@
-import { fromJS, Map, List } from 'immutable';
+import { fromJS, Iterable, Map, List } from 'immutable';
 
 import { getIdFromModel } from '../lib/schema';
 import stateTree from '../store';
@@ -54,8 +54,13 @@ export default function initApiStore( url, schema, store = stateTree ) {
     getRequests: path =>
       methods.getState( methods.requestsPath( path ) ),
 
-    getRequestsData: path =>
-      methods.getRequests([ path, 'data' ]),
+    getRequestsData: path => {
+      const data = methods.getRequests([ path, 'data' ]);
+      // TODO: this is a patch for what appears to be either an immutablejs
+      // bug or incomplete understanding of how immutablejs works. TBD
+      if ( data && Iterable.isIterable( data ) ) data.$isPending = false;
+      return data;
+    },
 
     setRequests: ( data, path ) =>
       methods.setState( data, methods.requestsPath( path ) ),
@@ -137,8 +142,9 @@ export default function initApiStore( url, schema, store = stateTree ) {
       methods.setState(
         ( methods.getState() || Map() ).withMutations( map => {
           const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
+          const collection = List( Object.keys( dict ) );
           map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
-          map.setIn( methods.requestsPath([ path, 'data' ]), List( Object.keys( dict ) ) );
+          map.setIn( methods.requestsPath([ path, 'data' ]), collection );
         })
       );
       return methods.getCollection( path );
