@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.4.16
+### 0.4.16-17
 
 - Force clear pending flag in cases where empty arrays are returned, because of
   as yet unclear prototype-overwriting type issue when setting placeholders
