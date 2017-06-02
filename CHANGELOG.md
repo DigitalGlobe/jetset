@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.19
+
+- Allow for basic use of $list with arrays of scalar values
+
 ### 0.4.18
 
 - Clone placeholders instead of force clearing pending flags
