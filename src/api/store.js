@@ -143,7 +143,7 @@ export default function initApiStore( url, schema, store = stateTree ) {
       methods.setState(
         ( methods.getState() || Map() ).withMutations( map => {
           if ( data.length && typeof data[0] !== 'object' ) {
-            map.setIn( methods.requestsPath([ path, 'data' ]), data );
+            map.setIn( methods.requestsPath([ path, 'data' ]), List( data ) );
             map.setIn( methods.requestsPath([ path, 'format' ]), 'string' );
           } else {
             const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});

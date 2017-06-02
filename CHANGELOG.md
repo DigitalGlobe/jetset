@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.4.19
+### 0.4.19-20
 
 - Allow for basic use of $list with arrays of scalar values
 
