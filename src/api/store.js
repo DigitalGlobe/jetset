@@ -54,13 +54,8 @@ export default function initApiStore( url, schema, store = stateTree ) {
     getRequests: path =>
       methods.getState( methods.requestsPath( path ) ),
 
-    getRequestsData: path => {
-      const data = methods.getRequests([ path, 'data' ]);
-      // TODO: this is a patch for what appears to be either an immutablejs
-      // bug or incomplete understanding of how immutablejs works. TBD
-      if ( data && Iterable.isIterable( data ) ) data.$isPending = false;
-      return data;
-    },
+    getRequestsData: path =>
+      methods.getRequests([ path, 'data' ]),
 
     setRequests: ( data, path ) =>
       methods.setState( data, methods.requestsPath( path ) ),

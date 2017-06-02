@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.18
+
+- Clone placeholders instead of force clearing pending flags
+
 ### 0.4.16-17
 
 - Force clear pending flag in cases where empty arrays are returned, because of
