@@ -134,6 +134,19 @@ class MyComponent extends React.Component {
 
 See the [docs](docs/index.md) for complete documentation/reference.
 
+## Should I use this or Redux or both?
+
+JetSet at its core is meant to replace all fetching, caching, and state management related to working with RESTful apis. You could use it on its own or in conjunction with a framework like Redux.
+
+Since JetSet is backed by an immutable state tree we've created some tools that you can use to leverage that tree - `globalState`, `localState`, etc. (see examples) - but those are auxiliary, meant to be used if you're not already using a framework like Redux but you want something beyond React's component state tools, and/or you want to use time-travel debugging.
+
+Our opinionated general guidelines are:
+
+- Use JetSet for an application of any size if you're working with a RESTful api.
+- If your application is nothing more than a widget just use React's state tools for the rest of your state management.
+- If your application is desktop scale but not complex, use JetSet's state tools.
+- If your application is complex you should use an actual framework like Redux. But you can still use JetSet to handle all your api interactions.
+
 ## Examples
 
 1. Clone this repo
