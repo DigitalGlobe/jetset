@@ -57,11 +57,17 @@ export default function initApiStore( url, schema, store = stateTree ) {
     getRequestsData: path =>
       methods.getRequests([ path, 'data' ]),
 
+    getRequestsFormat: path =>
+      methods.getRequests([ path, 'format' ]),
+
     setRequests: ( data, path ) =>
       methods.setState( data, methods.requestsPath( path ) ),
 
     setRequestsData: ( path, data ) =>
       methods.setRequests( data, [ path, 'data' ] ),
+
+    setRequestsFromat: ( path, data ) =>
+      methods.setRequests( data, [ path, 'format' ] ),
 
     getPending: path =>
       methods.getRequests([ path, 'pending' ]),
@@ -122,12 +128,12 @@ export default function initApiStore( url, schema, store = stateTree ) {
     getCollection: ( path = `/${resourceType}` ) => {
       const collection = methods.getRequestsData( path );
       if ( collection ) {
-        const models = methods.getModels();
-        return collection.reduce(( memo, id ) => {
-          const model = models.get( id );
-          if ( model ) return memo.push( model );
-          return memo;
-        }, List());
+        if ( methods.getRequestsFormat( path ) === 'string' ) {
+          return collection;
+        } else {
+          const models = methods.getModels();
+          return collection.map( id => models.get( id ) || Map() );
+        }
       } else {
         return null;
       }
@@ -136,10 +142,15 @@ export default function initApiStore( url, schema, store = stateTree ) {
     setCollection: ( data = List(), path = `/${resourceType}` ) => {
       methods.setState(
         ( methods.getState() || Map() ).withMutations( map => {
-          const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
-          const collection = List( Object.keys( dict ) );
-          map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
-          map.setIn( methods.requestsPath([ path, 'data' ]), collection );
+          if ( data.length && typeof data[0] !== 'object' ) {
+            map.setIn( methods.requestsPath([ path, 'data' ]), data );
+            map.setIn( methods.requestsPath([ path, 'format' ]), 'string' );
+          } else {
+            const dict = data.reduce(( memo, item ) => ({ ...memo, [getIdFromModel( item )]: item }), {});
+            const collection = List( Object.keys( dict ) );
+            map.update( 'models', ( models = Map() ) => models.mergeDeep( dict ) );
+            map.setIn( methods.requestsPath([ path, 'data' ]), collection );
+          }
         })
       );
       return methods.getCollection( path );

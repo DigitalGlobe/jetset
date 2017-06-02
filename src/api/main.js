@@ -193,11 +193,13 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   const $reset = id => () => api.fetchOne( id );
 
   const addRestMethods = model => {
-    const id      = getIdFromModel( model );
-    model.$delete = $delete( id );
-    model.$update = $update( id );
-    model.$clear  = $clear( id );
-    model.$reset  = $reset( id );
+    if ( typeof model === 'object' ) {
+      const id      = getIdFromModel( model );
+      model.$delete = $delete( id );
+      model.$update = $update( id );
+      model.$clear  = $clear( id );
+      model.$reset  = $reset( id );
+    }
     return model;
   };
 
