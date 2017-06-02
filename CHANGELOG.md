@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.4.16
+
+- Force clear pending flag in cases where empty arrays are returned, because of
+  as yet unclear prototype-overwriting type issue when setting placeholders
+
 ### 0.4.11-15
 
 - Safe cloning/children experimentation
