@@ -153,18 +153,18 @@ const { resource } = props; // e.g. from <Api url="..." resource="/resource" />
 
 method|route|jetset fn|returns|uses cache
 ------|-----|---------|-------|----------
-GET|/resource|`resource.$list()`|[List](http://facebook.github.io/immutable-js/docs/#/List)|yes
-GET|/resource?foo=bar|`resource.$list({foo: 'bar'})`|[List](http://facebook.github.io/immutable-js/docs/#/List)|yes
+GET|/resource|`resource.$list()`|Array|yes
+GET|/resource?foo=bar|`resource.$list({foo: 'bar'})`|Array|yes
 GET|/resource?foo=bar|`resource.$search({foo: 'bar'})`|Promise<Array>|results are cached (see below)
-|||`resource.$search.results({foo: 'bar'})`|[List](http://facebook.github.io/immutable-js/docs/#/List)|yes
+|||`resource.$search.results({foo: 'bar'})`|Array|yes
 POST|/resource|`resource.$create({foo: 'bar'})`|Promise<Object>|results are cached
-GET|/resource/id|`resource.$get(id)`|[Map](http://facebook.github.io/immutable-js/docs/#/Map)|yes
+GET|/resource/id|`resource.$get(id)`|Object|yes
 PUT|/resource/id|`resource.$get(id).$update({foo: 'bar'})`|Promise<Object>|results are cached
 PUT|/resource/id|`resource.$list().get(index).$update({foo: 'bar'})`|Promise<Object>|results are cached
 DELETE|/resource/id|`resource.$get( id ).$delete()`|Promise<Object>|results are cached
 DELETE|/resource/id|`resource.$list().get(index).$delete()`|Promise<Object>|results are cached
 GET|/resource/some/route|`resource.api.get('/some/route')`|Promise<any>|no
-GET|/resource/some/route|`resource.api.$get('/some/route')`|[List](http://facebook.github.io/immutable-js/docs/#/List) \| [Map](http://facebook.github.io/immutable-js/docs/#/Map)|yes
+GET|/resource/some/route|`resource.api.$get('/some/route')`|Array \| Object|yes
 POST|/resource/some/route|`resource.api.post('/some/route')`|Promise<any>|no
 PUT|/resource/some/route|`resource.api.put('/some/route')`|Promise<any>|no
 DELETE|/resource/some/route|`resource.api.delete('/some/route')`|Promise<any>|no
@@ -192,7 +192,7 @@ jetset fn|returns|description
 **$reset()**||Reset cache with data from server
 `resource.$list().$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
 `resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
-`resource.$get( id, { reset: true } )`|[Map](http://facebook.github.io/immutable-js/docs/#/List) (empty placeholder)|Force fresh fetch of data and rehydrate cache
+`resource.$get( id, { reset: true } )`|Object (empty placeholder)|Force fresh fetch of data and rehydrate cache
 `resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
 
 #### :boom: Nuclear option to clear 100% of jetset's cache:

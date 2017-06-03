@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router';
 
 import ApiCollectionsExample from './api_collections';
 import ApiDecoratorExample   from './api_decorator';
+import ApiImmutableExample   from './api_immutable';
 import ApiModelExample       from './api_model';
 import ApiSearchExample      from './api_search';
 import ApiRawExample         from './api_raw';
@@ -52,6 +53,13 @@ export default function ApiExampleRouter() {
           <Gist gist="glortho/81a14b0fef58e01f799bb35d62f28f42"/>
           <h1>Users Decorator</h1>
           <ApiDecoratorExample />
+        </div>
+      )} />
+      <Route path="/api/immutable" render={() => (
+        <div>
+          <Gist gist=""/>
+          <h1>Immutable option</h1>
+          <ApiImmutableExample />
         </div>
       )} />
     </Switch>

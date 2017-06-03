@@ -36,8 +36,6 @@ $ npm i --save jetset
 
 ## Use
 
-Note that jetset uses mostly [Immutable](https://github.com/facebook/immutable-js/) data structures - primarily [List](http://facebook.github.io/immutable-js/docs/#/List) and [Map](http://facebook.github.io/immutable-js/docs/#/Map).
-
 See the [docs](docs/index.md) for complete documentation/reference.
 
 To get started just specify your base url and route(s) as props on the Api component.

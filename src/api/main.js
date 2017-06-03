@@ -14,7 +14,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   const { url }      = props;
   const schema       = getSchema( props[ key ] );
   const options      = typeof props[ key ] === 'object' ? props[ key ] : {};
-  const useImmutable = options.immutable;
+  const useImmutable = props.immutable || options.immutable;
   const resourceType = schema.title;
   const resourcePath = `/${resourceType}`;
 

@@ -35,6 +35,7 @@ ReactDOM.render((
         <NavLink { ...styles } to="/api/search">search</NavLink>
         <NavLink { ...styles } to="/api/raw">raw api methods</NavLink>
         <NavLink { ...styles } to="/api/decorator">decorator</NavLink>
+        <NavLink { ...styles } to="/api/immutable">immutable</NavLink>
 
         <span style={ styles.style }>Non-Api examples:</span>
 
