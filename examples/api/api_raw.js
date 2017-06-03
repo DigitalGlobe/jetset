@@ -12,7 +12,7 @@ export default class RawApiExample extends React.Component {
         <button onClick={ this.handleClick }>FOO!</button>
         <div>
           { this.props.users.api.$get( '/1/albums' ).map( item => (
-            <span key={ item.get( 'id' ) }>{ item.get( 'title' )}</span>
+            <span key={ item.id }>{ item.title }</span>
           ))}
         </div>
       </div>

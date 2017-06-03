@@ -32,7 +32,7 @@ export default class ApiSearchExample extends React.Component {
           <div>Searching...</div>
         :
           results.map( result =>
-            <div key={ result.get( 'id' ) }>{ result.get( 'name' ) }</div>
+            <div key={ result.id }>{ result.name }</div>
           )}
         </div>
       </div>

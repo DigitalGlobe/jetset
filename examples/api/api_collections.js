@@ -15,14 +15,14 @@ function Users({ users }) {
       :
         <span>
           {users.$list().map(( user, idx ) =>
-            <div key={ user.get( 'id' ) }>
-              <span>{ user.get( 'name' ) }</span>
+            <div key={ user.id }>
+              <span>{ user.name }</span>
               { idx < 10 &&
                 <button onClick={() => user.$delete()}>Delete</button>
               }
             </div>
           )}
-          {users.$list().size === 10 &&
+          {users.$list().length === 10 &&
             <button onClick={() => create( users )}>New foo</button>
           }
           <button onClick={() => users.$list().$clear()}>Clear cache</button>

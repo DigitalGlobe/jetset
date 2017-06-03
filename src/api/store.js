@@ -1,4 +1,4 @@
-import { fromJS, Iterable, Map, List } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
 
 import { getIdFromModel } from '../lib/schema';
 import stateTree from '../store';

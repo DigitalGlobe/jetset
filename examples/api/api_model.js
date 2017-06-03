@@ -2,9 +2,9 @@ import React from 'react';
 import { users } from './api_decorator';
 
 const UserDetail = users( props => {
-  const user = props.users.$list().first();
+  const user = props.users.$list()[0];
   if ( user ) {
-    const detail = props.users.$get( user.get( 'id' ) );
+    const detail = props.users.$get( user.id );
     return (
       <div style={{ width: '48%' }}>
         {
@@ -12,7 +12,7 @@ const UserDetail = users( props => {
             `Error: ${ JSON.stringify( detail.$error ) }` :
           detail.$isPending ?
             `Loading...` :
-          <code style={{ width: '300px' }}>{ JSON.stringify( detail.toJS() ).replace( /,/g, ', ') }</code>
+          <code style={{ width: '300px' }}>{ JSON.stringify( detail ).replace( /,/g, ', ') }</code>
         }
       </div>
     );
