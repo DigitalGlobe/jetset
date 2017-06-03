@@ -57,7 +57,7 @@ export default function ApiExampleRouter() {
       )} />
       <Route path="/api/immutable" render={() => (
         <div>
-          <Gist gist=""/>
+          <Gist gist="glortho/5acfa73fc11dbae42c21dd3fb5810fee"/>
           <h1>Immutable option</h1>
           <ApiImmutableExample />
         </div>
