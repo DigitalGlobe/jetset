@@ -36,8 +36,12 @@ type ApiProps = {
   // whole response is expected to be an array for collection routes or an object
   // for model routes)
   getData?: (response: Array<Object> | Object) => Array<Object> | Object
+
   // You can pass a callback function for specific ways to handle errors.
-  onError?: (error: <Object>) => // do whatever operation you need to here.eg // localStorage.removeItem('some_cookie')
+  onError?: (error: <Object>) => // do whatever operation you need to here.eg // localStorage.removeItem('some_token')
+
+  // Return immutable data structures (List and Map) instead of Array and Object
+  immutable?: boolean
 }
 ```
 
@@ -51,7 +55,7 @@ For example:
   getData         = { response => response.data }
   myResource      = "/my_resource"
   myOtherResource = "/my_other_resource"
-  onError = { error => console.log("mycustomerror: ", error }
+  onError         = { error => console.log( 'mycustomerror: ', error )}
 >
 ```
 

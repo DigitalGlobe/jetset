@@ -54,7 +54,7 @@ const MyApi = Component =>
 export default MyApi( props =>
   <div>
     { props.myResource.$list().map( item =>
-      <div>{ item.get( 'title' ) }</div>
+      <div>{ item.title }</div>
     )}
   </div>
 )
@@ -69,7 +69,7 @@ export default MyApi(({ myResource }) =>
     // GET /my_resource
     { myResource.$list().map( item => (
       <div>
-        <span>{ item.get( 'title' ) }</span>
+        <span>{ item.title }</span>
 
         // PUT /my_resource/id
         <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
@@ -78,7 +78,7 @@ export default MyApi(({ myResource }) =>
         <button onClick={ item.$delete }>Delete</button>
 
         // GET /my_resource/id
-        <button onClick={() => myResource.$get( item.get( 'id' ) ) }>Get detail</button>
+        <button onClick={() => myResource.$get( item.id }>Get detail</button>
       </div>
     ))}
 
@@ -119,7 +119,7 @@ class MyComponent extends React.Component {
         <span>Error: {list.$error.message}</span>
       :
       <div>
-        { list.map( item => <div>{ item.get( 'title' ) }</div> ) }
+        { list.map( item => <div>{ item.title }</div> ) }
         <button onClick={ this.onPrev }>Prev</button>
         <button onClick={ this.onNext }>Next</button>
       </div>

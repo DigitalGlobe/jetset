@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.0.0
+
+- Return native JavaScript data sctructures (Array and Object) instead of
+  ImmutableJS data structures (List and Map), but expose the latter as an
+  option on the `<Api>` component or resource config.
+
 ### 0.4.19-20
 
 - Allow for basic use of $list with arrays of scalar values
