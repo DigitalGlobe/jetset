@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.0.2
+### 1.0.1-3
 
 - Proper cloning of lists and maps instead of insufficient shallow assign
 
@@ -9,6 +9,10 @@
 - Return native JavaScript data sctructures (Array and Object) instead of
   ImmutableJS data structures (List and Map), but expose the latter as an
   option on the `<Api>` component or resource config.
+
+### 0.4.21-22
+
+- Deep clone empty list and map placeholders
 
 ### 0.4.19-20
 
