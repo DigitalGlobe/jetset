@@ -6,6 +6,7 @@ import initApiStore          from './store';
 import initApiMethods        from './methods';
 import { logError, logWarn } from '../lib/log';
 import getQueryString        from '../lib/query_string';
+import clone                 from '../lib/make_empty';
 
 import { getSchema, getIdFromModel, isSchema } from '../lib/schema';
 
@@ -28,7 +29,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
   // placeholder to return while cacheable fetches are pending
   const getPlaceholder = ( path = null, dataType = List ) => {
-    const placeholder = Object.assign({}, dataType());
+    const placeholder = clone( dataType );
     placeholder.$isPending = true;
     placeholder.$error = path ? apiStore.getError( path ) : null;
     placeholder.$clear = (() => undefined);
