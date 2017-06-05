@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.0.2
+
+- Proper cloning of lists and maps instead of insufficient shallow assign
+
 ### 1.0.0
 
 - Return native JavaScript data sctructures (Array and Object) instead of
