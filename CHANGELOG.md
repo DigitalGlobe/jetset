@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.0.4
+
+- Roll out `onError` option to all api methods. Fixes [#7](https://github.com/DigitalGlobe/jetset/issues/7)
+
 ### 1.0.1-3
 
 - Proper cloning of lists and maps instead of insufficient shallow assign

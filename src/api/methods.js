@@ -72,13 +72,13 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
     },
 
     updateOne: ( id, data ) => {
-      const { route, method } = getRouteConfig( 'update', id, data );
-      return api[ method ]( route, data );
+      const { route, method, onError } = getRouteConfig( 'update', id, data );
+      return api[ method ]( route, data ).catch( onError );
     },
 
     deleteOne: id => {
-      const { route, method } = getRouteConfig( 'delete', id );
-      return api[ method ]( route );
+      const { route, method, onError } = getRouteConfig( 'delete', id );
+      return api[ method ]( route ).catch( onError );
     },
 
     custom: config =>
@@ -87,7 +87,8 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
           const data = config.getData( response );
           store.setRequestsData( config.route, data );
           return response;
-        }),
+        })
+        .catch( config.onError ),
 
     shouldFetch,
     ...api
