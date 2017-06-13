@@ -22,7 +22,7 @@ function subscribe({ local, paths }) {
 
     return class Subscriber extends React.Component {
 
-      subscription = null
+      subscriptions = null
 
       constructor( props ) {
         super( props );
