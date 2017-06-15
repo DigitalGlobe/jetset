@@ -68,7 +68,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   // SEARCH
 
   const $search = params => {
-    const { method, route, getData } = getRouteConfig( 'search', params );
+    const { method, route, getData, onError } = getRouteConfig( 'search', params );
     const fullRoute = method === 'get'
       ? route + `?${getQueryString( params )}`
       : route;
@@ -80,7 +80,8 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
       return promise.then( data => {
         apiStore.setCollection( getData( data ), fullRoute );
         return data;
-      });
+      })
+      .catch( onError );
     }
     // TODO: store promise as pending value so it can be used on repeat
     // calls

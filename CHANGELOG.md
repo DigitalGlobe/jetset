@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.0.4
+### 1.0.4-5
 
 - Roll out `onError` option to all api methods. Fixes [#7](https://github.com/DigitalGlobe/jetset/issues/7)
 
