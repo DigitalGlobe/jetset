@@ -44,7 +44,7 @@ To get started just specify your base url and route(s) as props on the Api compo
 
 ```jsx
 import React from 'react';
-import Api from 'jetset/api';
+import { Api } from 'jetset';
 
 const MyApi = Component =>
   <Api url="https://my.api.com" myResource="/my_resource">
