@@ -202,7 +202,7 @@ jetset fn|returns|description
 #### :boom: Nuclear option to clear 100% of jetset's cache:
 
 ```javascript
-import store from 'jetset/store'
+import { store } from 'jetset'
 store.clearState()
 ```
 ## Api decorator
