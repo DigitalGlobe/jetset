@@ -124,7 +124,7 @@ Then...
 ```jsx
 const userAlbums = this.props.users.$getUserAlbums( 1 )
 
-userAlbums.map( album => <div>{ album.get( 'title' ) }</div> )
+userAlbums.map( album => <div>{ album.title }</div> )
 ```
 
 Note that `usesCache` causes the method to return data instead of a promise. If
@@ -276,7 +276,7 @@ There are some very preliminary dev tools available, including time travel
 debugging, by doing this:
 
 ```javascript
-import TreeViewer from 'jetset/tree_viewer';
+import { TreeViewer } from 'jetset';
 
 function MyComponent() {
   return (
