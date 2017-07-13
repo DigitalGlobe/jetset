@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.1.0
+
+- Allow for chaining methods and other async processing. Fixes [#5](https://github.com/DigitalGlobe/jetset/issues/5).
+- Prefer `onSuccess` instead of outdated (but still available as a synonym) `getData`,
+  as the former can be used for both sync and async processing of responses.
+
 ### 1.0.4-5
 
 - Roll out `onError` option to all api methods. Fixes [#7](https://github.com/DigitalGlobe/jetset/issues/7)
@@ -41,7 +47,7 @@
 
 ### 0.4.9
 
-- Better debugging name for api decorator 
+- Better debugging name for api decorator
 
 ### 0.4.8
 
