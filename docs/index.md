@@ -112,7 +112,7 @@ standard REST calls. For example:
 ```jsx
 const routes = {
   default: '/users',
-  onError: (error => localStorage.removeItem('some_cookie'))
+  onError: error => localStorage.removeItem('some_cookie')
   getUserAlbums: id => ({ method: 'get', route: `/users/${id}/albums`, usesCache: true })
 }
 
