@@ -3,6 +3,7 @@
 - [Props](#props)
   - [Custom routes, methods, etc.](#custom-routes-methods-etc)
   - [Custom fetchers/methods](#custom-fetchers)
+  - [Chaining fetches/methods and other processing](#chaining-fetches-and-other-async-processing)
 - [Reference](#reference)
   - [Helper methods and properties](#helper-methods-and-properties)
   - [Cache management helpers](#cache-management-helpers)
@@ -34,11 +35,12 @@ type ApiProps = {
 
   // If you need to process api responses before caching/returning (otherwise the
   // whole response is expected to be an array for collection routes or an object
-  // for model routes)
-  getData?: (response: Array<Object> | Object) => Array<Object> | Object
+  // for model routes), or if you want to do something else asynchronously
+  // before returning
+  onSuccess?: (response: Array<Object> | Object) => Promise<Array<Object>> | Promise<Object> | Array<Object> | Object
 
   // You can pass a callback function for specific ways to handle errors.
-  onError?: (error: <Object>) => // do whatever operation you need to here.eg // localStorage.removeItem('some_token')
+  onError?: (error: Error) => Promise<Error>
 
   // Return immutable data structures (List and Map) instead of Array and Object
   immutable?: boolean
@@ -52,9 +54,9 @@ For example:
   url             = "http://my.api.com/v1"
   credentials     = "include"
   authorization   = "Bearer <some-token>"
-  getData         = { response => response.data }
   myResource      = "/my_resource"
   myOtherResource = "/my_other_resource"
+  onSuccess       = { response => response.data }
   onError         = { error => console.log( 'mycustomerror: ', error )}
 >
 ```
@@ -138,6 +140,8 @@ type CustomFetcherConfig = {
   route:      string, // absolute path, not relative to default route
   method:     'get' | 'post' | 'put' | 'delete', // defaults to get
   body?:      Object, // params to post or put
+  onError?:   (error: Error) => Promise<Error>,
+  onSuccess?: string | Promise<any> | (data: any) => any,
   usesCache?: boolean
 }
 
@@ -146,6 +150,46 @@ const routes = {
 }
 ```
 
+#### Chaining fetches and other async processing
+
+You can use the optional `onSuccess` handler to do anything synchronous or
+asynchronous (as long as it returns a promise) to the response before
+returning/caching it.
+
+For example:
+
+```javascript
+const routes = {
+  default: '/users',
+  list: () => ({ onSuccess: doSomethingAsync })
+}
+```
+
+You can also pass either a string or reference to another route into
+`onSuccess` to force fetch/refresh that route:
+
+```javascript
+const routes = {
+  default: '/users',
+  create: () => ({ onSuccess: 'list' })
+}
+```
+
+Or by reference:
+
+```javascript
+const routes = {
+  default: '/users',
+  customRoute: () => ({ route: '/users/custom', method: 'get' }),
+}
+
+routes.create = () => ({ onSuccess: routes.customRoute })
+```
+
+**Note:** When you reference a route as in these last two cases, the response
+from the parent method will be replaced with the response from the one you
+specify in `onSuccess`. If that's not what you want it's likely better not to
+combine them in config here and just call them separately.
 
 ## Reference
 

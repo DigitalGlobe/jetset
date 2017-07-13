@@ -29,7 +29,7 @@ const logRoutes = ( routes, resource, ns ) => {
   }
 };
 
-export default function configureRoutes( key, rootPath, options = {} ) {
+export default function configureRoutes( key, rootPath, options = {}, main = {} ) {
 
   const routes = Object.assign({
     create: () => ({ method: 'post', route: rootPath }),
@@ -42,18 +42,47 @@ export default function configureRoutes( key, rootPath, options = {} ) {
 
   logRoutes( routes, rootPath, key );
 
+  const initSuccess = onSuccess => response => {
+    if ( onSuccess ) {
+      if ( typeof onSuccess === 'function' ) {
+        const route = Object.entries( routes ).find(([, fn]) => onSuccess === fn );
+        if ( route ) {
+          return main[ `$${route[0]}` ]( response, { force: true } );
+        } else {
+          return onSuccess( response );
+        }
+      } else if ( onSuccess instanceof Promise ) {
+        return onSuccess;
+      } else if ( typeof onSuccess === 'string' ) {
+        return main[ `$${onSuccess}` ]( response, { force: true } );
+      }
+    } else {
+      return response;
+    }
+  };
+
+  const initError = onError => err =>
+    onError
+      ? onError( err )
+      : Promise.reject( err );
+
   return {
     isCustomRoute: key => !methodDict[ key ],
     getRouteConfig: ( methodKey, ...args ) => {
       const config = routes[ methodKey ]( ...args );
       return typeof config === 'string'
-        ? { method: methodDict[ methodKey ], route: config, getData: options.getData || ( data => data ), onError: options.onError || ( error => Promise.reject(error) ) }
-        : {
+        ? {
+          method:    methodDict[ methodKey ],
+          route:     config,
+          onSuccess: initSuccess( options.onSuccess || options.getData ),
+          onError:   initError( options.onError )
+        } : {
           ...config,
-          method:  ( config.method || methodDict[ methodKey ] || 'get' ).toLowerCase(),
-          route:   config.route || routes.default || rootPath,
-          getData: config.getData || options.getData || ( data => data ),
-          onError: config.onError || options.onError || ( error => Promise.reject( error ) )
+          method:    ( config.method || methodDict[ methodKey ] || 'get' ).toLowerCase(),
+          route:     config.route || routes.default || rootPath,
+          // .getData properties are in here for backwards compatibility
+          onSuccess: initSuccess( config.onSuccess || options.onSuccess || config.getData || options.getData ),
+          onError:   initError( config.onError || options.onError )
         };
     }
   };

@@ -19,11 +19,14 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   const resourceType = schema.title;
   const resourcePath = `/${resourceType}`;
 
+  // initial the main export for use in other modules
+  const main = {};
+
   // api-specific helpers for working with the state tree
   const apiStore = initApiStore( url, schema );
 
   // set up all routes
-  const { getRouteConfig, isCustomRoute } = configureRoutes( key, resourcePath, options );
+  const { getRouteConfig, isCustomRoute } = configureRoutes( key, resourcePath, options, main );
 
   // xhr + fetch state helpers
   const api = initApiMethods( fetch, apiStore, getRouteConfig );
@@ -68,7 +71,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   // SEARCH
 
   const $search = params => {
-    const { method, route, getData, onError } = getRouteConfig( 'search', params );
+    const { method, route, onSuccess, onError } = getRouteConfig( 'search', params );
     const fullRoute = method === 'get'
       ? route + `?${getQueryString( params )}`
       : route;
@@ -77,11 +80,13 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
         ? api.get( fullRoute )
         : api[ method ]( fullRoute, params );
 
-      return promise.then( data => {
-        apiStore.setCollection( getData( data ), fullRoute );
-        return data;
-      })
-      .catch( onError );
+      return promise
+        .then( onSuccess )
+        .then( data => {
+          apiStore.setCollection( data, fullRoute );
+          return data;
+        })
+        .catch( onError );
     }
     // TODO: store promise as pending value so it can be used on repeat
     // calls
@@ -161,8 +166,11 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
   const $delete = id => ( options = {} ) =>
     options.optimistic === false || !apiStore.getModel( id )
-    ? api.deleteOne( id ).then(() => apiStore.deleteModel( id ) )
-    : optimisticDelete( id );
+      ? api.deleteOne( id ).then( response => {
+        apiStore.deleteModel( id );
+        return response;
+      })
+      : optimisticDelete( id );
 
   // UPDATE
 
@@ -174,9 +182,8 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
     if ( undoUpdate.length ) {
       return api.updateOne( id, vals )
         .then( response => {
-          const { getData } = getRouteConfig( 'update', id, vals );
-          apiStore.updateModel( id, getData( response ) );
-          return response;
+          apiStore.updateModel( id, response );
+          return response; 
         })
         .catch( err => {
           logError( `Failed to update ${id} with vals`, vals, err );
@@ -191,8 +198,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
   const $update = id => ( vals, options = {} ) =>
     options.optimistic === false || !apiStore.getModel( id )
       ? api.updateOne( id, vals ).then( response => {
-        const { getData } = getRouteConfig( 'update', id, vals );
-        apiStore.updateModel( id, getData( response ) );
+        apiStore.updateModel( id, response );
         return response;
       })
       : optimisticUpdate( id, vals, options );
@@ -215,7 +221,6 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
   // this is the function/object that gets returned and namespaced according to
   // the prop passed in by the user
-  const main = params => $list( params );
   main.$list     = $list;
   main.$search   = $search;
   main.$create   = $create;
@@ -270,14 +275,16 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
       };
       return cache;
     } else {
-      if ( api.shouldFetch( config.route ) ) api.custom( config );
+      if ( api.shouldFetch( config.route ) ) {
+        api.custom( config );
+      }
       return getPlaceholder( config.route );
     }
   };
 
   const fetchNonCacheable = config =>
     api[ config.method ]( config.route, config.body )
-      .then( response => config.getData( response ) );
+      .then( config.onSuccess, config.onError );
 
   Object.keys( options.routes || {} ).forEach( key => {
     if ( isCustomRoute( key ) ) {
