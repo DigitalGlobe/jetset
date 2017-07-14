@@ -2,7 +2,7 @@
 
 ### 1.1.0
 
-- Allow for chaining methods and other async processing. Fixes [#5](https://github.com/DigitalGlobe/jetset/issues/5).
+- Allow for chaining methods and other async processing. Fixes [#3](https://github.com/DigitalGlobe/jetset/issues/3).
 - Prefer `onSuccess` instead of outdated (but still available as a synonym) `getData`,
   as the former can be used for both sync and async processing of responses.
 
