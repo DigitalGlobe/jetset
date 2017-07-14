@@ -58,6 +58,7 @@ export default function ApiExampleRouter() {
       )} />
       <Route path="/api/custom" render={() => (
         <div>
+          <Gist gist="glortho/322ace3e8815ce0a01d5f090cce2b628"/>
           <h1>Custom fetchers</h1>
           <ApiCustomExample />
         </div>

@@ -10,9 +10,9 @@ export default class TimeTravelExample extends React.Component {
     const ignore = this.state.skipExpansions ? 'expansions' : null;
     return (
       <div>
-        <button onClick={() => store.prevState({ ignore })}>Back</button>
-        <button onClick={() => store.nextState({ ignore })}>Forward</button>
-        <button onClick={() => store.resetState()}>Reset</button>
+        <button className="mui-btn mui-btn--primary" onClick={() => store.prevState({ ignore })}>Back</button>
+        <button className="mui-btn mui-btn--primary" onClick={() => store.nextState({ ignore })}>Forward</button>
+        <button className="mui-btn" onClick={() => store.resetState()}>Reset</button>
         <input type="checkbox" onClick={() => this.setState({ skipExpansions: !this.state.skipExpansions })}/> Skip tree expansion state changes
       </div>
     );
