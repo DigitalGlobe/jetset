@@ -78,7 +78,7 @@ export default MyApi(({ myResource }) =>
         <button onClick={ item.$delete }>Delete</button>
 
         { /* GET /my_resource/id */ }
-        <button onClick={() => myResource.$get( item.id }>Get detail</button>
+        <button onClick={() => myResource.$get( item.id ) }>Get detail</button>
       </div>
     ))}
 
