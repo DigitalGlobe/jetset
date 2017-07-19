@@ -3,6 +3,7 @@ import { fromJS, Map as iMap } from 'immutable';
 
 import store from './store';
 import logger from './lib/log';
+import { createChildren, Children } from './lib/children';
 
 export default function containerize( initialState ) {
 
@@ -11,7 +12,7 @@ export default function containerize( initialState ) {
     const masterKey = Component.key || Component.name;
     const rootPath = [ 'containers', masterKey ];
 
-    return class Container extends React.Component {
+    class Container extends React.Component {
 
       subscription = null
 
@@ -45,24 +46,25 @@ export default function containerize( initialState ) {
       replaceStoreState = val => store.setState( rootPath, val )
 
       render() {
-        return (
-          <Component 
-            { ...this.props } 
-            container={{
-              get: () => this.state.container,
-              set: this.setStoreState,
-              replace: this.replaceStoreState,
-              state: this.state.container
-            }} 
-          />
-        );
+        return Children({
+          ...this.props,
+          container: {
+            get:     () => this.state.container,
+            set:     this.setStoreState,
+            replace: this.replaceStoreState,
+            state:   this.state.container
+          }
+        });
       }
-    };
+    }
+
+    function ContainerDecorator( children, maybeComponent, maybeContext ) {
+      return maybeContext
+        ? React.createElement( Container, {}, createChildren( children, maybeComponent ) )
+        : ContainerDecorator.bind( null, [].concat( children, maybeComponent || [] ) );
+    }
+
+    return ContainerDecorator( Component );
   };
 }
 
-export function Children({ children, container, ...props }) { // eslint-disable-line 
-  return children && typeof children.type === 'function'
-    ? React.cloneElement( children, props )
-    : children;
-}
