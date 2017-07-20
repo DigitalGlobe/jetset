@@ -1,5 +1,19 @@
 # Changelog
 
+### 1.2.0
+
+- Expose `createActions` for use without the Api component. For example:
+
+```javascript
+import { createActions } from 'jetset';
+
+const api = createActions({ url: 'http://my.api.com', user: '/user' });
+
+const myActionCreator( params ) {
+  api.user.$create( params ).then( ... )
+}
+```
+
 ### 1.1.1
 
 - Memoize resource set-ups to improve performance on re-renders
