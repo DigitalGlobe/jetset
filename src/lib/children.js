@@ -19,7 +19,7 @@ export const createChildren = ( components, props, index = 0 ) => {
   }
 };
 
-export const Children = ({ children, container, ...props }) => { // eslint-disable-line
+export const Children = ({ children, ...props }) => { // eslint-disable-line
   return children && typeof children.type === 'function'
     ? React.cloneElement( children, props )
     : children;
