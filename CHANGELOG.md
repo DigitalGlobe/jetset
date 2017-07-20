@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.1.1
+
+- Memoize resource set-ups to improve performance on re-renders
+- Safer console.table for browsers that do not support it.
+
 ### 1.1.0
 
 - Allow for chaining methods and other async processing. Fixes [#3](https://github.com/DigitalGlobe/jetset/issues/3).
