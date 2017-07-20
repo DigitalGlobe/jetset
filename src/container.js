@@ -29,7 +29,6 @@ export default function containerize( initialState ) {
 
       componentWillMount = () => {
         this.subscription = store.subscribeTo( rootPath, state => {
-          /* eslint-disable no-console */
           logger( `\uD83C\uDF00 re-rendering container <${masterKey}>` );
           this.setState({ container: state && state.toJS ? state.toJS() : state });
         });

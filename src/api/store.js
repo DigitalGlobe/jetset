@@ -166,7 +166,7 @@ export default function initApiStore( url, schema, store = stateTree ) {
       );
     },
 
-    clearCollection: ( path = `/${resourceType}` ) => 
+    clearCollection: ( path = `/${resourceType}` ) =>
       methods.setRequests( Map(), path ),
 
     removeFromCollections: ( map, id ) =>
