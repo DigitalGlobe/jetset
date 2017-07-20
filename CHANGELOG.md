@@ -9,7 +9,7 @@ import { createActions } from 'jetset';
 
 const api = createActions({ url: 'http://my.api.com', user: '/user' });
 
-const myActionCreator( params ) {
+const myActionCreator = params => {
   api.user.$create( params ).then( ... )
 }
 ```
