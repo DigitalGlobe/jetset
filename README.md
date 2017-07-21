@@ -36,6 +36,8 @@ $ npm i --save jetset
 
 ## Use
 
+**Note**: This README and the docs link below are for v2.x. If you are using 1.x see the [1.x docs](https://github.com/DigitalGlobe/jetset/blob/v1.2.0/docs/index.md) and [1.x README](https://github.com/DigitalGlobe/jetset/blob/v1.2.0/README.md)
+
 See the [docs](docs/index.md) for complete documentation/reference.
 
 To get started just specify your base url and route(s) as props on the Api component.
