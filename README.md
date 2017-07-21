@@ -130,6 +130,21 @@ class MyComponent extends React.Component {
 }
 ```
 
+#### Example without any React components:
+
+You may want to take advantage of methods in action creators or elsewhere.
+
+```javascript
+import { createActions } from 'jetset';
+
+const api = createActions({ url: 'http://my.api.com', myResource: '/myResource' });
+
+const myActionCreator = params => {
+  api.myResource.$create( params ).then( ... )
+}
+```
+
+
 ## Documentation
 
 See the [docs](docs/index.md) for complete documentation/reference.
