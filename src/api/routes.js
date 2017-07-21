@@ -27,7 +27,7 @@ const logRoutes = ( routes, resource, ns ) => {
             ? { method: methodDict[ key ], route: val }
             : val;
           const arg = key === 'get' ? 'id' : '';
-          return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}...`]: `\$${key}(${arg})` })});
+          return Object.assign(memo, {[key]: Object.assign( def, {[`props.${ns}...`]: `${key}(${arg})` })});
         }
       }, {})
     );
@@ -53,14 +53,14 @@ export default function configureRoutes( key, rootPath, options = {}, main = {} 
       if ( typeof onSuccess === 'function' ) {
         const route = Object.entries( routes ).find(([, fn]) => onSuccess === fn );
         if ( route ) {
-          return main[ `$${route[0]}` ]( response, { force: true } );
+          return main[ `${route[0]}` ]( response, { force: true } );
         } else {
           return onSuccess( response );
         }
       } else if ( onSuccess instanceof Promise ) {
         return onSuccess;
       } else if ( typeof onSuccess === 'string' ) {
-        return main[ `$${onSuccess}` ]( response, { force: true } );
+        return main[ `${onSuccess}` ]( response, { force: true } );
       }
     } else {
       return response;

@@ -21,18 +21,19 @@ export const users = apiDecorator({
 @users
 export default class ApiCustomExample extends React.Component {
   render() {
+    const { getUserAlbums, list } = this.props.users;
     return (
       <div>
         <h3>Albums for user 1</h3>
         <div>
-          { this.props.users.$getUserAlbums( 1 ).map( item =>
+          { getUserAlbums( 1 ).data.map( item =>
             <div key={ item.id }>{ item.title }</div>
           )}
         </div>
         <h3>Users with extra attrs added</h3>
         <div>
-          { this.props.users.$list().map( item =>
-            <div key={ item.id }>{ item.name } foo: { item.foo }</div>
+          { list().data.map(({ data }) =>
+            <div key={ data.id }>{ data.name } foo: { data.foo }</div>
           )}
         </div>
       </div>

@@ -32,7 +32,9 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
       const { route: defaultRoute, method, onSuccess, onError } = getRouteConfig( 'list' );
       const route = path || defaultRoute;
       if ( shouldFetch( route ) ) {
-        return api[ method ]( route )
+        const promise = api[ method ]( route );
+        store.setRequestsPromise( route, promise );
+        return promise
           .then( onSuccess )
           .then( response => {
             store.setCollection( response, route );
@@ -40,14 +42,16 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
           })
           .catch( onError );
       } else {
-        // TODO: store pendingpromise to return here?
+        return store.getRequestsPromise( route );
       }
     },
 
     fetchOne: id => {
       const { route, method, onSuccess, onError } = getRouteConfig( 'get', id );
       if ( shouldFetch( route ) ) {
-        return api[ method ]( route )
+        const promise = api[ method ]( route );
+        store.setRequestsPromise( route, promise );
+        return promise
           .then( onSuccess )
           .then( response => {
             store.setModel( getIdFromModel( response ), { ...response, _fetched: true });
@@ -56,13 +60,15 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
           .catch( onError );
 
       } else {
-        // TODO: store pendingpromise to return here?
+        return store.getRequestsPromise( route );
       }
     },
 
     createOne: ( data, options = {} ) => {
       const { route, method, onSuccess, onError } = getRouteConfig( 'create', data );
-      return api[ method ]( route, data )
+      const promise = api[ method ]( route, data );
+      store.setRequestsPromise( route, promise );
+      return promise
         .then( onSuccess )
         .then( data => {
           if ( options.refetch !== false ) {
@@ -77,24 +83,29 @@ export default function initApiMethods( fetch, store, getRouteConfig ) {
 
     updateOne: ( id, data ) => {
       const { route, method, onSuccess, onError } = getRouteConfig( 'update', id, data );
-      return api[ method ]( route, data )
-        .then( onSuccess, onError );
+      const promise = api[ method ]( route, data );
+      store.setRequestsPromise( route, promise );
+      return promise.then( onSuccess, onError );
     },
 
     deleteOne: id => {
       const { route, method, onSuccess, onError } = getRouteConfig( 'delete', id );
-      return api[ method ]( route )
-        .then( onSuccess, onError );
+      const promise = api[ method ]( route );
+      store.setRequestsPromise( route, promise );
+      return promise.then( onSuccess, onError );
     },
 
-    custom: config =>
-      api[ config.method ]( config.route, config.body )
+    custom: config => {
+      const promise = api[ config.method ]( config.route, config.body );
+      store.setRequestsPromise( config.route, promise );
+      return promise
         .then( config.onSuccess )
         .then( response => {
           store.setRequestsData( config.route, response );
           return response;
         })
-        .catch( config.onError ),
+        .catch( config.onError );
+    },
 
     shouldFetch,
     ...api

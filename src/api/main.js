@@ -38,16 +38,14 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
     const api = initApiMethods( fetch, apiStore, getRouteConfig );
 
     // placeholder to return while cacheable fetches are pending
-    const getPlaceholder = ( path = null, dataType = List ) => {
-      const placeholder = useImmutable
-        ? clone( dataType )
-        : dataType().toJS();
-      placeholder.$isPending = true;
-      placeholder.$error = path ? apiStore.getError( path ) : null;
-      placeholder.$clear = (() => undefined);
-      placeholder.$reset = (() => Promise.reject( 'no data to reset' ));
-      return placeholder;
-    };
+    const getPlaceholder = ( promise, path = null, dataType = List ) => ({
+      promise,
+      data:      useImmutable ? clone( dataType ) : dataType().toJS(),
+      isPending: true,
+      error:     path ? apiStore.getError( path ) : null,
+      clear:     (() => undefined),
+      reset:     (() => Promise.reject( 'no data to reset' ))
+    });
 
     const deliver = structure =>
       !useImmutable && typeof structure === 'object' && structure.toJS
@@ -61,16 +59,19 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
       const path = route + ( params ? `?${getQueryString( params )}` : '' );
       const collection = apiStore.getCollection( path );
       if ( options.reset || !collection ) {
-        api.fetchAll( path );
-        return getPlaceholder( path );
+        const promise = api.fetchAll( path );
+        return getPlaceholder( promise, path );
       } else {
-        const mapped = deliver( collection ).map( addRestMethods );
-        mapped.$clear = () => apiStore.clearCollection( path );
-        mapped.$reset = () => {
-          mapped.$clear();
-          $list( params );
+        const clear = () => apiStore.clearCollection( path );
+        return {
+          data: deliver( collection ).map( addRestMethods ),
+          promise: apiStore.getRequestsPromise( route ),
+          clear,
+          reset: () => {
+            clear();
+            $list( params );
+          }
         };
-        return mapped;
       }
     };
 
@@ -105,21 +106,24 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
         ? route + `?${getQueryString( params )}`
         : route;
       const collection = apiStore.getCollection( fullRoute );
+      const promise = apiStore.getRequestsPromise( fullRoute );
       if ( collection ) {
-        const mapped = deliver( collection ).map( addRestMethods );
-        mapped.$clear = () => apiStore.clearCollection( fullRoute );
-        mapped.$reset = () => {
-          $clear();
-          $search( params );
+        const clear = () => apiStore.clearCollection( fullRoute );
+        return {
+          data: deliver( collection ).map( addRestMethods ),
+          promise,
+          clear,
+          reset: () => {
+            clear();
+            $search( params );
+          }
         };
-        return mapped;
       } else {
-        const placeholder = getPlaceholder( fullRoute );
-        placeholder.$isPending = !!apiStore.getPending( fullRoute );
+        const placeholder = getPlaceholder( promise, fullRoute );
+        placeholder.isPending = !!apiStore.getPending( fullRoute );
         return placeholder;
       }
     };
-
 
     // CREATE
 
@@ -143,15 +147,18 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
     const $get = ( id, options = {} ) => {
       const model = apiStore.getModel( id );
+      const { route } = getRouteConfig( 'get', id );
       if ( options.reset || !model || !model.get( '_fetched' ) ) {
-        const { route } = getRouteConfig( 'get', id );
-        api.fetchOne( id );
-        const placeholder = getPlaceholder( route, Map );
-        placeholder.$delete = $delete( id );
-        placeholder.$update = $update( id );
+        const promise = api.fetchOne( id );
+        const placeholder = getPlaceholder( promise, route, Map );
+        placeholder.delete = $delete( id );
+        placeholder.update = $update( id );
         return placeholder;
       } else {
-        return addRestMethods( deliver( model ) );
+        return {
+          ...addRestMethods( deliver( model ) ),
+          promise: apiStore.getRequestsPromise( route )
+        };
       }
     };
 
@@ -216,23 +223,24 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
     const addRestMethods = model => {
       if ( typeof model === 'object' ) {
-        const id      = getIdFromModel( model );
-        model.$delete = $delete( id );
-        model.$update = $update( id );
-        model.$clear  = $clear( id );
-        model.$reset  = $reset( id );
+        const id = getIdFromModel( model );
+        return {
+          data:   model,
+          delete: $delete( id ),
+          update: $update( id ),
+          clear:  $clear( id ),
+          reset:  $reset( id )
+        };
       }
       return model;
     };
 
-    // this is the function/object that gets returned and namespaced according to
-    // the prop passed in by the user
-    main.$list     = $list;
-    main.$search   = $search;
-    main.$create   = $create;
-    main.$get      = $get;
-    main.$clearAll = apiStore.clearAll;
-    main.$reset    = api.fetchAll;
+    main.list     = $list;
+    main.search   = $search;
+    main.create   = $create;
+    main.get      = $get;
+    main.clearAll = apiStore.clearAll;
+    main.reset    = api.fetchAll;
 
     main.subscribePath = apiStore.subscribePath;
     main.getState      = apiStore.getState;
@@ -245,13 +253,17 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
         const route = resourcePath + path;
         if ( method === '$get' ) {
           const cache = apiStore.getRequestsData( route );
+          let promise = apiStore.getRequestsPromise( route );
           if ( cache ) {
-            return List.isList( cache )
-              ? deliver( apiStore.getCollection( route ) ).map( addRestMethods )
-              : deliver( cache );
+            return {
+              promise,
+              data: List.isList( cache )
+                ? deliver( apiStore.getCollection( route ) ).map( addRestMethods )
+                : deliver( cache )
+            };
           } else {
             if ( api.shouldFetch( route ) ) {
-              api.get( route, ...args ).then( data => {
+              promise = api.get( route, ...args ).then( data => {
                 if ( Array.isArray( data ) ) {
                   apiStore.setCollection( data, route );
                 } else {
@@ -260,7 +272,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
                 return data;
               });
             }
-            return getPlaceholder( route );
+            return getPlaceholder( promise, route );
           }
         } else {
           return api[ method ]( route, ...args );
@@ -272,19 +284,24 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
     // add custom methods specified by user in routes config
 
     const fetchCacheable = config => {
-      const cache  = deliver( apiStore.getRequestsData( config.route ) );
+      const cache = deliver( apiStore.getRequestsData( config.route ) );
+      let promise = apiStore.getRequestsPromise( config.route );
       if ( cache ) {
-        cache.$clear = () => apiStore.setRequestsData( config.route, null );
-        cache.$reset = () => {
-          cache.$clear();
-          api.custom( config );
+        const clear = () => apiStore.setRequestsData( config.route, null );
+        return {
+          clear,
+          data: cache,
+          promise,
+          reset: () => {
+            cache.$clear();
+            api.custom( config );
+          }
         };
-        return cache;
       } else {
         if ( api.shouldFetch( config.route ) ) {
-          api.custom( config );
+          promise = api.custom( config );
         }
-        return getPlaceholder( config.route );
+        return getPlaceholder( promise, config.route );
       }
     };
 
@@ -294,7 +311,7 @@ const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
     Object.keys( options.routes || {} ).forEach( key => {
       if ( isCustomRoute( key ) ) {
-        main[ `\$${key}` ] = ( ...args ) => {
+        main[ `${key}` ] = ( ...args ) => {
           const config = getRouteConfig( key, ...args );
           return config.usesCache
             ? fetchCacheable( config )

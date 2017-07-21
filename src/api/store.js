@@ -18,7 +18,9 @@ import stateTree from '../store';
 *           [url]: {
 *             pending?: boolean,
 *             error?: Object,
-*             data?: List | Map
+*             data?: List | Map,
+*             promise?: Promise<any>,
+*             format?: string
 *           }
 *         }
 *       }
@@ -66,8 +68,14 @@ export default function initApiStore( url, schema, store = stateTree ) {
     setRequestsData: ( path, data ) =>
       methods.setRequests( data, [ path, 'data' ] ),
 
-    setRequestsFromat: ( path, data ) =>
+    setRequestsFormat: ( path, data ) =>
       methods.setRequests( data, [ path, 'format' ] ),
+
+    getRequestsPromise: path =>
+      methods.getRequests([ path, 'promise']),
+
+    setRequestsPromise: ( path, data ) =>
+      methods.setStateQuiet( data, methods.requestsPath([ path, 'promise']) ),
 
     getPending: path =>
       methods.getRequests([ path, 'pending' ]),

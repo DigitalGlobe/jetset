@@ -1,16 +1,16 @@
 import React from 'react';
 import { users } from './api_decorator';
 
-const UserDetail = users( props => {
-  const user = props.users.$list()[0];
+const UserDetail = users(({ users }) => {
+  const user = users.list().data[0];
   if ( user ) {
-    const detail = props.users.$get( user.id );
+    const detail = users.get( user.data.id );
     return (
       <div style={{ width: '48%' }}>
         {
-          detail.$error ?
+          detail.error ?
             `Error: ${ JSON.stringify( detail.$error ) }` :
-          detail.$isPending ?
+          detail.isPending ?
             `Loading...` :
           <code style={{ width: '300px' }}>{ JSON.stringify( detail ).replace( /,/g, ', ') }</code>
         }

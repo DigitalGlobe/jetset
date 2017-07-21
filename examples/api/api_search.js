@@ -13,12 +13,13 @@ export default class ApiSearchExample extends React.Component {
     event.preventDefault();
     this.setState(
       { username: this.refs.input.value },
-      () => this.props.users.$search( this.state )
+      () => this.props.users.search( this.state )
     );
   }
 
   render() {
-    const results = this.props.users.$search.results( this.state );
+    const { search } = this.props.users;
+    const results = search.results( this.state );
     return (
       <div>
         <div>
@@ -28,11 +29,11 @@ export default class ApiSearchExample extends React.Component {
           </form>
         </div>
         <div>
-        { results.$isPending ?
+        { results.isPending ?
           <div>Searching...</div>
         :
-          results.map( result =>
-            <div key={ result.id }>{ result.name }</div>
+          results.data.map(({ data }) =>
+            <div key={ data.id }>{ data.name }</div>
           )}
         </div>
       </div>

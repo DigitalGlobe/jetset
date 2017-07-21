@@ -9,8 +9,9 @@ export const users = apiDecorator({
 @users
 export default class UsersDecorated extends React.Component {
   render() {
+    const { list } = this.props.users;
     return (
-      <span>{ this.props.users.$list().length } Users</span>
+      <span>{ list().data.length } Users</span>
     );
   }
 }
