@@ -140,7 +140,7 @@ import { createActions } from 'jetset';
 const api = createActions({ url: 'http://my.api.com', myResource: '/myResource' });
 
 const myActionCreator = params => {
-  api.myResource.$create( params ).then( ... )
+  api.myResource.create( params ).then( ... )
 }
 ```
 
