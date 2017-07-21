@@ -1,5 +1,34 @@
 # Changelog
 
+### 2.0.0
+
+- Namespace data with `.data` instead of just returning it directly from method
+  call. This prevents contamination of data with our special `$` methods/props
+  (letting us remove the unsightly `$` in the meantime).
+
+  To update your code, you'll need to remove `$` from everything. And use
+  `.data` to access your data:
+
+  ```jsx
+  // old way
+  props.myResource.$list().map( item =>
+    <div>
+      <div>{ item.title }</div>
+      <button onClick={ item.$delete }>Delete</button>
+    </div>
+  )
+
+  // new way
+  props.myResource.list().data.map( item =>
+    <div>
+      <div>{ item.data.title }</div>
+      <button onClick={ item.delete }>Delete</button>
+    </div>
+  )
+  ```
+- Expose the original request Promise as `.promise` on the return object from
+  methods that use the cache.
+
 ### 1.2.0
 
 - Expose `createActions` for use without the Api component. For example:

@@ -51,10 +51,10 @@ const MyApi = Component =>
     <Component />
   </Api>
 
-export default MyApi( props =>
+export default MyApi(({ myResource }) =>
   <div>
-    { props.myResource.$list().map( item =>
-      <div>{ item.title }</div>
+    { myResource.list().data.map(({ data }) =>
+      <div>{ data.title }</div>
     )}
   </div>
 )
@@ -67,23 +67,23 @@ export default MyApi(({ myResource }) =>
   <div>
 
     { /* GET /my_resource */ }
-    { myResource.$list().map( item => (
+    { myResource.list().data.map( item => (
       <div>
-        <span>{ item.title }</span>
+        <span>{ item.data.title }</span>
 
         { /* PUT /my_resource/id */ }
-        <button onClick={() => item.$update({ title: 'renamed' }) }>Rename</button>
+        <button onClick={() => item.update({ title: 'renamed' }) }>Rename</button>
 
         { /* DELETE /my_resource/id */ }
-        <button onClick={ item.$delete }>Delete</button>
+        <button onClick={ item.delete }>Delete</button>
 
         { /* GET /my_resource/id */ }
-        <button onClick={() => myResource.$get( item.id ) }>Get detail</button>
+        <button onClick={() => myResource.get( item.data.id ) }>Get detail</button>
       </div>
     ))}
 
     { /* POST /my_resource */ }
-    <button onClick={() => myResource.$create({ title: 'foo' }) }>Create new item</button>
+    <button onClick={() => myResource.create({ title: 'foo' }) }>Create new item</button>
   </div>
 )
 ```
@@ -101,25 +101,25 @@ class MyComponent extends React.Component {
       offset: 0
     }
   }
-  
+
   onPrev = () =>
     this.setState( state => ({ offset: state.offset - state.limit }) )
-    
+
   onNext = () =>
     this.setState( state => ({ offset: state.offset + state.limit }) )
-  
+
   render() {
-    const list = this.props.myResource.$list( this.state ); // e.g. GET /my_resource?limit=30&offset=0 (cached)
+    const list = this.props.myResource.list( this.state ); // e.g. GET /my_resource?limit=30&offset=0 (cached)
     return (
-    
-      list.$isPending ?
-        <span>Loading...</span>  
-      : 
-      list.$error ?
-        <span>Error: {list.$error.message}</span>
+
+      list.isPending ?
+        <span>Loading...</span>
+      :
+      list.error ?
+        <span>Error: {list.error.message}</span>
       :
       <div>
-        { list.map( item => <div>{ item.title }</div> ) }
+        { list.map( item => <div>{ item.data.title }</div> ) }
         <button onClick={ this.onPrev }>Prev</button>
         <button onClick={ this.onNext }>Next</button>
       </div>

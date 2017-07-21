@@ -104,7 +104,7 @@ const myResourceConfig = {
 <Api myResource={{ routes: myResourceConfig }} ... >
 ```
 
-Note that these keys match their equivalent `$get`, `$search`, `$update`, etc. methods.
+Note that these keys match their equivalent `get`, `search`, `update`, etc. methods.
 
 #### Custom fetchers
 
@@ -124,9 +124,9 @@ const routes = {
 Then...
 
 ```jsx
-const userAlbums = this.props.users.$getUserAlbums( 1 )
+const userAlbums = this.props.users.getUserAlbums( 1 )
 
-userAlbums.map( album => <div>{ album.title }</div> )
+userAlbums.data.map( album => <div>{ album.title }</div> )
 ```
 
 Note that `usesCache` causes the method to return data instead of a promise. If
@@ -199,49 +199,69 @@ Assuming this as a starting point:
 const { resource } = props; // e.g. from <Api url="..." resource="/resource" />
 ```
 
+If a method does not use cache, it returns a `Promise`. If it does use cache,
+it returns the following `Object`:
+
+```javascript
+type ApiListResponse = {
+  clear: () => void,     # clear cache for the given request
+  data: Array,           # the data from the request (processed through optional `onSuccess`)
+  error?: Error,         # the request error if there was one (processed through optional `onError`)
+  isPending?: boolean,   # is the request still pending?
+  promise: Promise<any>, # the raw promise for the request
+  reset: () => void      # clear the cache and re-fetch
+}
+
+type ApiModelResponse = ApiListResponse & {
+  data: Object,
+  update: ( params: Object ) => Promise<any>,
+  delete: () => Promise<any>
+}
+```
+
 method|route|jetset fn|returns|uses cache
 ------|-----|---------|-------|----------
-GET|/resource|`resource.$list()`|Array|yes
-GET|/resource?foo=bar|`resource.$list({foo: 'bar'})`|Array|yes
-GET|/resource?foo=bar|`resource.$search({foo: 'bar'})`|Promise<Array>|results are cached (see below)
-|||`resource.$search.results({foo: 'bar'})`|Array|yes
-POST|/resource|`resource.$create({foo: 'bar'})`|Promise<Object>|results are cached
-GET|/resource/id|`resource.$get(id)`|Object|yes
-PUT|/resource/id|`resource.$get(id).$update({foo: 'bar'})`|Promise<Object>|results are cached
-PUT|/resource/id|`resource.$list().get(index).$update({foo: 'bar'})`|Promise<Object>|results are cached
-DELETE|/resource/id|`resource.$get( id ).$delete()`|Promise<Object>|results are cached
-DELETE|/resource/id|`resource.$list().get(index).$delete()`|Promise<Object>|results are cached
-GET|/resource/some/route|`resource.api.get('/some/route')`|Promise<any>|no
-GET|/resource/some/route|`resource.api.$get('/some/route')`|Array \| Object|yes
-POST|/resource/some/route|`resource.api.post('/some/route')`|Promise<any>|no
-PUT|/resource/some/route|`resource.api.put('/some/route')`|Promise<any>|no
-DELETE|/resource/some/route|`resource.api.delete('/some/route')`|Promise<any>|no
+GET|/resource|`resource.list()`|`ApiListResponse`|yes
+GET|/resource?foo=bar|`resource.list({foo: 'bar'})`|`ApiListResponse`|yes
+GET|/resource?foo=bar|`resource.search({foo: 'bar'})`|`Promise<Array>`|results are cached (see below)
+|||`resource.search.results({foo: 'bar'})`|`ApiListResponse`|yes
+POST|/resource|`resource.create({foo: 'bar'})`|`Promise<Object>`|results are cached
+GET|/resource/id|`resource.get(id)`|`ApiModelResponse`|yes
+PUT|/resource/id|`resource.get(id).update({foo: 'bar'})`|`Promise<Object>`|results are cached
+PUT|/resource/id|`resource.list().get(index).update({foo: 'bar'})`|`Promise<Object>`|results are cached
+DELETE|/resource/id|`resource.get( id ).delete()`|`Promise<Object>`|results are cached
+DELETE|/resource/id|`resource.list().get(index).delete()`|`Promise<Object>`|results are cached
+GET|/resource/some/route|`resource.api.get('/some/route')`|`Promise<any>`|no
+GET|/resource/some/route|`resource.api.$get('/some/route')`|`ApiListResponse \| ApiModelResponse`|yes
+POST|/resource/some/route|`resource.api.post('/some/route')`|`Promise<any>`|no
+PUT|/resource/some/route|`resource.api.put('/some/route')`|`Promise<any>`|no
+DELETE|/resource/some/route|`resource.api.delete('/some/route')`|`Promise<any>`|no
 
 ## Helper methods and properties
 
 jetset fn|returns|description
 ---------|-------|-----------
-**$isPending**||Pending status of underlying fetches
-`resource.$list().$isPending`|Boolean \| void|Check to see if collection fetch is pending
-`resource.$get(id).$isPending`|Boolean \| void|Check to see if model fetch is pending
-**$error**||Error response for a given request
-`resource.$list().$error`|Error \| void|Check to see if underlying collection fetch resulted in an error
-`resource.$get(id).$error`|Error \| void|Check to see if underlying model fetch resulted in an error
+**isPending**||Pending status of underlying fetches
+`resource.list().isPending`|Boolean \| void|Check to see if collection fetch is pending
+`resource.get(id).isPending`|Boolean \| void|Check to see if model fetch is pending
+**error**||Error response for a given request
+`resource.list().error`|Error \| void|Check to see if underlying collection fetch resulted in an error
+`resource.get(id).error`|Error \| void|Check to see if underlying model fetch resulted in an error
 
 ### Cache management helpers
 
 jetset fn|returns|description
 ---------|-------|-----------
-**$clear()**||Clear caches
-`resource.$clear()`|void|Clear the cache for `$list()`
-`resource.$get( id ).$clear()`|void|Clear the cache for `$get()`
-`resource.$search.results({...}).$clear()`|void|Clear the cache for `$search.results()`
-`resource.$clearAll()`|void|Clear all cache for the given resource
-**$reset()**||Reset cache with data from server
-`resource.$list().$reset()`|Promise<Array>|Refetch and rehydrate `$list()`
-`resource.$get(id).$reset()`|Promise<Object>|Refetch and rehydrate `$get(id)`
-`resource.$get( id, { reset: true } )`|Object (empty placeholder)|Force fresh fetch of data and rehydrate cache
-`resource.$search.results({...}).$reset()`|Promise<Array>|Refetch and rehydrate search results
+**clear()**||Clear caches
+`resource.clear()`|void|Clear the cache for `list()`
+`resource.get( id ).clear()`|void|Clear the cache for `get()`
+`resource.search.results({...}).clear()`|void|Clear the cache for `search.results()`
+`resource.clearAll()`|void|Clear all cache for the given resource
+**reset()**||Reset cache with data from server
+`resource.list().reset()`|Promise<Array>|Refetch and rehydrate `list()`
+`resource.get(id).reset()`|Promise<Object>|Refetch and rehydrate `get(id)`
+`resource.get( id, { reset: true } )`|Object (empty placeholder)|Force fresh fetch of data and rehydrate cache
+`resource.search.results({...}).reset()`|Promise<Array>|Refetch and rehydrate search results
 
 #### :boom: Nuclear option to clear 100% of jetset's cache:
 
@@ -262,7 +282,7 @@ const users = apiDecorator({ url: 'http://my.api.com', users: '/users' });
 @users
 class NeedsUsers extends React.Component {
   someMethod() {
-    this.props.users.$list() // or whatever
+    this.props.users.list() // or whatever
   }
 }
 ```
@@ -281,37 +301,37 @@ const api = apiDecorator({
 @api
 class NeedsUsers extends React.Component {
   someMethod() {
-    this.props.users.$list() // or whatever
-    this.props.posts.$list() // or whatever
+    this.props.users.list() // or whatever
+    this.props.posts.list() // or whatever
   }
 }
 ```
 
 ## Optimism and pessimism
 
-By default, `$delete()` and `$update(...)` are optimistic. To turn this off, pass
+By default, `delete()` and `update(...)` are optimistic. To turn this off, pass
 `{ optimistic: false }` in as an option. For example:
 
 ```javascript
-myResource.$get( id ).$delete({ optimistic: false })
-myResource.$get( id ).$update({ title: 'foo' }, { optimistic: false })
+myResource.get( id ).delete({ optimistic: false })
+myResource.get( id ).update({ title: 'foo' }, { optimistic: false })
 ```
 
-There is experimental support for optimistic `$create(...)`. In this case, pass
+There is experimental support for optimistic `create(...)`. In this case, pass
 a function in as the value of `optimistic`. This function will receive as
 arguments the current state and the data payload you are about to post. For
 example:
 
 ```javascript
-myResource.$create({ title: 'foo' }, { optimistic: ( state, data ) => {
+myResource.create({ title: 'foo' }, { optimistic: ( state, data ) => {
   state.setIn([ 'models', 'fooId' ], Map({ ...data, _id: 'fooId' }));
 }})
 ```
 
-Otherwise, `$create(...)` will call a refetch of `$list()` on success. To prevent this, pass `{ refetch: false }` as an option:
+Otherwise, `create(...)` will call a refetch of `list()` on success. To prevent this, pass `{ refetch: false }` as an option:
 
 ```javascript
-myResource.$create({ title: 'foo' }, { refetch: false })
+myResource.create({ title: 'foo' }, { refetch: false })
 ```
 
 ## Devtools
