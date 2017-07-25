@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.0.1
+
+- Have memoization consider all api props to account for changing values outside of the route config.
+
 ### 2.0.0
 
 - Namespace data with `.data` instead of just returning it directly from method
@@ -28,6 +32,10 @@
   ```
 - Expose the original request Promise as `.promise` on the return object from
   methods that use the cache.
+
+### 1.2.1
+
+- Have memoization consider all api props to account for changing values outside of the route config.
 
 ### 1.2.0
 

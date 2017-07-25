@@ -10,11 +10,20 @@ import clone                 from '../lib/make_empty';
 
 import { getSchema, getIdFromModel, isSchema } from '../lib/schema';
 
+const propsList = [
+  'url',
+  'credentials',
+  'authorization',
+  'onSuccess',
+  'onError',
+  'immutable'
+];
+
 const actionsCache = {};
 
 const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
-  const serializedKey = props[ key ].toString();
+  const serializedKey = [ ...propsList, key ].reduce(( memo, key ) => memo + `&${key}=${String( props[key] )}`, '');
   if ( actionsCache[ serializedKey ] ) {
     memo[ key ] = actionsCache[ serializedKey ];
   } else {
