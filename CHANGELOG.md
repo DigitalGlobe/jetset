@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.2.1
+
+- Have memoization consider all api props to account for changing values
+  outside of the route config.
+
 ### 1.2.0
 
 - Expose `createActions` for use without the Api component. For example:
