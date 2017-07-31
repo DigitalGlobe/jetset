@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.2.1
+### 1.2.1-2
 
 - Have memoization consider all api props to account for changing values
   outside of the route config.
