@@ -33,6 +33,12 @@ export default class Api extends React.Component {
     );
   }
 
+  componentWillReceiveProps( nextProps ) {
+    if ( this.props !== nextProps ) {
+      this.api = createActions( nextProps );
+    }
+  }
+
   componentWillUnmount() {
     this.subscriptions.forEach( subscription => store.unsubscribe( subscription ) );
   }
