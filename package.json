@@ -59,10 +59,10 @@
   ],
   "dependencies": {
     "immutable": "^3.8.1",
-    "immutablediff": "glortho/immutable-js-diff",
+    "immutablediff": "https://github.com/glortho/immutable-js-diff",
     "iso-fetch-stream": "^0.1.0",
     "react-portal": "^3.1.0",
-    "react-treeview": "glortho/react-treeview"
+    "react-treeview": "https://github.com/glortho/react-treeview"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

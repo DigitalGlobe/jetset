@@ -89,8 +89,8 @@ function subscribe({ local, paths }) {
       }
 
       render = () => (
-        <Component 
-          { ...this.props } 
+        <Component
+          { ...this.props }
           { ...this.methods() }
         />
       )
