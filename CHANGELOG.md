@@ -1,5 +1,13 @@
 # Changelog
 
+### 2.0.4
+
+- Remove rogue console.log
+
+### 2.0.3
+
+- Use https:// urls for github dependencies to make it easier to clone
+
 ### 2.0.1-2
 
 - Have memoization consider all api props to account for changing values outside of the route config.

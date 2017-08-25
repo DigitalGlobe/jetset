@@ -24,7 +24,6 @@ const actionsCache = {};
 const methodizeResource = ( fetch, props ) => ( memo, key ) => {
 
   const serializedKey = [ ...propsList, key ].reduce(( memo, key ) => memo + `&${key}=${String( props[key] )}`, '');
-  console.log(serializedKey, actionsCache[serializedKey]);
 
   if ( actionsCache[ serializedKey ] ) {
     memo[ key ] = actionsCache[ serializedKey ];
