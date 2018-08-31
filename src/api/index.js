@@ -43,7 +43,7 @@ export default class Api extends React.Component {
     this.subscriptions.forEach( subscription => store.unsubscribe( subscription ) );
   }
 
-  // TODO: allow for multiple children
+  // TODO: allow for multiple children (look into fragments)
   render() {
     const { children, ...props } = this.props;
     const isValidChild = children && typeof children.type === 'function';
