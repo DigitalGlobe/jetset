@@ -4199,10 +4199,10 @@ rc	package-lock.json	/^        "rc": {$/;"	o	object:dependencies.fsevents.depend
 react	package-lock.json	/^        "react": "0.12.2"$/;"	s	object:dependencies.react-gist.requires
 react	package-lock.json	/^        "react": {$/;"	o	object:dependencies.react-gist.dependencies
 react	package-lock.json	/^    "react": {$/;"	o	object:dependencies
-react	package.json	/^    "react": "15.x",$/;"	s	object:peerDependencies
+react	package.json	/^    "react": ">=15.0",$/;"	s	object:peerDependencies
 react	package.json	/^    "react": "^15.5.4",$/;"	s	object:devDependencies
 react-dom	package-lock.json	/^    "react-dom": {$/;"	o	object:dependencies
-react-dom	package.json	/^    "react-dom": "15.x"$/;"	s	object:peerDependencies
+react-dom	package.json	/^    "react-dom": ">=15.0"$/;"	s	object:peerDependencies
 react-dom	package.json	/^    "react-dom": "^15.5.4",$/;"	s	object:devDependencies
 react-gist	package-lock.json	/^    "react-gist": {$/;"	o	object:dependencies
 react-gist	package.json	/^    "react-gist": "^1.1.0",$/;"	s	object:devDependencies
