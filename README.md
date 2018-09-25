@@ -164,6 +164,36 @@ Our opinionated general guidelines are:
 - If your application is desktop scale but not complex, use JetSet's state tools.
 - If your application is complex you should use an actual framework like Redux. But you can still use JetSet to handle all your api interactions.
 
+## I just want direct access to my api data!
+
+You can access it via the Jetset store, which is an [Immutable.js](http://facebook.github.io/immutable-js/) state tree wrapped in getter/setter/subscribe methods. For example:
+
+```javascript
+import { store } from 'jetset'
+
+store.getState( '$api' )
+```
+See https://github.com/DigitalGlobe/jetset/blob/master/src/api/store.js#L6 for the shape of the API data.
+
+To subscribe to changes:
+
+```javascript
+import { store } from 'jetset'
+
+// subscribe to all changes in api store
+store.subscribeTo( '$api', newState => ... )
+
+// subscribe to changes for just a 'users' resource
+store.subscribeTo( ['$api', 'users'], newUsersState => ... )
+
+// subscribe to changes for just a particular user model
+store.subscribeTo( ['$api', 'users', 'models', '15'], newStateForUserId15 => ... )
+
+// subscribe to changes for particular request
+store.subscribeTo( ['$api', 'users', 'requests', '/foo'], newFooRequestState => ... )
+```
+
+
 ## Examples
 
 1. Clone this repo
