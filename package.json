@@ -76,8 +76,8 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-react": "^6.10.3",
-    "jest": "^23.5.0",
-    "jest-cli": "^23.5.0",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
@@ -85,7 +85,7 @@
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
     "webpack": "^2.4.1",
-    "webpack-dev-server": "^3.1.7"
+    "webpack-dev-server": "^3.1.14"
   },
   "peerDependencies": {
     "prop-types": "^15.5.8",
