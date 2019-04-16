@@ -1,6 +1,8 @@
 import config from '../config';
 
-window.console.table = window.console.table || window.console.log || (() => {});
+if (typeof window !== 'undefined') {
+  window.console.table = window.console.table || window.console.log || (() => {});
+}
 
 const methodDict = {
   create: 'post',
