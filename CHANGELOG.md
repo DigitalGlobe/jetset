@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.0.8
+
+- Security fixes.
+
 ### 2.0.7
 
 - Safety check for `window` so that jetset will render properly server-side.
