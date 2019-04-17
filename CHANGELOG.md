@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.0.7
+
+- Safety check for `window` so that jetset will render properly server-side.
+  Fixes [#15](https://github.com/DigitalGlobe/jetset/issues/15).
+
 ### 2.0.4
 
 - Remove rogue console.log
